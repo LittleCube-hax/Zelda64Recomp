@@ -294,6 +294,7 @@ target_link_libraries(Zelda64Recompiled PRIVATE
     RmlDebugger
     nfd
     lunasvg
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/APCpp.lib
 )
 
 # TODO fix the rt64 CMake script so that this doesn't need to be duplicated here

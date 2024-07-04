@@ -6,8 +6,11 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_Obj_Warpstone/z_obj_warpstone.h"
 #include "misc_funcs.h"
+#include "apcommon.h"
 
 #define SAVE_TYPE_AUTOSAVE 2 
+
+extern u32 old_items_size;
 
 u8 gCanPause;
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void);
@@ -227,7 +230,6 @@ int bcmp_recomp(void* __s1, void* __s2, int __n);
 
 #define SAVE_COMPARE_MEMBER_ARRAY(ctx1, ctx2, member) \
     if (bcmp_recomp(&(ctx1)->member, &(ctx2)->member, sizeof((ctx1)->member))) { \
-        recomp_printf(#member " differed\n"); \
         return true; \
     }
 
@@ -500,7 +502,7 @@ s16 CutsceneManager_FindEntranceCsId(void) {
 
 s32 spawn_entrance_from_autosave_entrance(s16 autosave_entrance) {
     s32 scene_id = Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance);
-    recomp_printf("Loaded entrance: %d in scene: %d\n", autosave_entrance, scene_id);
+    //recomp_printf("Loaded entrance: %d in scene: %d\n", autosave_entrance, scene_id);
 
     switch (scene_id) {
         default:
@@ -529,6 +531,9 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     s32 phi_t1 = 0;
     s32 pad1;
     s32 fileNum;
+
+    playing = true;
+    old_items_size = 0;
 
     if (gSaveContext.flashSaveAvailable) {
         bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
@@ -719,6 +724,7 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
             this->isTalking = false;
         } else if ((Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE) && Message_ShouldAdvance(play)) {
             if (play->msgCtx.choiceIndex != 0) {
+                recomp_printf("you saved and quit!\n");
                 Audio_PlaySfx_MessageDecide();
                 play->msgCtx.msgMode = MSGMODE_OWL_SAVE_0;
                 play->msgCtx.unk120D6 = 0;

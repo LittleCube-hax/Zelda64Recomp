@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <filesystem>
+#include <fstream>
 #include <numeric>
 #include <stdexcept>
 #include <cinttypes>
@@ -40,6 +41,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../lib/rt64/src/contrib/stb/stb_image.h"
+
+#include "Archipelago.h"
 
 template<typename... Ts>
 void exit_error(const char* str, Ts ...args) {
@@ -108,7 +111,7 @@ bool SetImageAsIcon(const char* filename, SDL_Window* window)
             stbi_image_free(data);
         }
         return false;
-	} else {
+    } else {
         SDL_SetWindowIcon(window,surface);
         SDL_FreeSurface(surface);
         stbi_image_free(data);
@@ -425,7 +428,45 @@ namespace zelda64 {
 }
 
 
+extern "C" void apClearItems();
+extern "C" void apRecvItem(int64_t id, bool notify);
+extern "C" void apCheckLocation(int64_t id);
+extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
+
 int main(int argc, char** argv) {
+
+    std::ifstream apconnect("apconnect.txt");
+
+    bool goodFile = apconnect.good();
+
+    std::string apEnabled;
+    getline(apconnect, apEnabled);
+
+    if (goodFile && apEnabled == "true") {
+        std::string address;
+        std::string playerName;
+        std::string password;
+
+        getline(apconnect, address);
+        getline(apconnect, playerName);
+        getline(apconnect, password);
+
+        AP_Init(address.c_str(), "The Majora's Mask Recompilation", playerName.c_str(), password.c_str());
+
+        AP_SetItemClearCallback(apClearItems);
+        AP_SetItemRecvCallback(apRecvItem);
+        AP_SetLocationCheckedCallback(apCheckLocation);
+        AP_SetLocationInfoCallback(apSetItems);
+
+        AP_Start();
+
+        while (!AP_IsConnected()) {
+            if (AP_GetConnectionStatus() == AP_ConnectionStatus::ConnectionRefused) {
+                fprintf(stderr, "Unable to connect. Double-check that the server is active and the player name and address were entered correctly.\n");
+                throw std::runtime_error("Connection Refused");
+            }
+        }
+    }
 
 #ifdef _WIN32
     // Set up console output to accept UTF-8 on windows
@@ -511,7 +552,7 @@ int main(int argc, char** argv) {
     ultramodern::threads::callbacks_t threads_callbacks{
         .get_game_thread_name = zelda64::get_game_thread_name,
     };
-
+    
     recomp::start(
         {},
         rsp_callbacks,
@@ -523,7 +564,7 @@ int main(int argc, char** argv) {
         error_handling_callbacks,
         threads_callbacks
     );
-
+    
     NFD_Quit();
 
     return EXIT_SUCCESS;

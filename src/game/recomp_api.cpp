@@ -1,3 +1,5 @@
+#include <vector>
+#include <string>
 #include <cmath>
 
 #include "librecomp/recomp.h"
@@ -11,8 +13,72 @@
 #include "../patches/input.h"
 #include "../patches/graphics.h"
 #include "../patches/sound.h"
+#include "../patches/misc_funcs.h"
 #include "ultramodern/ultramodern.hpp"
 #include "ultramodern/config.hpp"
+
+#include "Archipelago.h"
+
+std::vector<u32> items;
+std::vector<u32> locations;
+
+extern "C" void recompf(const char* zc_format, ...) {
+    va_list va_args;
+    va_start(va_args, zc_format);
+    
+    va_list va_args_copy;
+    va_copy(va_args_copy, va_args);
+    const int i_len = std::vsnprintf(NULL, 0, zc_format, va_args_copy);
+    va_end(va_args_copy);
+    
+    std::vector<char> zc(i_len + 1);
+    std::vsnprintf(zc.data(), zc.size(), zc_format, va_args);
+    va_end(va_args);
+    std::string str_text(zc.data(), i_len);
+    
+    OutputDebugStringA(str_text.c_str());
+}
+
+extern "C" void apClearItems() {
+    if (AP_IsConnected()) {
+        
+    }
+}
+
+extern "C" void apRecvItem(int64_t id, bool notify) {
+    if (AP_IsConnected()) {
+        items.push_back(id & 0xFFFFFF);
+    }
+}
+
+extern "C" void apCheckLocation(int64_t id) {
+    if (AP_IsConnected()) {
+        locations.push_back(id & 0xFFFFFF);
+    }
+}
+
+extern "C" void apSetItems(std::vector<AP_NetworkItem> items) {
+    for (AP_NetworkItem i: items) {
+        
+    }
+}
+
+extern "C" void recomp_get_items_size(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, ((u32) items.size()));
+}
+
+extern "C" void recomp_get_item(uint8_t* rdram, recomp_context* ctx) {
+    u32 item_i = _arg<0, u32>(rdram, ctx);
+    _return(ctx, ((u32) items[item_i]));
+}
+
+extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {
+    s32 arg = _arg<0, s32>(rdram, ctx);
+    if (AP_IsConnected() && std::find(locations.begin(), locations.end(), arg) == locations.end()) {
+        int64_t id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
+        AP_SendItem(id);
+    }
+}
 
 extern "C" void recomp_update_inputs(uint8_t* rdram, recomp_context* ctx) {
     recomp::poll_inputs();
@@ -165,4 +231,8 @@ extern "C" void recomp_set_right_analog_suppressed(uint8_t* rdram, recomp_contex
     s32 suppressed = _arg<0, s32>(rdram, ctx);
 
     recomp::set_right_analog_suppressed(suppressed);
+}
+
+extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, 0xB3);
 }
