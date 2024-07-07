@@ -3,7 +3,9 @@
 #include "z64save.h"
 #include "z64horse.h"
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
+
 #include "misc_funcs.h"
+#include "apcommon.h"
 
 SavePlayerData sSaveDefaultPlayerData = {
     { '\0', '\0', '\0', '\0', '\0', '\0' },             // newf
@@ -180,27 +182,14 @@ void Sram_InitDebugSave(void) {
     SET_WEEKEVENTREG(WEEKEVENTREG_59_04);
     SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
 
+    gSaveContext.nextCutsceneIndex = 0;
+
     gSaveContext.cycleSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.playerData.magicLevel = 0;
 
     Sram_GenerateRandomSaveFields();
 }
-
-#define GIFIELD(flags, dropType) ((flags) | (dropType))
-
-#define GIFIELD_GET_DROP_TYPE(field) ((field)&0x1F)
-#define GIFIELD_20 (1 << 5)
-#define GIFIELD_40 (1 << 6)
-#define GIFIELD_NO_COLLECTIBLE (1 << 7)
-
-#define CHEST_ANIM_SHORT 0
-#define CHEST_ANIM_LONG 1
-
-#define CHEST_ANIM(chestAnim, drawId) ((chestAnim != 0 ? 1 : -1) * (drawId + 1))
-
-#define GET_ITEM(itemId, objectId, drawId, textId, field, chestAnim) \
-    (itemId, field, CHEST_ANIM(chestAnim, drawId), textId, objectId)
 
 void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
     s32 phi_v0;

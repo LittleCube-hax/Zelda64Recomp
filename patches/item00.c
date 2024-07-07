@@ -10,6 +10,8 @@
 
 #define THIS ((EnItem00*)thisx)
 
+#define LOCATION_HEART_PIECE ((play->sceneId << 8) | this->collectibleFlag)
+
 #define ENITEM00_GET_8000(thisx) ((thisx)->params & 0x8000)
 #define ENITEM00_GET_7F00(thisx) (((thisx)->params & 0x7F00) >> 8)
 
@@ -18,12 +20,13 @@ static Vec3f sEffectAccel = { 0.0f, 0.01f, 0.0f };
 static Color_RGBA8 sEffectPrimColor = { 255, 255, 127, 0 };
 static Color_RGBA8 sEffectEnvColor = { 255, 255, 255, 0 };
 
-static bool objectLoading;
-static bool objectLoaded;
-static DmaRequest objectDmaRequest;
-static OSMesgQueue objectLoadQueue;
-static OSMesg objectLoadMsg;
-static void* objectSegment;
+bool objectStatic;
+bool objectLoading;
+bool objectLoaded;
+DmaRequest objectDmaRequest;
+OSMesgQueue objectLoadQueue;
+OSMesg objectLoadMsg;
+void* objectSegment;
 
 void func_800A640C(EnItem00* this, PlayState* play);
 void func_800A6A40(EnItem00* this, PlayState* play);
@@ -32,7 +35,12 @@ void* ZeldaArena_Malloc(size_t size);
 void Actor_ProcessInitChain(Actor* thisx, InitChainEntry* ichain);
 s32 Collider_InitAndSetCylinder(struct PlayState* play, ColliderCylinder* collider, struct Actor* actor, ColliderCylinderInit* src);
 void EnItem00_WaitForHeartObject(EnItem00* this, PlayState* play);
+void EnItem00_WaitForObject(EnItem00* this, PlayState* play);
 void EnItem00_SetObject(EnItem00* this, PlayState* play, f32* shadowOffset, f32* shadowScale);
+void EnItem00_DrawRupee(EnItem00* this, PlayState* play);
+void EnItem00_DrawSprite(EnItem00* this, PlayState* play);
+void EnItem00_DrawHeartContainer(EnItem00* this, PlayState* play);
+void EnItem00_DrawHeartPiece(EnItem00* this, PlayState* play);
 
 static ColliderCylinderInit sCylinderInit = {
     {
@@ -54,6 +62,274 @@ static ColliderCylinderInit sCylinderInit = {
     { 10, 30, 0, { 0, 0, 0 } },
 };
 
+static InitChainEntry sInitChain[] = {
+    ICHAIN_F32(targetArrowOffset, 2000, ICHAIN_STOP),
+};
+
+static Item00Type item00ShuffledList[] = { ITEM00_HEART_PIECE };
+
+void EnItem00_Init(Actor* thisx, PlayState* play) {
+    EnItem00* this = THIS;
+    s32 pad;
+    f32 shadowOffset = 980.0f;
+    f32 shadowScale = 6.0f;
+    GetItemId getItemId = GI_NONE;
+    s32 sp30 = ENITEM00_GET_8000(thisx) ? 1 : 0;
+    GetItemId i;
+    bool shuffled = false;
+
+    objectSegment = ZeldaArena_Malloc(0x2000);
+    objectStatic = false;
+    objectLoading = false;
+    objectLoaded = false;
+    this->collectibleFlag = ENITEM00_GET_7F00(thisx);
+
+    thisx->params &= 0xFF;
+
+    for (i = 0; i < sizeof(item00ShuffledList)/sizeof(item00ShuffledList[0]); ++i) {
+        if (thisx->params == item00ShuffledList[i]) {
+            shuffled = true;
+            break;
+        }
+    }
+
+    if (Flags_GetCollectible(play, this->collectibleFlag) || (thisx->params == ITEM00_HEART_PIECE && recomp_location_is_checked(LOCATION_HEART_PIECE))) {
+        if (thisx->params == ITEM00_HEART_PIECE) {
+            sp30 = 0;
+            this->collectibleFlag = 0;
+            thisx->params = ITEM00_RECOVERY_HEART;
+            this->getItemId = GI_RECOVERY_HEART;
+        } else {
+            Actor_Kill(thisx);
+            return;
+        }
+    } else if (shuffled) {
+        this->getItemId = apGetItemId(LOCATION_HEART_PIECE);
+        if (this->getItemId == GI_RECOVERY_HEART) {
+            sp30 = 0;
+            //thisx->params = ITEM00_RECOVERY_HEART;
+        }
+    }
+
+    if (thisx->params == ITEM00_3_HEARTS) {
+        thisx->params = ITEM00_RECOVERY_HEART;
+    }
+
+    Actor_ProcessInitChain(thisx, sInitChain);
+    Collider_InitAndSetCylinder(play, &this->collider, thisx, &sCylinderInit);
+
+    this->unk150 = 1;
+
+    switch (thisx->params) {
+        case ITEM00_RUPEE_GREEN:
+        case ITEM00_RUPEE_BLUE:
+        case ITEM00_RUPEE_RED:
+            Actor_SetScale(thisx, 0.015f);
+            this->unk154 = 0.015f;
+            shadowOffset = 750.0f;
+            break;
+
+        case ITEM00_SMALL_KEY:
+            this->unk150 = 0;
+            Actor_SetScale(thisx, 0.03f);
+            this->unk154 = 0.03f;
+            shadowOffset = 350.0f;
+            break;
+
+        case ITEM00_HEART_PIECE:
+        case ITEM00_HEART_CONTAINER:
+            this->unk150 = 0;
+            Actor_SetScale(thisx, 0.02f);
+            this->unk154 = 0.02f;
+            shadowOffset = 650.0f;
+            if (thisx->params == ITEM00_HEART_CONTAINER) {
+                sp30 = -1;
+            }
+            break;
+
+        case ITEM00_RECOVERY_HEART:
+            thisx->home.rot.z = Rand_CenteredFloat(0xFFFF);
+            shadowOffset = 430.0f;
+            Actor_SetScale(thisx, 0.02f);
+            this->unk154 = 0.02f;
+            break;
+
+        case ITEM00_ARROWS_10:
+        case ITEM00_ARROWS_30:
+        case ITEM00_ARROWS_40:
+        case ITEM00_ARROWS_50:
+            Actor_SetScale(thisx, 0.035f);
+            this->unk154 = 0.035f;
+            shadowOffset = 250.0f;
+            break;
+
+        case ITEM00_BOMBS_A:
+        case ITEM00_BOMBS_B:
+        case ITEM00_DEKU_NUTS_1:
+        case ITEM00_DEKU_STICK:
+        case ITEM00_MAGIC_JAR_SMALL:
+        case ITEM00_DEKU_NUTS_10:
+        case ITEM00_BOMBS_0:
+            Actor_SetScale(thisx, 0.03f);
+            this->unk154 = 0.03f;
+            shadowOffset = 320.0f;
+            break;
+
+        case ITEM00_MAGIC_JAR_BIG:
+            Actor_SetScale(thisx, 4.5f * 0.01f);
+            this->unk154 = 4.5f * 0.01f;
+            shadowOffset = 320.0f;
+            break;
+
+        case ITEM00_RUPEE_HUGE:
+            Actor_SetScale(thisx, 4.5f * 0.01f);
+            this->unk154 = 4.5f * 0.01f;
+            shadowOffset = 750.0f;
+            break;
+
+        case ITEM00_RUPEE_PURPLE:
+            Actor_SetScale(thisx, 0.03f);
+            this->unk154 = 0.03f;
+            shadowOffset = 750.0f;
+            break;
+
+        case ITEM00_FLEXIBLE:
+        case ITEM00_BIG_FAIRY:
+            shadowOffset = 500.0f;
+            Actor_SetScale(thisx, 0.01f);
+            this->unk154 = 0.01f;
+            break;
+
+        case ITEM00_SHIELD_HERO:
+            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_SHIELD_2);
+            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
+            break;
+
+        case ITEM00_MAP:
+            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_MAP);
+            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
+            break;
+
+        case ITEM00_COMPASS:
+            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_COMPASS);
+            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
+            break;
+
+        default:
+            break;
+    }
+
+    this->unk14E = 0;
+    ActorShape_Init(&thisx->shape, shadowOffset, ActorShadow_DrawCircle, shadowScale);
+    thisx->shape.shadowAlpha = 180;
+    thisx->focus.pos = thisx->world.pos;
+
+    if (sp30 < 0) {
+        this->actionFunc = (EnItem00ActionFunc) actor_relocate(&this->actor, EnItem00_WaitForHeartObject);
+        this->unk152 = -1;
+        return;
+    }
+
+    if (sp30 == 0) {
+        if (shuffled) {
+            this->actionFunc = EnItem00_WaitForObject;
+        } else {
+            this->actionFunc = func_800A640C;
+        }
+        this->unk152 = -1;
+        return;
+    }
+
+    this->unk152 = 15;
+    this->unk14C = 35;
+
+    thisx->speed = 0.0f;
+    thisx->velocity.y = 0.0f;
+    thisx->gravity = 0.0f;
+
+    switch (thisx->params) {
+        case ITEM00_RUPEE_GREEN:
+            Item_Give(play, ITEM_RUPEE_GREEN);
+            break;
+
+        case ITEM00_RUPEE_BLUE:
+            Item_Give(play, ITEM_RUPEE_BLUE);
+            break;
+
+        case ITEM00_RUPEE_RED:
+            Item_Give(play, ITEM_RUPEE_RED);
+            break;
+
+        case ITEM00_RUPEE_PURPLE:
+            Item_Give(play, ITEM_RUPEE_PURPLE);
+            break;
+
+        case ITEM00_RUPEE_HUGE:
+            Item_Give(play, ITEM_RUPEE_HUGE);
+            break;
+
+        case ITEM00_RECOVERY_HEART:
+            Item_Give(play, ITEM_RECOVERY_HEART);
+            break;
+
+        case ITEM00_FLEXIBLE:
+        case ITEM00_BIG_FAIRY:
+            Health_ChangeBy(play, 0x70);
+            break;
+
+        case ITEM00_BOMBS_A:
+        case ITEM00_BOMBS_B:
+            Item_Give(play, ITEM_BOMBS_5);
+            break;
+
+        case ITEM00_ARROWS_10:
+            Item_Give(play, ITEM_ARROWS_10);
+            break;
+
+        case ITEM00_ARROWS_30:
+            Item_Give(play, ITEM_ARROWS_30);
+            break;
+
+        case ITEM00_ARROWS_40:
+            Item_Give(play, ITEM_ARROWS_40);
+            break;
+
+        case ITEM00_ARROWS_50:
+            Item_Give(play, ITEM_ARROWS_50);
+            break;
+
+        case ITEM00_MAGIC_JAR_BIG:
+            Item_Give(play, ITEM_MAGIC_JAR_BIG);
+            break;
+
+        case ITEM00_MAGIC_JAR_SMALL:
+            Item_Give(play, ITEM_MAGIC_JAR_SMALL);
+            break;
+
+        case ITEM00_SMALL_KEY:
+            Item_Give(play, ITEM_KEY_SMALL);
+            break;
+
+        case ITEM00_DEKU_NUTS_1:
+            getItemId = GI_DEKU_NUTS_1;
+            break;
+
+        case ITEM00_DEKU_NUTS_10:
+            getItemId = GI_DEKU_NUTS_10;
+            break;
+
+        default:
+            break;
+    }
+
+    if ((getItemId != GI_NONE) && !Actor_HasParent(thisx, play)) {
+        Actor_OfferGetItemHook(thisx, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f);
+    }
+
+    this->actionFunc = func_800A6A40;
+    this->actionFunc(this, play);
+}
+
 void EnItem00_Update(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
     s32 pad;
@@ -71,6 +347,11 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
     }
 
     this->actionFunc(this, play);
+    /*if (objectLoaded) {
+        func_800A640C(this, play);
+    } else {
+        EnItem00_WaitForObject(this, play);
+    }*/
 
     Math_SmoothStepToF(&this->actor.scale.x, this->unk154, 0.1f, this->unk154 * 0.1f, 0.0f);
     this->actor.scale.z = this->actor.scale.x;
@@ -219,7 +500,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
     if (getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
-            Actor_OfferGetItem(&this->actor, play, getItemId, 50.0f, 20.0f);
+            Actor_OfferGetItemHook(&this->actor, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f);
         }
     }
 
@@ -263,32 +544,20 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, this->unk154);
 
-    this->getItemId = GI_NONE;
-    this->actionFunc = (EnItem00ActionFunc) actor_relocate(&this->actor, func_800A6A40);
+    //this->getItemId = GI_NONE;
+    this->actionFunc = func_800A6A40;
 }
 
-static InitChainEntry sInitChain[] = {
-    ICHAIN_F32(targetArrowOffset, 2000, ICHAIN_STOP),
-};
+void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
+    s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(this->getItemId));
 
-void loadObject(PlayState* play, s16 objectId) {
-    if (objectId != OBJECT_UNSET_0) {
-        osCreateMesgQueue(&objectLoadQueue, &objectLoadMsg, 1);
-        DmaMgr_SendRequestImpl(&objectDmaRequest, objectSegment, gObjectTable[objectId].vromStart,
-                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               &objectLoadQueue, NULL);
-    }
-}
-
-void EnItem00_WaitForLetterObject(EnItem00* this, PlayState* play) {
-    s32 objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_RESERVE_C_00);
-
-    if (Object_IsLoaded(&play->objectCtx, objectSlot)) {
+    if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
         this->actor.objectSlot = objectSlot;
-        this->actionFunc = func_800A640C;
+        Actor_SetObjectDependency(play, &this->actor);
+        objectStatic = true;
         objectLoaded = true;
-    } else if (!objectLoading) {
-        loadObject(play, OBJECT_GI_RESERVE_C_00);
+    } else if (!objectLoading && !objectLoaded) {
+        loadObject(play, objectSegment, &objectLoadQueue, getObjectId(this->getItemId));
         objectLoading = true;
     } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         objectLoading = false;
@@ -297,299 +566,120 @@ void EnItem00_WaitForLetterObject(EnItem00* this, PlayState* play) {
     }
 }
 
-extern Gfx gHeartPieceInteriorDL[];
-extern Gfx gGiLetterToKafeiEnvelopeLetterDL[];
-extern Gfx gGiLetterToKafeiInscriptionsDL[];
-
-void EnItem00_DrawAPLetter(EnItem00* this, PlayState* play) {
-    s32 pad;
-
-    if (objectLoaded) {
-        OPEN_DISPS(play->state.gfxCtx);
-
-        u32 prevSegment = gSegments[6];
-        gSegments[6] = OS_K0_TO_PHYSICAL(objectSegment);
-
-        gSPSegment(POLY_OPA_DISP++, 0x06, objectSegment);
-        gSPSegment(POLY_XLU_DISP++, 0x06, objectSegment);
-
-        //Gfx_SetupDL25_Opa(play->state.gfxCtx);
-        func_800B8118(&this->actor, play, 0);
-
-        //gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        //gSPDisplayList(POLY_OPA_DISP++, gGiLetterToKafeiEnvelopeLetterDL);
-
-        //Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-
-        //gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
-
-        //gSPDisplayList(POLY_XLU_DISP++, gHeartPieceInteriorDL);
-        //gSPDisplayList(POLY_XLU_DISP++, gGiLetterToKafeiInscriptionsDL);
-
-        Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
-
-        GetItem_Draw(play, GID_LETTER_TO_KAFEI);
-
-        gSegments[6] = prevSegment;
-
-        CLOSE_DISPS(play->state.gfxCtx);
-    }
-}
-
 void EnItem00_Draw(Actor* thisx, PlayState* play) {
     s32 pad;
     EnItem00* this = THIS;
 
-    EnItem00_DrawAPLetter(this, play);
-}
+    if (!(this->unk14E & this->unk150)) {
+        switch (this->actor.params) {
+            case ITEM00_RUPEE_GREEN:
+            case ITEM00_RUPEE_BLUE:
+            case ITEM00_RUPEE_RED:
+            case ITEM00_RUPEE_HUGE:
+            case ITEM00_RUPEE_PURPLE:
+                EnItem00_DrawRupee(this, play);
+                break;
 
-void EnItem00_BlankAction(EnItem00* this, PlayState* play) {
-    
-}
+            case ITEM00_HEART_PIECE:
+                Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
+                if (objectLoaded) {
+                    if (objectStatic) {
+                        GetItem_Draw(play, getGid(this->getItemId));
+                    } else {
+                        GetItem_DrawDynamic(play, objectSegment, getGid(this->getItemId));
+                    }
+                }
+                break;
 
-void EnItem00_Init(Actor* thisx, PlayState* play) {
-    EnItem00* this = THIS;
-    s32 pad;
-    f32 shadowOffset = 980.0f;
-    f32 shadowScale = 6.0f;
-    s32 getItemId = GI_NONE;
-    s32 sp30 = ENITEM00_GET_8000(thisx) ? 1 : 0;
+            case ITEM00_HEART_CONTAINER:
+                EnItem00_DrawHeartContainer(this, play);
+                break;
 
-    this->actionFunc = EnItem00_BlankAction;
-    objectSegment = ZeldaArena_Malloc(0x2000);
-    objectLoading = false;
-    objectLoaded = false;
-    this->collectibleFlag = ENITEM00_GET_7F00(thisx);
+            case ITEM00_RECOVERY_HEART:
+                if (this->unk152 < 0) {
+                    if (this->unk152 == -1) {
+                        s8 objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_HEART);
 
-    thisx->params &= 0xFF;
+                        if (Object_IsLoaded(&play->objectCtx, objectSlot)) {
+                            this->actor.objectSlot = objectSlot;
+                            Actor_SetObjectDependency(play, &this->actor);
+                            this->unk152 = -2;
+                        }
+                    } else {
+                        Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);
+                        GetItem_Draw(play, GID_RECOVERY_HEART);
+                    }
+                    break;
+                }
+                // fallthrough
+            case ITEM00_BOMBS_A:
+            case ITEM00_ARROWS_10:
+            case ITEM00_ARROWS_30:
+            case ITEM00_ARROWS_40:
+            case ITEM00_ARROWS_50:
+            case ITEM00_BOMBS_B:
+            case ITEM00_DEKU_NUTS_1:
+            case ITEM00_DEKU_STICK:
+            case ITEM00_MAGIC_JAR_BIG:
+            case ITEM00_MAGIC_JAR_SMALL:
+            case ITEM00_SMALL_KEY:
+            case ITEM00_DEKU_NUTS_10:
+            case ITEM00_BOMBS_0:
+                EnItem00_DrawSprite(this, play);
+                break;
 
-    if (Flags_GetCollectible(play, this->collectibleFlag)) {
-        if (thisx->params == ITEM00_HEART_PIECE) {
-            sp30 = 0;
-            this->collectibleFlag = 0;
-            thisx->params = ITEM00_RECOVERY_HEART;
-            this->getItemId = GI_RECOVERY_HEART;
-        } else {
-            Actor_Kill(thisx);
-            return;
+            case ITEM00_SHIELD_HERO:
+                GetItem_Draw(play, GID_SHIELD_HERO);
+                break;
+
+            case ITEM00_MAP:
+                GetItem_Draw(play, GID_DUNGEON_MAP);
+                break;
+
+            case ITEM00_COMPASS:
+                GetItem_Draw(play, GID_COMPASS);
+                break;
+
+            case ITEM00_MASK:
+            case ITEM00_3_HEARTS:
+            case ITEM00_FLEXIBLE:
+            case ITEM00_NOTHING:
+            case ITEM00_BIG_FAIRY:
+                break;
         }
     }
-    if (thisx->params == ITEM00_3_HEARTS) {
-        thisx->params = ITEM00_RECOVERY_HEART;
+}
+
+void func_800A6A40(EnItem00* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    if (this->getItemId != GI_NONE) {
+        if (!Actor_HasParent(&this->actor, play)) {
+            Actor_OfferGetItemHook(&this->actor, play, this->getItemId, 0, 50.0f, 80.0f);
+            this->unk152++;
+        } else {
+            this->getItemId = GI_NONE;
+        }
     }
 
-    Actor_ProcessInitChain(thisx, sInitChain);
-    Collider_InitAndSetCylinder(play, &this->collider, thisx, &sCylinderInit);
-
-    this->unk150 = 1;
-
-    switch (thisx->params) {
-        case ITEM00_RUPEE_GREEN:
-        case ITEM00_RUPEE_BLUE:
-        case ITEM00_RUPEE_RED:
-            Actor_SetScale(thisx, 0.015f);
-            this->unk154 = 0.015f;
-            shadowOffset = 750.0f;
-            break;
-
-        case ITEM00_SMALL_KEY:
-            this->unk150 = 0;
-            Actor_SetScale(thisx, 0.03f);
-            this->unk154 = 0.03f;
-            shadowOffset = 350.0f;
-            break;
-
-        case ITEM00_HEART_PIECE:
-        case ITEM00_HEART_CONTAINER:
-            this->unk150 = 0;
-            Actor_SetScale(thisx, 0.02f);
-            this->unk154 = 0.02f;
-            shadowOffset = 650.0f;
-            if (thisx->params == ITEM00_HEART_CONTAINER) {
-                sp30 = -1;
-            }
-            break;
-
-        case ITEM00_RECOVERY_HEART:
-            thisx->home.rot.z = Rand_CenteredFloat(0xFFFF);
-            shadowOffset = 430.0f;
-            Actor_SetScale(thisx, 0.02f);
-            this->unk154 = 0.02f;
-            break;
-
-        case ITEM00_ARROWS_10:
-        case ITEM00_ARROWS_30:
-        case ITEM00_ARROWS_40:
-        case ITEM00_ARROWS_50:
-            Actor_SetScale(thisx, 0.035f);
-            this->unk154 = 0.035f;
-            shadowOffset = 250.0f;
-            break;
-
-        case ITEM00_BOMBS_A:
-        case ITEM00_BOMBS_B:
-        case ITEM00_DEKU_NUTS_1:
-        case ITEM00_DEKU_STICK:
-        case ITEM00_MAGIC_JAR_SMALL:
-        case ITEM00_DEKU_NUTS_10:
-        case ITEM00_BOMBS_0:
-            Actor_SetScale(thisx, 0.03f);
-            this->unk154 = 0.03f;
-            shadowOffset = 320.0f;
-            break;
-
-        case ITEM00_MAGIC_JAR_BIG:
-            Actor_SetScale(thisx, 4.5f * 0.01f);
-            this->unk154 = 4.5f * 0.01f;
-            shadowOffset = 320.0f;
-            break;
-
-        case ITEM00_RUPEE_HUGE:
-            Actor_SetScale(thisx, 4.5f * 0.01f);
-            this->unk154 = 4.5f * 0.01f;
-            shadowOffset = 750.0f;
-            break;
-
-        case ITEM00_RUPEE_PURPLE:
-            Actor_SetScale(thisx, 0.03f);
-            this->unk154 = 0.03f;
-            shadowOffset = 750.0f;
-            break;
-
-        case ITEM00_FLEXIBLE:
-        case ITEM00_BIG_FAIRY:
-            shadowOffset = 500.0f;
-            Actor_SetScale(thisx, 0.01f);
-            this->unk154 = 0.01f;
-            break;
-
-        case ITEM00_SHIELD_HERO:
-            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_SHIELD_2);
-            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
-            break;
-
-        case ITEM00_MAP:
-            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_MAP);
-            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
-            break;
-
-        case ITEM00_COMPASS:
-            thisx->objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_COMPASS);
-            EnItem00_SetObject(this, play, &shadowOffset, &shadowScale);
-            break;
-
-        default:
-            break;
-    }
-
-    this->unk14E = 0;
-    ActorShape_Init(&thisx->shape, shadowOffset, ActorShadow_DrawCircle, shadowScale);
-    thisx->shape.shadowAlpha = 180;
-    thisx->focus.pos = thisx->world.pos;
-    this->getItemId = GI_NONE;
-
-    if (sp30 < 0) {
-        this->actionFunc = (EnItem00ActionFunc) actor_relocate(&this->actor, EnItem00_WaitForHeartObject);
-        this->unk152 = -1;
+    if (this->unk152 == 0) {
+        Actor_Kill(&this->actor);
         return;
     }
 
-    if (sp30 == 0) {
-        //this->actionFunc = func_800A640C;
-        this->actionFunc = EnItem00_WaitForLetterObject;
-        this->unk152 = -1;
-        this->getItemId = apGetItemId();
-        return;
+    this->actor.world.pos = player->actor.world.pos;
+
+    if (this->actor.params <= ITEM00_RUPEE_RED) {
+        this->actor.shape.rot.y += 0x3C0;
+    } else if (this->actor.params == ITEM00_RECOVERY_HEART) {
+        this->actor.shape.rot.y = 0;
     }
 
-    this->unk152 = 15;
-    this->unk14C = 35;
+    this->actor.world.pos.y += (40.0f + (Math_SinS(this->unk152 * 15000) * (this->unk152 * 0.3f)));
 
-    thisx->speed = 0.0f;
-    thisx->velocity.y = 0.0f;
-    thisx->gravity = 0.0f;
-
-    switch (thisx->params) {
-        case ITEM00_RUPEE_GREEN:
-            Item_Give(play, ITEM_RUPEE_GREEN);
-            break;
-
-        case ITEM00_RUPEE_BLUE:
-            Item_Give(play, ITEM_RUPEE_BLUE);
-            break;
-
-        case ITEM00_RUPEE_RED:
-            Item_Give(play, ITEM_RUPEE_RED);
-            break;
-
-        case ITEM00_RUPEE_PURPLE:
-            Item_Give(play, ITEM_RUPEE_PURPLE);
-            break;
-
-        case ITEM00_RUPEE_HUGE:
-            Item_Give(play, ITEM_RUPEE_HUGE);
-            break;
-
-        case ITEM00_RECOVERY_HEART:
-            Item_Give(play, ITEM_RECOVERY_HEART);
-            break;
-
-        case ITEM00_FLEXIBLE:
-        case ITEM00_BIG_FAIRY:
-            Health_ChangeBy(play, 0x70);
-            break;
-
-        case ITEM00_BOMBS_A:
-        case ITEM00_BOMBS_B:
-            Item_Give(play, ITEM_BOMBS_5);
-            break;
-
-        case ITEM00_ARROWS_10:
-            Item_Give(play, ITEM_ARROWS_10);
-            break;
-
-        case ITEM00_ARROWS_30:
-            Item_Give(play, ITEM_ARROWS_30);
-            break;
-
-        case ITEM00_ARROWS_40:
-            Item_Give(play, ITEM_ARROWS_40);
-            break;
-
-        case ITEM00_ARROWS_50:
-            Item_Give(play, ITEM_ARROWS_50);
-            break;
-
-        case ITEM00_MAGIC_JAR_BIG:
-            Item_Give(play, ITEM_MAGIC_JAR_BIG);
-            break;
-
-        case ITEM00_MAGIC_JAR_SMALL:
-            Item_Give(play, ITEM_MAGIC_JAR_SMALL);
-            break;
-
-        case ITEM00_SMALL_KEY:
-            Item_Give(play, ITEM_KEY_SMALL);
-            break;
-
-        case ITEM00_DEKU_NUTS_1:
-            getItemId = GI_DEKU_NUTS_1;
-            break;
-
-        case ITEM00_DEKU_NUTS_10:
-            getItemId = GI_DEKU_NUTS_10;
-            break;
-
-        default:
-            break;
+    if (LINK_IS_ADULT) {
+        this->actor.world.pos.y += 20.0f;
     }
-
-    if ((getItemId != GI_NONE) && !Actor_HasParent(thisx, play)) {
-        Actor_OfferGetItem(thisx, play, getItemId, 50.0f, 20.0f);
-    }
-
-    this->actionFunc = (EnItem00ActionFunc) actor_relocate(&this->actor, func_800A6A40);
-    this->actionFunc(this, play);
 }
 
 void func_800A6650(EnItem00* this, PlayState* play) {

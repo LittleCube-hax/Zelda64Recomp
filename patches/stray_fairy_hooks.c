@@ -216,6 +216,55 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
     thisx->shape.rot.y = 0;
 }
 
+void EnElforg_Update(Actor* thisx, PlayState* play) {
+    EnElforg* this = THIS;
+
+    this->actionFunc(this, play);
+    /*switch (STRAY_FAIRY_TYPE(thisx)) {
+        case STRAY_FAIRY_TYPE_FAIRY_FOUNTAIN:
+            *((EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_FreeFloatingFairyFountain))(this, play);
+            break;
+
+        case STRAY_FAIRY_TYPE_RETURNING_TO_FOUNTAIN:
+            EnElforg_InitializeParams(this);
+            *((EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_TurnInFairy))(this, play);
+            break;
+
+        case STRAY_FAIRY_TYPE_BUBBLE:
+            EnElforg_TrappedByBubble(this, play);
+            break;
+
+        case STRAY_FAIRY_TYPE_ENEMY:
+            EnElforg_SetupTrappedByEnemy(this, play);
+            break;
+
+        case STRAY_FAIRY_TYPE_COLLIDER:
+            EnElforg_HiddenByCollider(this, play);
+            break;
+
+        default:
+            EnElforg_FreeFloating(this, play);
+            break;
+    }*/
+
+    if ((this->timer == 0) && (this->secondaryTimer > 0)) {
+        this->secondaryTimer--;
+    } else {
+        this->timer++;
+    }
+
+    if (this->direction < 0) {
+        this->direction++;
+        if (this->direction == 0) {
+            this->direction = Rand_ZeroFloat(20.0f) + 20.0f;
+        }
+    } else if (this->direction > 0) {
+        this->direction--;
+    } else {
+        this->direction = -Rand_ZeroFloat(20.0f) - 20.0f;
+    }
+}
+
 void EnElforg_SetupFairyCollected(EnElforg* this, PlayState* play) {
     Actor* playerActor = &GET_PLAYER(play)->actor;
     Player* player = GET_PLAYER(play);

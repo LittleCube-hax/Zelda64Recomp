@@ -11,9 +11,13 @@ DECLARE_FUNC(void, recomp_handle_quicksave_actions_main, OSMesgQueue* enter_mq, 
 DECLARE_FUNC(u16, recomp_get_pending_warp);
 DECLARE_FUNC(u32, recomp_get_pending_set_time);
 DECLARE_FUNC(s32, recomp_autosave_enabled);
-DECLARE_FUNC(void, recomp_send_location, s32 id);
+DECLARE_FUNC(void, recomp_send_location, u32 id);
 DECLARE_FUNC(u32, recomp_get_items_size);
-DECLARE_FUNC(u32, recomp_get_item, u32 item_i);
-DECLARE_FUNC(u8, apGetItemId);
+DECLARE_FUNC(u32, recomp_get_item, u32 items_i);
+DECLARE_FUNC(u32, recomp_get_locations_size);
+DECLARE_FUNC(u32, recomp_get_location, u32 locations_i);
+DECLARE_FUNC(bool, recomp_has_item, u32 id);
+DECLARE_FUNC(bool, recomp_location_is_checked, u32 id);
+DECLARE_FUNC(u32, apGetItemId, u32 location_id);
 
 #endif

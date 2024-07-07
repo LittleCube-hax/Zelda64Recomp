@@ -1,4 +1,5 @@
 #include <vector>
+#include <map>
 #include <string>
 #include <cmath>
 
@@ -40,27 +41,41 @@ extern "C" void recompf(const char* zc_format, ...) {
 }
 
 extern "C" void apClearItems() {
-    if (AP_IsConnected()) {
-        
-    }
+    
 }
 
 extern "C" void apRecvItem(int64_t id, bool notify) {
-    if (AP_IsConnected()) {
-        items.push_back(id & 0xFFFFFF);
-    }
+    items.push_back(id & 0xFFFFFF);
 }
 
 extern "C" void apCheckLocation(int64_t id) {
-    if (AP_IsConnected()) {
-        locations.push_back(id & 0xFFFFFF);
-    }
+    locations.push_back(id & 0xFFFFFF);
 }
 
-extern "C" void apSetItems(std::vector<AP_NetworkItem> items) {
-    for (AP_NetworkItem i: items) {
-        
+extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
+    u32 arg = _arg<0, u32>(rdram, ctx);
+
+    if (arg == 0) {
+        _return(ctx, 0);
+        return;
     }
+
+    int64_t location = 0x34769420000000 | arg;
+
+    if (getLocationHasLocalItem(location)) {
+        int64_t item = getItemAtLocation(location) & 0xFFFFFF;
+
+        if ((item & 0xFF00) == 0x0000) {
+            _return(ctx, (u32) (item & 0xFF));
+            return;
+        }
+    }
+
+    _return(ctx, 0x0000B3);
+}
+
+extern "C" void apSay(uint8_t* rdram, recomp_context* ctx) {
+    AP_Say(std::string((char*) ctx->r4));
 }
 
 extern "C" void recomp_get_items_size(uint8_t* rdram, recomp_context* ctx) {
@@ -68,16 +83,35 @@ extern "C" void recomp_get_items_size(uint8_t* rdram, recomp_context* ctx) {
 }
 
 extern "C" void recomp_get_item(uint8_t* rdram, recomp_context* ctx) {
-    u32 item_i = _arg<0, u32>(rdram, ctx);
-    _return(ctx, ((u32) items[item_i]));
+    u32 items_i = _arg<0, u32>(rdram, ctx);
+    _return(ctx, ((u32) items[items_i]));
+}
+
+extern "C" void recomp_get_locations_size(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, ((u32) locations.size()));
+}
+
+extern "C" void recomp_get_location(uint8_t* rdram, recomp_context* ctx) {
+    u32 locations_i = _arg<0, u32>(rdram, ctx);
+    _return(ctx, ((u32) locations[locations_i]));
+}
+
+extern "C" void recomp_has_item(uint8_t* rdram, recomp_context* ctx) {
+    u32 id = _arg<0, u32>(rdram, ctx);
+    _return(ctx, std::find(items.begin(), items.end(), id) != items.end());
 }
 
 extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {
-    s32 arg = _arg<0, s32>(rdram, ctx);
-    if (AP_IsConnected() && std::find(locations.begin(), locations.end(), arg) == locations.end()) {
+    u32 arg = _arg<0, u32>(rdram, ctx);
+    if (std::find(locations.begin(), locations.end(), arg) == locations.end()) {
         int64_t id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
         AP_SendItem(id);
     }
+}
+
+extern "C" void recomp_location_is_checked(uint8_t* rdram, recomp_context* ctx) {
+    u32 id = _arg<0, u32>(rdram, ctx);
+    _return(ctx, std::find(locations.begin(), locations.end(), id) != locations.end());
 }
 
 extern "C" void recomp_update_inputs(uint8_t* rdram, recomp_context* ctx) {
@@ -231,8 +265,4 @@ extern "C" void recomp_set_right_analog_suppressed(uint8_t* rdram, recomp_contex
     s32 suppressed = _arg<0, s32>(rdram, ctx);
 
     recomp::set_right_analog_suppressed(suppressed);
-}
-
-extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, 0xB3);
 }

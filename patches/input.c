@@ -1187,14 +1187,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) {
                     // Fierce Deity's Mask is equipped
-                    if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                    /*if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS)) {
                         if (BUTTON_STATUS(i) != BTN_DISABLED) {
                             BUTTON_STATUS(i) = BTN_DISABLED;
                             restoreHudVisibility = true;
                         }
-                    } else if (BUTTON_STATUS(i) == BTN_DISABLED) {
+                    } else */if (BUTTON_STATUS(i) == BTN_DISABLED) {
                         restoreHudVisibility = true;
                         BUTTON_STATUS(i) = BTN_ENABLED;
                     }

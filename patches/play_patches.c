@@ -34,43 +34,40 @@ s16 sArrowRefillCounts[] = { 10, 30, 40, 50 };
 s16 sBombchuRefillCounts[] = { 20, 10, 1, 5 };
 s16 sRupeeRefillCounts[] = { 1, 5, 10, 20, 50, 100, 200 };
 
-Vec3f D_8085D41C = { 0.0f, 0.0f, -30.0f };
-
 PlayState* gPlay;
 u32 old_items_size = 0;
 bool playing = false;
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId);
-void Player_TranslateAndRotateY(Player* this, Vec3f* translation, Vec3f* src, Vec3f* dst);
-void Player_DetachHeldActor(PlayState* play, Player* this);
-void Player_UpdateCommon(Player* this, PlayState* play, Input* input);
 
 void controls_play_update(PlayState* play) {
     gSaveContext.options.zTargetSetting = recomp_get_targeting_mode();
 }
 
-u8 apItemGive(u32 item) {
+u8 apItemGive(u32 gi) {
     PlayState* play = gPlay;
     Player* player = GET_PLAYER(play);
     u8 i;
     u8 temp;
     u8 slot;
+    u8 item;
 
-    switch (item & 0xFF00) {
+    switch (gi & 0xFF00) {
         case 0xFE00:
-            switch (item & 0xFF) {
+            switch (gi & 0xFF) {
                 case 0x7F:
                     SET_WEEKEVENTREG(WEEKEVENTREG_08_80);
-                    break;
+                    return ITEM_NONE;
             }
             break;
 
         case 0xFD00:
             gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
             gSaveContext.magicFillTarget = MAGIC_NORMAL_METER;
-            break;
+            return ITEM_NONE;
     }
 
+    item = giToItemId[gi & 0xFF];
     slot = SLOT(item);
     if (item >= ITEM_DEKU_STICKS_5) {
         slot = SLOT(sExtraItemBases[item - ITEM_DEKU_STICKS_5]);
@@ -475,9 +472,9 @@ u8 apItemGive(u32 item) {
         }
 
     } else if ((item >= ITEM_MOONS_TEAR) && (item <= ITEM_MASK_GIANT)) {
-        temp = INV_CONTENT(item);
+        //temp = INV_CONTENT(item);
         INV_CONTENT(item) = item;
-        if ((item >= ITEM_MOONS_TEAR) && (item <= ITEM_PENDANT_OF_MEMORIES) && (temp != ITEM_NONE)) {
+        /*if ((item >= ITEM_MOONS_TEAR) && (item <= ITEM_PENDANT_OF_MEMORIES) && (temp != ITEM_NONE)) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (temp == GET_CUR_FORM_BTN_ITEM(i)) {
                     SET_CUR_FORM_BTN_ITEM(i, item);
@@ -485,7 +482,7 @@ u8 apItemGive(u32 item) {
                     return ITEM_NONE;
                 }
             }
-        }
+        }*/
         return ITEM_NONE;
     }
 
@@ -494,18 +491,13 @@ u8 apItemGive(u32 item) {
     return temp;
 }
 
-s32 func_8082DA90(PlayState* play) {
-    return (play->transitionTrigger != TRANS_TRIGGER_OFF) || (play->transitionMode != TRANS_MODE_OFF);
-}
-
-void Player_Update(Actor* thisx, PlayState* play) {
-    static Vec3f sDogSpawnPos;
-    Player* this = (Player*)thisx;
-    s32 dogParams;
-    s32 pad;
-    Input input;
-    s32 pad2;
+// @recomp Patched to add hooks for various added functionality.
+void Play_Main(GameState* thisx) {
+    static Input* prevInput = NULL;
+    PlayState* this = (PlayState*)thisx;
     u32 new_items_size;
+
+    gPlay = this;
 
     if (playing) {
         new_items_size = recomp_get_items_size();
@@ -519,68 +511,6 @@ void Player_Update(Actor* thisx, PlayState* play) {
             old_items_size = new_items_size;
         }
     }
-
-    this->stateFlags3 &= ~PLAYER_STATE3_10;
-
-    // This block is a leftover dog-following mechanic from OoT
-    if (gSaveContext.dogParams < 0) {
-        if (Object_GetSlot(&play->objectCtx, OBJECT_DOG) < 0) {
-            gSaveContext.dogParams = 0;
-        } else {
-            Actor* dog;
-
-            gSaveContext.dogParams &= (u16)~0x8000;
-            Player_TranslateAndRotateY(this, &this->actor.world.pos, &D_8085D41C, &sDogSpawnPos);
-
-            dogParams = gSaveContext.dogParams;
-
-            dog = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_DG, sDogSpawnPos.x, sDogSpawnPos.y, sDogSpawnPos.z, 0,
-                              this->actor.shape.rot.y, 0, dogParams | 0x8000);
-            if (dog != NULL) {
-                dog->room = -1;
-            }
-        }
-    }
-
-    if ((this->interactRangeActor != NULL) && (this->interactRangeActor->update == NULL)) {
-        this->interactRangeActor = NULL;
-    }
-
-    if ((this->heldActor != NULL) && (this->heldActor->update == NULL)) {
-        Player_DetachHeldActor(play, this);
-    }
-
-    if ((play->actorCtx.isOverrideInputOn != 0) && (this == GET_PLAYER(play))) {
-        input = play->actorCtx.overrideInput;
-    } else if ((this->csAction == PLAYER_CSACTION_5) ||
-               (this->stateFlags1 & (PLAYER_STATE1_20 | PLAYER_STATE1_20000000)) || (this != GET_PLAYER(play)) ||
-               func_8082DA90(play) || (gSaveContext.save.saveInfo.playerData.health == 0)) {
-        bzero(&input, sizeof(Input));
-        this->fallStartHeight = this->actor.world.pos.y;
-    } else {
-        input = *CONTROLLER1(&play->state);
-        if (this->unk_B5E != 0) {
-            input.cur.button &= ~(BTN_CUP | BTN_B | BTN_A);
-            input.press.button &= ~(BTN_CUP | BTN_B | BTN_A);
-        }
-    }
-
-    Player_UpdateCommon(this, play, &input);
-    play->actorCtx.isOverrideInputOn = 0;
-    bzero(&play->actorCtx.overrideInput, sizeof(Input));
-
-    MREG(52) = this->actor.world.pos.x;
-    MREG(53) = this->actor.world.pos.y;
-    MREG(54) = this->actor.world.pos.z;
-    MREG(55) = this->actor.world.rot.y;
-}
-
-// @recomp Patched to add hooks for various added functionality.
-void Play_Main(GameState* thisx) {
-    static Input* prevInput = NULL;
-    PlayState* this = (PlayState*)thisx;
-
-    gPlay = this;
 
     // @recomp
     debug_play_update(this);

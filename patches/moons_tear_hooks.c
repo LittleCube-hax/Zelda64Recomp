@@ -7,15 +7,16 @@
 
 #define THIS ((ObjMoonStone*)thisx)
 
+#define LOCATION_MOONS_TEAR GI_MOONS_TEAR
+
 typedef void (*ActorFunc)(struct Actor* this, struct PlayState* play);
 
-static s8 trueGI;
+s16 moonsTearTrueGI;
 
+static bool objectStatic;
 static bool objectLoading;
 static bool objectLoaded;
-static DmaRequest objectDmaRequest;
 static OSMesgQueue objectLoadQueue;
-static OSMesg objectLoadMsg;
 static void* objectSegment;
 
 extern AnimatedMaterial gGiMoonsTearTexAnim[];
@@ -27,20 +28,12 @@ void func_80C0662C(ObjMoonStone* this);
 void func_80C0673C(ObjMoonStone* this);
 void func_80C0685C(ObjMoonStone* this);
 
-void loadObject(PlayState* play, s16 objectId) {
-    if (objectId != OBJECT_UNSET_0) {
-        osCreateMesgQueue(&objectLoadQueue, &objectLoadMsg, 1);
-        DmaMgr_SendRequestImpl(&objectDmaRequest, objectSegment, gObjectTable[objectId].vromStart,
-                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               &objectLoadQueue, NULL);
-    }
-}
-
 void ObjMoonStone_Init(Actor* thisx, PlayState* play) {
     ObjMoonStone* this = THIS;
 
-    trueGI = apGetItemId();
+    moonsTearTrueGI = apGetItemId(GI_MOONS_TEAR);
     objectSegment = ZeldaArena_Malloc(0x2000);
+    objectStatic = false;
     objectLoading = false;
     objectLoaded = false;
 
@@ -69,10 +62,18 @@ void ObjMoonStone_Update(Actor* thisx, PlayState* play) {
     ObjMoonStone* this = THIS;
     Player* player = GET_PLAYER(play);
 
-    if (!objectLoading) {
-        loadObject(play, OBJECT_GI_RESERVE_C_00);
+    s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(moonsTearTrueGI));
+
+    if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
+        this->actor.objectSlot = objectSlot;
+        Actor_SetObjectDependency(play, &this->actor);
+        objectStatic = true;
+        objectLoaded = true;
+    } else if (!objectLoading && !objectLoaded) {
+        loadObject(play, objectSegment, &objectLoadQueue, getObjectId(moonsTearTrueGI));
         objectLoading = true;
-    } else if (!objectLoaded && osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+    } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+        objectLoading = false;
         objectLoaded = true;
     }
 
@@ -86,26 +87,13 @@ void ObjMoonStone_Draw(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    u32 prevSegment = gSegments[6];
-    gSegments[6] = OS_K0_TO_PHYSICAL(objectSegment);
-
-    gSPSegment(POLY_OPA_DISP++, 0x06, objectSegment);
-    gSPSegment(POLY_XLU_DISP++, 0x06, objectSegment);
-
     if (objectLoaded) {
-        GetItem_Draw(play, GID_LETTER_TO_KAFEI);
+        if (objectStatic) {
+            GetItem_Draw(play, getGid(moonsTearTrueGI));
+        } else {
+            GetItem_DrawDynamic(play, objectSegment, getGid(moonsTearTrueGI));
+        }
     }
-
-    gSegments[6] = prevSegment;
-
-    /*Gfx_SetupDL25_Opa(play->state.gfxCtx);
-    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-    AnimatedMat_Draw(play, Lib_SegmentedToVirtual(gGiMoonsTearTexAnim));
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(POLY_OPA_DISP++, gGiMoonsTearItemDL);
-    Matrix_ReplaceRotation(&play->billboardMtxF);
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(POLY_XLU_DISP++, gGiMoonsTearGlowDL);*/
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -124,8 +112,7 @@ void func_80C06768(ObjMoonStone* this, PlayState* play) {
             this->actor.draw = NULL;
             func_80C0685C(this);
         } else if (this->actor.xzDistToPlayer < 25.0f) {
-            Actor_OfferGetItem(&this->actor, play, GI_MOONS_TEAR, 100.0f, 30.0f);
-            //Actor_OfferGetItem(&this->actor, play, ITEM_AP, 100.0f, 30.0f);
+            Actor_OfferGetItem(&this->actor, play, apGetItemId(GI_MOONS_TEAR), 100.0f, 30.0f);
         }
     }
 }

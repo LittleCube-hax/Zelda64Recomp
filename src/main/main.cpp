@@ -456,7 +456,6 @@ int main(int argc, char** argv) {
         AP_SetItemClearCallback(apClearItems);
         AP_SetItemRecvCallback(apRecvItem);
         AP_SetLocationCheckedCallback(apCheckLocation);
-        AP_SetLocationInfoCallback(apSetItems);
 
         AP_Start();
 
