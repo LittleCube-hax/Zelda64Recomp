@@ -5,6 +5,7 @@
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_Obj_Warpstone/z_obj_warpstone.h"
+
 #include "misc_funcs.h"
 #include "apcommon.h"
 
@@ -532,9 +533,6 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     s32 pad1;
     s32 fileNum;
 
-    playing = true;
-    old_items_size = 0;
-
     if (gSaveContext.flashSaveAvailable) {
         bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
 
@@ -658,6 +656,9 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
 
     // @recomp Initialize the autosave state tracking.
     autosave_init();
+
+    playing = true;
+    old_items_size = 0;
 }
 
 extern s32 Actor_ProcessTalkRequest(Actor* actor, GameState* gameState);

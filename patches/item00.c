@@ -95,10 +95,11 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
 
     if (Flags_GetCollectible(play, this->collectibleFlag) || (thisx->params == ITEM00_HEART_PIECE && recomp_location_is_checked(LOCATION_HEART_PIECE))) {
         if (thisx->params == ITEM00_HEART_PIECE) {
-            sp30 = 0;
+            /*sp30 = 0;
             this->collectibleFlag = 0;
             thisx->params = ITEM00_RECOVERY_HEART;
-            this->getItemId = GI_RECOVERY_HEART;
+            this->getItemId = GI_RECOVERY_HEART;*/
+            Actor_Kill(thisx);
         } else {
             Actor_Kill(thisx);
             return;

@@ -534,7 +534,8 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
 };
 
 s16 trueGI;
-bool tearScrubWorkaround = false;
+bool itemWorkaround = false;
+bool has_ocarina = false;
 
 // Player_UpdateCurrentGetItemDrawId?
 void func_8082ECE0(Player* this) {
@@ -546,7 +547,7 @@ void func_8082ECE0(Player* this) {
 void func_80838830(Player* this, s16 objectId) {
     if (objectId != OBJECT_UNSET_0) {
         this->giObjectLoading = true;
-        if (tearScrubWorkaround) {
+        if (itemWorkaround) {
             objectId = sGetItemTable_original[trueGI - 1].objectId;
         }
         osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
@@ -562,8 +563,11 @@ s32 func_808482E0(PlayState* play, Player* this) {
         return true;
     }
 
-    if (tearScrubWorkaround) {
+    if (itemWorkaround) {
         this->getItemId = trueGI;
+        if (has_ocarina) {
+            INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
+        }
     }
 
     if (this->av1.actionVar1 == 0) {
@@ -741,57 +745,12 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
     }
 
     if (shuffled) {
-        if (getItemId == GI_DEED_LAND) {
-            tearScrubWorkaround = true;
-        } else {
-            tearScrubWorkaround = false;
-        }
+        itemWorkaround = true;
         recomp_send_location(getItemId);
         trueGI = apGetItemId(getItemId);
     } else {
+        itemWorkaround = false;
         trueGI = getItemId;
-    }
-
-    if (!(player->stateFlags1 &
-          (PLAYER_STATE1_80 | PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
-           PLAYER_STATE1_80000 | PLAYER_STATE1_100000 | PLAYER_STATE1_200000)) &&
-        (Player_GetExplosiveHeld(player) <= PLAYER_EXPLOSIVE_NONE)) {
-        if ((actor->xzDistToPlayer <= xzRange) && (fabsf(actor->playerHeightRel) <= fabsf(yRange))) {
-            if (((getItemId == GI_MASK_CIRCUS_LEADER) || (getItemId == GI_PENDANT_OF_MEMORIES) ||
-                 (getItemId == GI_DEED_LAND) ||
-                 (((player->heldActor != NULL) || (actor == player->talkActor)) &&
-                  ((getItemId > GI_NONE) && (getItemId < GI_MAX)))) ||
-                !(player->stateFlags1 & (PLAYER_STATE1_800 | PLAYER_STATE1_20000000))) {
-                s16 yawDiff = actor->yawTowardsPlayer - player->actor.shape.rot.y;
-                s32 absYawDiff = ABS_ALT(yawDiff);
-
-                if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
-                    if (tearScrubWorkaround) {
-                        player->getItemId = GI_DEED_LAND;
-                    } else {
-                        player->getItemId = trueGI;
-                    }
-                    player->interactRangeActor = actor;
-                    player->getItemDirection = absYawDiff;
-
-                    if ((getItemId > GI_NONE) && (getItemId < GI_MAX)) {
-                        CutsceneManager_Queue(play->playerCsIds[PLAYER_CS_ID_ITEM_GET]);
-                    }
-
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange) {
-    Player* player = GET_PLAYER(play);
-
-    if (location != 0) {
-        recomp_send_location(location);
     }
 
     if (!(player->stateFlags1 &
@@ -824,7 +783,54 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
 
     return false;
 }
-/*
+
+s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange) {
+    Player* player = GET_PLAYER(play);
+
+    if (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME) {
+        has_ocarina = true;
+    } else {
+        has_ocarina = false;
+    }
+
+    if (location != 0) {
+        recomp_send_location(location);
+    }
+
+    itemWorkaround = true;
+    trueGI = getItemId;
+
+    if (!(player->stateFlags1 &
+          (PLAYER_STATE1_80 | PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
+           PLAYER_STATE1_80000 | PLAYER_STATE1_100000 | PLAYER_STATE1_200000)) &&
+        (Player_GetExplosiveHeld(player) <= PLAYER_EXPLOSIVE_NONE)) {
+        if ((actor->xzDistToPlayer <= xzRange) && (fabsf(actor->playerHeightRel) <= fabsf(yRange))) {
+            if (((getItemId == GI_MASK_CIRCUS_LEADER) || (getItemId == GI_PENDANT_OF_MEMORIES) ||
+                 (getItemId == GI_DEED_LAND) ||
+                 (((player->heldActor != NULL) || (actor == player->talkActor)) &&
+                  ((getItemId > GI_NONE) && (getItemId < GI_MAX)))) ||
+                !(player->stateFlags1 & (PLAYER_STATE1_800 | PLAYER_STATE1_20000000))) {
+                s16 yawDiff = actor->yawTowardsPlayer - player->actor.shape.rot.y;
+                s32 absYawDiff = ABS_ALT(yawDiff);
+
+                if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
+                    player->getItemId = GI_DEED_LAND;
+                    player->interactRangeActor = actor;
+                    player->getItemDirection = absYawDiff;
+
+                    if ((getItemId > GI_NONE) && (getItemId < GI_MAX)) {
+                        CutsceneManager_Queue(play->playerCsIds[PLAYER_CS_ID_ITEM_GET]);
+                    }
+
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 u8 Item_Give(PlayState* play, u8 item) {
     Player* player = GET_PLAYER(play);
     u8 i;
@@ -949,4 +955,4 @@ u8 Item_Give(PlayState* play, u8 item) {
     }
 
     return ITEM_NONE;
-}*/
+}
