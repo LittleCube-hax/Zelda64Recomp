@@ -97,7 +97,7 @@ void DmChar02_Update(Actor* thisx, PlayState* play) {
     this->unk_2F0 = this->unk_2F0;
     this->actionFunc(this, play);
     if ((this->actor.xzDistToPlayer <= 30.0f) && (fabsf(this->actor.playerHeightRel) <= fabsf(80.0f))) {
-        Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+        Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
         recomp_send_location(GI_OCARINA_OF_TIME);
         recomp_send_location(0x040067);
         Actor_Kill(thisx);

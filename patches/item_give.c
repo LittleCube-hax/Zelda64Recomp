@@ -12,7 +12,7 @@ extern s16 sAmmoRefillCounts[];
 extern s16 sBombchuRefillCounts[];
 extern s16 sArrowRefillCounts[];
 extern s16 sRupeeRefillCounts[];
-
+/*
 GetItemId noShuffleList[] = { GI_NONE,
                               GI_RUPEE_GREEN, GI_RUPEE_BLUE, GI_RUPEE_RED,
                               GI_MAGIC_JAR_SMALL, GI_MAGIC_JAR_BIG,
@@ -21,7 +21,13 @@ GetItemId noShuffleList[] = { GI_NONE,
                               GI_DEKU_STICKS_1,
                               GI_BOMBS_1,
                               GI_BOMBS_5,
-                              GI_RECOVERY_HEART };
+                              GI_RECOVERY_HEART,
+                              GI_HEART_PIECE };*/
+
+static GetItemId shuffledList[] = { GI_OCARINA_OF_TIME,
+                                    GI_MOONS_TEAR,
+                                    GI_DEED_LAND,
+                                    GI_MASK_DEKU };
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId);
 s32 func_8085B28C(PlayState* play, Player* this, PlayerCsAction csAction);
@@ -39,7 +45,8 @@ void func_8082DB90(PlayState* play, Player* this, PlayerAnimationHeader* anim);
 
 // TODO: consider what to do with the NONEs: cannot use a zero-argument macro like OoT since the text id is involved.
 #define GET_ITEM(itemId, objectId, drawId, textId, field, chestAnim) \
-    { itemId, field, (chestAnim != CHEST_ANIM_SHORT ? 1 : -1) * (drawId + 1), textId, objectId }
+    { itemId, field, -1*(drawId + 1), textId, objectId }
+//    { itemId, field, (chestAnim != CHEST_ANIM_SHORT ? 1 : -1) * (drawId + 1), textId, objectId }
 
 #define GIFIELD_GET_DROP_TYPE(field) ((field)&0x1F)
 #define GIFIELD_20 (1 << 5)
@@ -543,6 +550,19 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
              CHEST_ANIM_LONG),
 };
 
+u16 getObjectId(s16 gi) {
+    return sGetItemTable_original[gi - 1].objectId;
+}
+
+s8 getGid(s16 gi) {
+    s8 gid = sGetItemTable_original[gi - 1].gid;
+    return (((gid < 0) ? -1 : 1)*gid) - 1;
+}
+
+u8 getTextId(s16 gi) {
+    return sGetItemTable_original[gi - 1].textId;
+}
+
 s16 trueGI;
 bool itemWorkaround = false;
 bool has_ocarina = false;
@@ -559,11 +579,11 @@ void func_8084748C(Player* this, f32* speed, f32 speedTarget, s16 yawTarget);
 // Player_UpdateCurrentGetItemDrawId?
 void func_8082ECE0(Player* this) {
     GetItemEntry* giEntry;
-    if (!itemWorkaround) {
+    if (itemWorkaround) {
         //trueGI = this->getItemId;
-        giEntry = &sGetItemTable_original[this->getItemId - 1];
-    } else {
         giEntry = &sGetItemTable_original[trueGI - 1];
+    } else {
+        giEntry = &sGetItemTable_original[this->getItemId - 1];
     }
 
     this->getItemDrawIdPlusOne = ABS_ALT(giEntry->gid);
@@ -733,7 +753,6 @@ s8 sItemItemActions[] = {
 
 PlayerItemAction Player_ItemToItemAction(Player* this, ItemId item) {
     itemWorkaround = false;
-    //trueGI = GI_MOONS_TEAR;
     if (item >= ITEM_FD) {
         return PLAYER_IA_NONE;
     } else if (item == ITEM_FC) {
@@ -770,7 +789,92 @@ void Player_Action_60(Player* this, PlayState* play) {
     func_808475B4(this);
     func_8084748C(this, &this->linearVelocity, 0.0f, this->actor.shape.rot.y);
 }
-/*
+
+extern LinkAnimationHeader gPlayerAnim_pn_getB;
+extern LinkAnimationHeader gPlayerAnim_link_demo_get_itemB;
+extern LinkAnimationHeader gPlayerAnim_link_normal_box_kick;
+
+struct struct_80867BDC_a0;
+
+typedef void (*EnBoxActionFunc)(struct EnBox*, PlayState*);
+typedef void (*EnBoxUnkFunc)(struct struct_80867BDC_a0* arg0, PlayState* play);
+
+typedef struct struct_80867BDC_a0 {
+    /* 0x00 */ Vec3f pos;
+    /* 0x0C */ EnBoxUnkFunc unk_0C;
+    /* 0x10 */ EnBoxUnkFunc unk_10;
+    /* 0x14 */ s32 unk_14;
+    /* 0x18 */ s32 unk_18;
+    /* 0x1C */ s32 unk_1C;
+    /* 0x20 */ s32 unk_20;
+} struct_80867BDC_a0; // size 0x24
+
+#define OBJECT_BOX_CHEST_LIMB_MAX 0x5
+
+typedef struct EnBox {
+    /* 0x000 */ DynaPolyActor dyna;
+    /* 0x15C */ SkelAnime skelAnime;
+    /* 0x1A0 */ s32 unk_1A0;
+    /* 0x1A4 */ UNK_TYPE1 unk_1A4[0x04];
+    /* 0x1A8 */ f32 unk_1A8;
+    /* 0x1AC */ EnBoxActionFunc actionFunc;
+    /* 0x1B0 */ Vec3s jointTable[OBJECT_BOX_CHEST_LIMB_MAX];
+    /* 0x1CE */ Vec3s morphTable[OBJECT_BOX_CHEST_LIMB_MAX];
+    /* 0x1EC */ s16 unk_1EC;
+    /* 0x1EE */ u8 movementFlags;
+    /* 0x1EF */ u8 alpha;
+    /* 0x1F0 */ u8 switchFlag;
+    /* 0x1F1 */ u8 type;
+    /* 0x1F2 */ u8 iceSmokeTimer;
+    /* 0x1F3 */ s8 unk_1F3;
+    /* 0x1F4 */ struct_80867BDC_a0 unk_1F4;
+    /* 0x218 */ s16 csId1;
+    /* 0x21A */ s16 csId2;
+    /* 0x21C */ s32 getItemId;
+    /* 0x220 */ s32 collectableFlag;
+} EnBox; // size = 0x224
+
+struct EnBom;
+
+typedef void (*EnBomActionFunc)(struct EnBom*, PlayState*);
+
+#define ENBOM_GET_1(thisx) ((thisx)->shape.rot.x & 1)
+#define ENBOM_GET_80(thisx) ((thisx)->shape.rot.z & 0x80)
+#define ENBOM_GET_FF00(thisx) (((thisx)->shape.rot.z & 0xFF00) >> 8)
+
+typedef enum BombType {
+    /* 0 */ BOMB_TYPE_BODY,
+    /* 1 */ BOMB_TYPE_EXPLOSION
+} BombType;
+
+// Passed via x rotation
+typedef enum BombExplosiveType {
+    /* 0 */ BOMB_EXPLOSIVE_TYPE_BOMB,
+    /* 1 */ BOMB_EXPLOSIVE_TYPE_POWDER_KEG
+} BombExplosiveType;
+
+typedef struct EnBom {
+    /* 0x000 */ Actor actor;
+    /* 0x144 */ ColliderCylinder collider1;
+    /* 0x190 */ ColliderJntSph collider2;
+    /* 0x1B0 */ ColliderJntSphElement collider2Elements[1];
+    /* 0x1F0 */ s16 timer;
+    /* 0x1F2 */ s16 flashSpeedScale;
+    /* 0x1F4 */ f32 unk_1F4;
+    /* 0x1F8 */ u8 unk_1F8;
+    /* 0x1F9 */ u8 isPowderKeg;
+    /* 0x1FA */ s16 unk_1FA;
+    /* 0x1FC */ u8 unk_1FC;
+    /* 0x200 */ EnBomActionFunc actionFunc;
+} EnBom; // size = 0x204
+
+void func_8082DAD4(Player* this);
+void func_8083D168(PlayState* play, Player* this, GetItemEntry* giEntry);
+s32 func_80832558(PlayState* play, Player* this, PlayerFuncD58 arg2);
+void func_8082E920(PlayState* play, Player* this, s32 moveFlags);
+void Player_AnimationPlayOnce(PlayState* play, Player* this, PlayerAnimationHeader* anim);
+void func_808379C0(PlayState* play, Player* this);
+
 s32 Player_ActionChange_2(Player* this, PlayState* play) {
     if (gSaveContext.save.saveInfo.playerData.health != 0) {
         Actor* interactRangeActor = this->interactRangeActor;
@@ -808,7 +912,8 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
             } else if (this->csAction == PLAYER_CSACTION_NONE) {
                 if (!(this->stateFlags1 & PLAYER_STATE1_800)) {
                     if (this->getItemId != GI_NONE) {
-                        if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A)) {
+                        //if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A)) {
+                        if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A)) {
                             GetItemEntry* giEntry = &sGetItemTable_original[-this->getItemId - 1];
                             EnBox* chest = (EnBox*)interactRangeActor;
 
@@ -819,7 +924,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                                   (giEntry->field & GIFIELD_20)))) {
                                 this->getItemId =
                                     (giEntry->itemId == ITEM_MASK_CAPTAIN) ? -GI_RECOVERY_HEART : -GI_RUPEE_BLUE;
-                                giEntry = &sGetItemTable[-this->getItemId - 1];
+                                giEntry = &sGetItemTable_original[-this->getItemId - 1];
                             }
 
                             func_80832558(play, this, func_80837C78);
@@ -865,7 +970,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                             }
 
                             this->stateFlags2 |= PLAYER_STATE2_10000;
-                            if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A)) {
+                            if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A)) {
                                 func_80832558(play, this, func_808379C0);
                                 func_8082DAD4(this);
                                 this->stateFlags1 |= PLAYER_STATE1_800;
@@ -880,8 +985,8 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
     }
 
     return false;
-}*/
-
+}
+/*
 s32 func_808411D4(PlayState* play, Player* this, f32* arg2, s32 arg3);
 
 void func_808345C8(void) {
@@ -943,17 +1048,17 @@ void Player_CsAction_43(PlayState* play, Player* this, CsCmdActorCue* cue) {
     } else {
         PlayerAnimation_Update(play, &this->skelAnime);
     }
-}
+}*/
 
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
-    bool shuffled = true;
+    bool shuffled = false;
     u32 i;
 
     if (getItemId != GI_NONE) {
-        for (i = 0; i < sizeof(noShuffleList)/sizeof(noShuffleList[0]); ++i) {
-            if (getItemId == noShuffleList[i]) {
-                shuffled = false;
+        for (i = 0; i < sizeof(shuffledList)/sizeof(shuffledList[0]); ++i) {
+            if (getItemId == shuffledList[i]) {
+                shuffled = true;
             }
         }
     }
@@ -986,7 +1091,9 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                 s32 absYawDiff = ABS_ALT(yawDiff);
 
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
-                    recomp_send_location(getItemId);
+                    if (shuffled) {
+                        recomp_send_location(getItemId);
+                    }
                     player->getItemId = getItemId;
                     player->interactRangeActor = actor;
                     player->getItemDirection = absYawDiff;

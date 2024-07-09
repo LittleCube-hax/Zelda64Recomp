@@ -223,7 +223,7 @@ void EnOsn_Idle(EnOsn* this, PlayState* play) {
             //shouldSetForm = true;
             //prevForm = gSaveContext.save.playerForm;
             //this->actionFunc = EnOsn_StartCutscene;
-            Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+            Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
             recomp_send_location(0x040068);
             recomp_send_location(GI_MASK_DEKU);
         } else if (((this->actor.xzDistToPlayer < 100.0f) || this->actor.isLockedOn) && (yaw < 0x4000) &&

@@ -66,7 +66,7 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
     if (getLocationHasLocalItem(location)) {
         int64_t item = getItemAtLocation(location) & 0xFFFFFF;
 
-        if ((item & 0xFF0000) == 0x0000) {
+        if ((item & 0xFF0000) == 0x000000) {
             _return(ctx, (u32) (item & 0xFF));
             return;
         } else {
