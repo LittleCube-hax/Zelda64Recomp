@@ -458,7 +458,7 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
 
             if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                 (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-                CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A)) {
+                CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_L)) {
                 if (pauseCtx->cursorSlot[PAUSE_ITEM] == SLOT(ITEM_MOONS_TEAR)) {
                     int i = INV_CONTENT(ITEM_MOONS_TEAR) + 0x6E;  // convert to GI
                     int first_i = i;
@@ -566,12 +566,12 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                 } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                            (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
                            CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) && (msgCtx->msgLength == 0)) {
-                    //pauseCtx->itemDescriptionOn = true;
-                    /*if (pauseCtx->cursorYIndex[PAUSE_ITEM] < 2) {
+                    pauseCtx->itemDescriptionOn = true;
+                    if (pauseCtx->cursorYIndex[PAUSE_ITEM] < 2) {
                         func_801514B0(play, 0x1700 + pauseCtx->cursorItem[PAUSE_ITEM], 3);
                     } else {
                         func_801514B0(play, 0x1700 + pauseCtx->cursorItem[PAUSE_ITEM], 1);
-                    }*/
+                    }
                 }
             }
         } else {
@@ -986,6 +986,18 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if (pauseCtx->state != PAUSE_STATE_SAVEPROMPT) {
+
+            if (sCursorColorTimer == 0) {
+                sCursorPrimR = sCursorPrimColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][0];
+                sCursorPrimG = sCursorPrimColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][1];
+                sCursorPrimB = sCursorPrimColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][2];
+                sCursorEnvR = sCursorEnvColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][0];
+                sCursorEnvG = sCursorEnvColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][1];
+                sCursorEnvB = sCursorEnvColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][2];
+                sCursorColorTargetIndex ^= 1;
+                sCursorColorTimer = 10;
+                return;
+            }
 
             stepR =
                 ABS_ALT(sCursorPrimR - sCursorPrimColorTarget[pauseCtx->cursorColorSet + sCursorColorTargetIndex][0]) /

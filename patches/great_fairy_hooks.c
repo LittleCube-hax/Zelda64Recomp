@@ -29,6 +29,8 @@ typedef void (*BgDyYoseizoActionFunc)(struct BgDyYoseizo*, PlayState*);
 
 #define GREAT_FAIRY_LIMB_MAX 0x1C
 
+#define LOCATION_GREAT_FAIRY (0x030000 | GREAT_FAIRY_GET_TYPE(&this->actor))
+
 typedef enum GreatFairyType {
     /* 0 */ GREAT_FAIRY_TYPE_MAGIC,
     /* 1 */ GREAT_FAIRY_TYPE_POWER,
@@ -81,7 +83,7 @@ typedef struct BgDyYoseizo {
 
 void BgDyYoseizo_Bob(BgDyYoseizo* this, PlayState* play);
 s32 SkelAnime_Update(SkelAnime* skelAnime);
-extern void func_80A0B290(BgDyYoseizo* this, PlayState* play);
+void func_80A0B290(BgDyYoseizo* this, PlayState* play);
 
 void func_80A0B35C(BgDyYoseizo* this, PlayState* play) {
     BgDyYoseizo_Bob(this, play);
@@ -89,13 +91,13 @@ void func_80A0B35C(BgDyYoseizo* this, PlayState* play) {
 
     if (this->timer == 60) {
         if (!Flags_GetSwitch(play, GREAT_FAIRY_GET_SWITCHFLAG(&this->actor))) {
+            recomp_send_location(LOCATION_GREAT_FAIRY);
             switch (GREAT_FAIRY_GET_TYPE(&this->actor)) {
                 case GREAT_FAIRY_TYPE_MAGIC:
                     /*if (gSaveContext.save.saveInfo.playerData.isMagicAcquired != true) {
                         gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
                         gSaveContext.magicFillTarget = MAGIC_NORMAL_METER;
                     }*/
-                    recomp_send_location(0x00FC00);
                     break;
 
                 case GREAT_FAIRY_TYPE_WISDOM:
@@ -132,7 +134,6 @@ void func_80A0B35C(BgDyYoseizo* this, PlayState* play) {
 
     if (this->timer == 0) {
         this->beam->trigger = true;
-        //this->actionFunc = func_80A0B290;
-        this->actionFunc = (BgDyYoseizoActionFunc) actor_relocate(&this->actor, func_80A0B290);
+        this->actionFunc = func_80A0B290;
     }
 }

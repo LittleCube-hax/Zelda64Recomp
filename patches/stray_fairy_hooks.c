@@ -24,6 +24,8 @@
 #define STRAY_FAIRY_FLAG_CIRCLES_QUICKLY_IN_FOUNTAIN (1 << 2)
 #define STRAY_FAIRY_FLAG_GREAT_FAIRYS_MASK_EQUIPPED (1 << 3)
 
+#define LOCATION_STRAY_FAIRY (0x010000 | STRAY_FAIRY_GET_FLAG(&this->actor))
+
 extern FlexSkeletonHeader gStrayFairySkel;
 extern AnimationHeader gStrayFairyFlyingAnim;
 
@@ -115,17 +117,7 @@ void EnElforg_CirclePlayer(EnElforg* this, PlayState* play);
 void EnElforg_MoveToTarget(EnElforg* this, Vec3f* targetPos);
 void EnElforg_HiddenByCollider(EnElforg* this, PlayState* play);
 void func_80ACCBB8(EnElforg* this, PlayState* play);
-
-void EnElforg_InitializeParams(EnElforg* this) {
-    this->actor.speed = 1.0f;
-    this->targetSpeedXZ = 1.0f;
-    this->actor.velocity.y = 0.0f;
-    this->actor.world.rot.y = Rand_CenteredFloat(0x10000);
-    this->timer = 0;
-    this->secondaryTimer = Rand_ZeroFloat(100.0f);
-    this->actor.shape.yOffset = 0.0f;
-    this->skelAnime.curFrame = (s32)Rand_ZeroFloat(5.0f);
-}
+void EnElforg_InitializeParams(EnElforg* this);
 
 void EnElforg_Init(Actor* thisx, PlayState* play) {
     s32 pad;
@@ -142,7 +134,7 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
 
     switch (STRAY_FAIRY_TYPE(thisx)) {
         case STRAY_FAIRY_TYPE_CLOCK_TOWN:
-            if (gotLaundryPool) {
+            if (recomp_location_is_checked(LOCATION_STRAY_FAIRY)) {
                 Actor_Kill(thisx);
                 return;
             }
@@ -178,14 +170,14 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
     switch (STRAY_FAIRY_TYPE(thisx)) {
         case STRAY_FAIRY_TYPE_FAIRY_FOUNTAIN:
             EnElforg_InitializeParams(this);
-            this->actionFunc = (EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_FreeFloatingFairyFountain);
+            this->actionFunc = EnElforg_FreeFloatingFairyFountain;
             this->targetSpeedXZ = Rand_ZeroFloat(2.0f) + 1.0f;
             this->targetDistanceFromHome = Rand_ZeroFloat(100.0f) + 50.0f;
             break;
 
         case STRAY_FAIRY_TYPE_RETURNING_TO_FOUNTAIN:
             EnElforg_InitializeParams(this);
-            this->actionFunc = (EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_TurnInFairy);
+            this->actionFunc = EnElforg_TurnInFairy;
             this->secondaryTimer = 60;
             break;
 
@@ -216,68 +208,6 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
     thisx->shape.rot.y = 0;
 }
 
-void EnElforg_Update(Actor* thisx, PlayState* play) {
-    EnElforg* this = THIS;
-
-    this->actionFunc(this, play);
-    /*switch (STRAY_FAIRY_TYPE(thisx)) {
-        case STRAY_FAIRY_TYPE_FAIRY_FOUNTAIN:
-            *((EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_FreeFloatingFairyFountain))(this, play);
-            break;
-
-        case STRAY_FAIRY_TYPE_RETURNING_TO_FOUNTAIN:
-            EnElforg_InitializeParams(this);
-            *((EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_TurnInFairy))(this, play);
-            break;
-
-        case STRAY_FAIRY_TYPE_BUBBLE:
-            EnElforg_TrappedByBubble(this, play);
-            break;
-
-        case STRAY_FAIRY_TYPE_ENEMY:
-            EnElforg_SetupTrappedByEnemy(this, play);
-            break;
-
-        case STRAY_FAIRY_TYPE_COLLIDER:
-            EnElforg_HiddenByCollider(this, play);
-            break;
-
-        default:
-            EnElforg_FreeFloating(this, play);
-            break;
-    }*/
-
-    if ((this->timer == 0) && (this->secondaryTimer > 0)) {
-        this->secondaryTimer--;
-    } else {
-        this->timer++;
-    }
-
-    if (this->direction < 0) {
-        this->direction++;
-        if (this->direction == 0) {
-            this->direction = Rand_ZeroFloat(20.0f) + 20.0f;
-        }
-    } else if (this->direction > 0) {
-        this->direction--;
-    } else {
-        this->direction = -Rand_ZeroFloat(20.0f) - 20.0f;
-    }
-}
-
-void EnElforg_SetupFairyCollected(EnElforg* this, PlayState* play) {
-    Actor* playerActor = &GET_PLAYER(play)->actor;
-    Player* player = GET_PLAYER(play);
-
-    this->actor.world.pos.x = playerActor->world.pos.x;
-    this->actor.world.pos.y = player->bodyPartsPos[PLAYER_BODYPART_WAIST].y;
-    this->actor.world.pos.z = playerActor->world.pos.z;
-    this->actionFunc = (EnElforgActionFunc) actor_relocate(&this->actor, EnElforg_FairyCollected);
-    this->timer = 0;
-    this->secondaryTimer = 0;
-    this->actor.shape.yOffset = 0.0f;
-}
-
 void EnElforg_ClockTownFairyCollected(EnElforg* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
@@ -291,7 +221,6 @@ void EnElforg_ClockTownFairyCollected(EnElforg* this, PlayState* play) {
         player->stateFlags1 &= ~PLAYER_STATE1_20000000;
         Actor_Kill(&this->actor);
         //SET_WEEKEVENTREG(WEEKEVENTREG_08_80);
-        gotLaundryPool = true;
         CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
         return;
     }
@@ -346,7 +275,7 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
             if (STRAY_FAIRY_TYPE(&this->actor) == STRAY_FAIRY_TYPE_CLOCK_TOWN) {
                 player->actor.freezeTimer = 100;
                 player->stateFlags1 |= PLAYER_STATE1_20000000;
-                recomp_send_location(0xFE00 | STRAY_FAIRY_GET_FLAG(&this->actor));
+                recomp_send_location(LOCATION_STRAY_FAIRY);
                 // Bring me back to North Clock Town!
                 Message_StartTextbox(play, 0x579, NULL);
                 this->actionFunc = EnElforg_ClockTownFairyCollected;
@@ -379,68 +308,4 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
             this->strayFairyFlags &= ~STRAY_FAIRY_FLAG_GREAT_FAIRYS_MASK_EQUIPPED;
         }
     }
-}
-
-void EnElforg_TrappedByBubble(EnElforg* this, PlayState* play) {
-    SkelAnime_Update(&this->skelAnime);
-
-    if ((this->actor.parent == NULL) || (this->actor.parent->update == NULL)) {
-        EnElforg_InitializeParams(this);
-        this->actionFunc = EnElforg_FreeFloating;
-    } else {
-        this->actor.shape.yOffset += 10.0f * Math_SinS(this->timer * 0x200);
-        this->actor.world.pos = this->actor.parent->world.pos;
-        this->actor.world.pos.y += 12.0f;
-    }
-
-    func_80ACCBB8(this, play);
-}
-
-void EnElforg_TrappedByEnemy(EnElforg* this, PlayState* play) {
-    f32 posTemp;
-
-    if (this->enemy->update == NULL) {
-        EnElforg_InitializeParams(this);
-        this->actionFunc = EnElforg_FreeFloating;
-        this->actor.draw = (ActorFunc) actor_relocate(&this->actor, EnElforg_Draw);
-        Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_FAIRY_SAVED);
-    } else {
-        // The enemy is still alive, so have the Stray Fairy
-        // track the enemy in case it's moving around.
-        posTemp = this->enemy->world.pos.x;
-        this->actor.world.pos.x = posTemp;
-        this->actor.home.pos.x = posTemp;
-        posTemp = this->enemy->world.pos.y + 30.0f;
-        this->actor.world.pos.y = posTemp;
-        this->actor.home.pos.y = posTemp;
-        posTemp = this->enemy->world.pos.z;
-        this->actor.world.pos.z = posTemp;
-        this->actor.home.pos.z = posTemp;
-    }
-
-    func_80ACCBB8(this, play);
-}
-
-void EnElforg_SetupTrappedByEnemy(EnElforg* this, PlayState* play) {
-    Actor* enemy = EnElforg_GetHoldingEnemy(this, play);
-
-    if ((enemy != NULL) && (enemy->update != NULL)) {
-        this->actionFunc = EnElforg_TrappedByEnemy;
-        this->enemy = enemy;
-    }
-}
-
-void EnElforg_HiddenByCollider(EnElforg* this, PlayState* play) {
-    if (this->collider.base.acFlags & AC_HIT) {
-        EnElforg_InitializeParams(this);
-        this->actionFunc = EnElforg_FreeFloating;
-        this->actor.draw = (ActorFunc) actor_relocate(&this->actor, EnElforg_Draw);
-        this->actor.world.pos.y += 40.0f;
-        this->actor.home.pos.y += 40.0f;
-        Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_FAIRY_SAVED);
-    } else {
-        CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);
-    }
-
-    func_80ACCBB8(this, play);
 }

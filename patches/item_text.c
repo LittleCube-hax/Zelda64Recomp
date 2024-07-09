@@ -8,8 +8,13 @@ void Message_StartTextbox(PlayState* play, u16 textId, Actor* actor) {
 
     msgCtx->ocarinaAction = 0xFFFF;
 
-    if (textId == 0xB3) {
-        textId = 0x20D4;
+    switch (textId) {
+        case 0xB3:
+            textId = 0x20D4;
+            break;
+        case 0xB0:
+            textId = 0x20D9;
+            break;
     }
 
     Message_OpenText(play, textId);

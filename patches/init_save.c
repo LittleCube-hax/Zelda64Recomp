@@ -7,151 +7,9 @@
 #include "misc_funcs.h"
 #include "apcommon.h"
 
-SavePlayerData sSaveDefaultPlayerData = {
-    { '\0', '\0', '\0', '\0', '\0', '\0' },             // newf
-    0,                                                  // threeDayResetCount
-    { 0x3E, 0x3E, 0x3E, 0x3E, 0x3E, 0x3E, 0x3E, 0x3E }, // playerName "        "
-    0x30,                                               // healthCapacity
-    0x30,                                               // health
-    0,                                                  // magicLevel
-    MAGIC_NORMAL_METER,                                 // magic
-    0,                                                  // rupees
-    0,                                                  // swordHealth
-    0,                                                  // tatlTimer
-    false,                                              // isMagicAcquired
-    false,                                              // isDoubleMagicAcquired
-    0,                                                  // doubleDefense
-    0,                                                  // unk_1F
-    0xFF,                                               // unk_20
-    0x0000,                                             // owlActivationFlags
-    0xFF,                                               // unk_24
-    SCENE_SPOT00,                                       // savedSceneId
-};
-
-ItemEquips sSaveDefaultItemEquips = {
-    {
-        { ITEM_SWORD_KOKIRI, ITEM_NONE, ITEM_NONE, ITEM_NONE },
-        { ITEM_SWORD_KOKIRI, ITEM_NONE, ITEM_NONE, ITEM_NONE },
-        { ITEM_SWORD_KOKIRI, ITEM_NONE, ITEM_NONE, ITEM_NONE },
-        { ITEM_FD, ITEM_NONE, ITEM_NONE, ITEM_NONE },
-    },
-    {
-        { SLOT_OCARINA, SLOT_NONE, SLOT_NONE, SLOT_NONE },
-        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
-        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
-        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
-    },
-    0x11,
-};
-
-Inventory sSaveDefaultInventory = {
-    // items
-    {
-        ITEM_NONE, // SLOT_OCARINA
-        ITEM_NONE, // SLOT_BOW
-        ITEM_NONE, // SLOT_ARROW_FIRE
-        ITEM_NONE, // SLOT_ARROW_ICE
-        ITEM_NONE, // SLOT_ARROW_LIGHT
-        ITEM_NONE, // SLOT_TRADE_DEED
-        ITEM_NONE, // SLOT_BOMB
-        ITEM_NONE, // SLOT_BOMBCHU
-        ITEM_NONE, // SLOT_DEKU_STICK
-        ITEM_NONE, // SLOT_DEKU_NUT
-        ITEM_NONE, // SLOT_MAGIC_BEANS
-        ITEM_NONE, // SLOT_TRADE_KEY_MAMA
-        ITEM_NONE, // SLOT_POWDER_KEG
-        ITEM_NONE, // SLOT_PICTOGRAPH_BOX
-        ITEM_NONE, // SLOT_LENS_OF_TRUTH
-        ITEM_NONE, // SLOT_HOOKSHOT
-        ITEM_NONE, // SLOT_SWORD_GREAT_FAIRY
-        ITEM_NONE, // SLOT_TRADE_COUPLE
-        ITEM_NONE, // SLOT_BOTTLE_1
-        ITEM_NONE, // SLOT_BOTTLE_2
-        ITEM_NONE, // SLOT_BOTTLE_3
-        ITEM_NONE, // SLOT_BOTTLE_4
-        ITEM_NONE, // SLOT_BOTTLE_5
-        ITEM_NONE, // SLOT_BOTTLE_6
-        ITEM_NONE, // SLOT_MASK_POSTMAN
-        ITEM_NONE, // SLOT_MASK_ALL_NIGHT
-        ITEM_NONE, // SLOT_MASK_BLAST
-        ITEM_NONE, // SLOT_MASK_STONE
-        ITEM_NONE, // SLOT_MASK_GREAT_FAIRY
-        ITEM_NONE, // SLOT_MASK_DEKU
-        ITEM_NONE, // SLOT_MASK_KEATON
-        ITEM_NONE, // SLOT_MASK_BREMEN
-        ITEM_NONE, // SLOT_MASK_BUNNY
-        ITEM_NONE, // SLOT_MASK_DON_GERO
-        ITEM_NONE, // SLOT_MASK_SCENTS
-        ITEM_NONE, // SLOT_MASK_GORON
-        ITEM_NONE, // SLOT_MASK_ROMANI
-        ITEM_NONE, // SLOT_MASK_CIRCUS_LEADER
-        ITEM_NONE, // SLOT_MASK_KAFEIS_MASK
-        ITEM_NONE, // SLOT_MASK_COUPLE
-        ITEM_NONE, // SLOT_MASK_TRUTH
-        ITEM_NONE, // SLOT_MASK_ZORA
-        ITEM_NONE, // SLOT_MASK_KAMARO
-        ITEM_NONE, // SLOT_MASK_GIBDO
-        ITEM_NONE, // SLOT_MASK_GARO
-        ITEM_NONE, // SLOT_MASK_CAPTAIN
-        ITEM_NONE, // SLOT_MASK_GIANT
-        ITEM_NONE, // SLOT_MASK_FIERCE_DEITY
-    },
-    // ammo
-    {
-        0, // SLOT_OCARINA
-        0, // SLOT_BOW
-        0, // SLOT_ARROW_FIRE
-        0, // SLOT_ARROW_ICE
-        0, // SLOT_ARROW_LIGHT
-        0, // SLOT_TRADE_DEED
-        0, // SLOT_BOMB
-        0, // SLOT_BOMBCHU
-        0, // SLOT_DEKU_STICK
-        0, // SLOT_DEKU_NUT
-        0, // SLOT_MAGIC_BEANS
-        0, // SLOT_TRADE_KEY_MAMA
-        0, // SLOT_POWDER_KEG
-        0, // SLOT_PICTOGRAPH_BOX
-        0, // SLOT_LENS_OF_TRUTH
-        0, // SLOT_HOOKSHOT
-        0, // SLOT_SWORD_GREAT_FAIRY
-        0, // SLOT_TRADE_COUPLE
-        0, // SLOT_BOTTLE_1
-        0, // SLOT_BOTTLE_2
-        0, // SLOT_BOTTLE_3
-        0, // SLOT_BOTTLE_4
-        0, // SLOT_BOTTLE_5
-        0, // SLOT_BOTTLE_6
-    },
-    // upgrades
-    (0 << 0) |      // UPG_QUIVER
-        (0 << 3) |  // UPG_BOMB_BAG
-        (0 << 6) |  // UPG_STRENGTH
-        (0 << 9) |  // UPG_SCALE
-        (0 << 12) | // UPG_WALLET
-        (0 << 14) | // UPG_BULLET_BAG
-        (1 << 17) | // UPG_DEKU_STICKS
-        (1 << 20),  // UPG_DEKU_NUTS
-    // questItems
-    0,
-    // dungeonItems
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    // dungeonKeys
-    { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
-    // defenseHearts
-    0,
-    // strayFairies
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    // dekuPlaygroundPlayerName
-    {
-        // "LINK    "
-        { 0x15, 0x12, 0x17, 0x14, 0x3E, 0x3E, 0x3E, 0x3E },
-        // "LINK    "
-        { 0x15, 0x12, 0x17, 0x14, 0x3E, 0x3E, 0x3E, 0x3E },
-        // "LINK    "
-        { 0x15, 0x12, 0x17, 0x14, 0x3E, 0x3E, 0x3E, 0x3E },
-    },
-};
+extern SavePlayerData sSaveDefaultPlayerData;
+extern ItemEquips sSaveDefaultItemEquips;
+extern Inventory sSaveDefaultInventory;
 
 void Sram_ClearHighscores(void);
 void Sram_GenerateRandomSaveFields(void);
@@ -181,6 +39,10 @@ void Sram_InitDebugSave(void) {
     SET_WEEKEVENTREG(WEEKEVENTREG_15_20);
     SET_WEEKEVENTREG(WEEKEVENTREG_59_04);
     SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
+
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_EAST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WEST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_NORTH_CLOCK_TOWN);
 
     gSaveContext.nextCutsceneIndex = 0;
 

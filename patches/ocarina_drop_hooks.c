@@ -24,25 +24,13 @@ typedef struct DmChar02 {
     /* 0x2F0 */ u32 unk_2F0;
 } DmChar02; // size = 0x2F4
 
-void DmChar02_Init(Actor* thisx, PlayState* play);
-void DmChar02_Destroy(Actor* thisx, PlayState* play);
-void DmChar02_Update(Actor* thisx, PlayState* play);
-void DmChar02_Draw(Actor* thisx, PlayState* play);
-
+void* ZeldaArena_Malloc(size_t size);
 void DmChar02_HandleCutscene(DmChar02* this, PlayState* play);
+s32 DmChar02_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
+void DmChar02_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
+void DmChar02_TransformLimbDraw(PlayState* play, s32 limbIndex, Actor* thisx);
 void DmChar02_ChangeAnim(SkelAnime* skelAnime, AnimationInfo* animInfo, u16 animIndex);
-
-ActorInit Dm_Char02_InitVars = {
-    /**/ ACTOR_DM_CHAR02,
-    /**/ ACTORCAT_ITEMACTION,
-    /**/ FLAGS,
-    /**/ OBJECT_STK2,
-    /**/ sizeof(DmChar02),
-    /**/ DmChar02_Init,
-    /**/ DmChar02_Destroy,
-    /**/ DmChar02_Update,
-    /**/ DmChar02_Draw,
-};
+void DmChar02_PlaySfxForCutscenes(DmChar02* this, PlayState* play);
 
 typedef enum {
     /* 0 */ DMCHAR02_ANIM_HIT_GROUND,
@@ -52,48 +40,112 @@ typedef enum {
     /* 4 */ DMCHAR02_ANIM_MAX
 } DmChar02Animation;
 
-extern AnimationHeader gClockTowerOcarinaOfTimeHitGroundAnim;
-extern AnimationHeader gClockTowerOcarinaOfTimeTurnAroundAnim;
-extern AnimationHeader gClockTowerOcarinaOfTimeJuggleAnim;
-extern AnimationHeader gClockTowerOcarinaOfTimeFallAnim;
-
 extern FlexSkeletonHeader gClockTowerOcarinaOfTimeSkel;
 
-AnimationHeader gClockTowerOcarinaOfTimeHitGroundAnim_reloc;
-AnimationHeader gClockTowerOcarinaOfTimeTurnAroundAnim_reloc;
-AnimationHeader gClockTowerOcarinaOfTimeJuggleAnim_reloc;
-AnimationHeader gClockTowerOcarinaOfTimeFallAnim_reloc;
+extern AnimationInfo sAnimationInfo[DMCHAR02_ANIM_MAX];
 
-FlexSkeletonHeader gClockTowerOcarinaOfTimeSkel_reloc;
-
-static AnimationInfo sAnimationInfo_reloc[DMCHAR02_ANIM_MAX] = {
-    { &gClockTowerOcarinaOfTimeHitGroundAnim_reloc, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },  // DMCHAR02_ANIM_HIT_GROUND
-    { &gClockTowerOcarinaOfTimeTurnAroundAnim_reloc, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // DMCHAR02_ANIM_TURN_AROUND
-    { &gClockTowerOcarinaOfTimeJuggleAnim_reloc, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, 0.0f },     // DMCHAR02_ANIM_JUGGLE
-    { &gClockTowerOcarinaOfTimeFallAnim_reloc, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },       // DMCHAR02_ANIM_FALL
-};
+static int ocarinaCheckState;
+static bool objectStatic;
+static bool objectLoading;
+static bool objectLoaded;
+static OSMesgQueue objectLoadQueue;
+static void* objectSegment;
 
 void DmChar02_Init(Actor* thisx, PlayState* play) {
     DmChar02* this = THIS;
 
-    gClockTowerOcarinaOfTimeHitGroundAnim_reloc = *((AnimationHeader*) actor_relocate(&this->actor, gClockTowerOcarinaOfTimeHitGroundAnim));
-    gClockTowerOcarinaOfTimeTurnAroundAnim_reloc = *((AnimationHeader*) actor_relocate(&this->actor, gClockTowerOcarinaOfTimeTurnAroundAnim));
-    gClockTowerOcarinaOfTimeJuggleAnim_reloc = *((AnimationHeader*) actor_relocate(&this->actor, gClockTowerOcarinaOfTimeJuggleAnim));
-    gClockTowerOcarinaOfTimeFallAnim_reloc = *((AnimationHeader*) actor_relocate(&this->actor, gClockTowerOcarinaOfTimeFallAnim));
-    
-    gClockTowerOcarinaOfTimeSkel_reloc = *((FlexSkeletonHeader*) actor_relocate(&this->actor, gClockTowerOcarinaOfTimeSkel));
+    ocarinaCheckState = 0;
+    objectSegment = ZeldaArena_Malloc(0x2000);
 
     //if (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) {
-    if (!recomp_location_is_checked(GI_OCARINA_OF_TIME)) {
+    if (!recomp_location_is_checked(GI_OCARINA_OF_TIME) || !recomp_location_is_checked(0x040067)) {
         this->animIndex = DMCHAR02_ANIM_HIT_GROUND;
         this->actor.targetArrowOffset = 3000.0f;
         ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 24.0f);
-        SkelAnime_InitFlex(play, &this->skelAnime, &gClockTowerOcarinaOfTimeSkel_reloc, NULL, NULL, NULL, 0);
-        DmChar02_ChangeAnim(&this->skelAnime, &sAnimationInfo_reloc[DMCHAR02_ANIM_HIT_GROUND], 0);
+        SkelAnime_InitFlex(play, &this->skelAnime, &gClockTowerOcarinaOfTimeSkel, NULL, NULL, NULL, 0);
+        DmChar02_ChangeAnim(&this->skelAnime, &sAnimationInfo[DMCHAR02_ANIM_HIT_GROUND], 0);
         Actor_SetScale(&this->actor, 0.01f);
-        this->actionFunc = (DmChar02ActionFunc) actor_relocate(&this->actor, DmChar02_HandleCutscene);
+        this->actionFunc = DmChar02_HandleCutscene;
     } else {
         Actor_Kill(&this->actor);
+    }
+}
+
+void DmChar02_Update(Actor* thisx, PlayState* play) {
+    DmChar02* this = THIS;
+
+    /*s16 objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_GI_RESERVE_C_00);
+
+    if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
+        recomp_printf("ocarina static\n");
+        this->actor.objectSlot = objectSlot;
+        Actor_SetObjectDependency(play, &this->actor);
+        objectStatic = true;
+        objectLoaded = true;
+    } else if (!objectLoading && !objectLoaded) {
+        recomp_printf("ocarina dynamic\n");
+        //loadObject(play, objectSegment, &objectLoadQueue, getObjectId(moonsTearTrueGI));
+        loadObject(play, objectSegment, &objectLoadQueue, OBJECT_GI_RESERVE_C_00);
+        objectLoading = true;
+    } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+        recomp_printf("ocarina dynamic loaded\n");
+        objectLoading = false;
+        objectLoaded = true;
+    }*/
+
+    SkelAnime_Update(&this->skelAnime);
+    this->unk_2F0 = this->unk_2F0;
+    this->actionFunc(this, play);
+    if ((this->actor.xzDistToPlayer <= 30.0f) && (fabsf(this->actor.playerHeightRel) <= fabsf(80.0f))) {
+        Audio_PlaySfx(NA_SE_SY_GET_ITEM);
+        recomp_send_location(GI_OCARINA_OF_TIME);
+        recomp_send_location(0x040067);
+        Actor_Kill(thisx);
+    }
+    /*if (ocarinaCheckState == 0 && !Actor_HasParent(&this->actor, play)) {
+        //Actor_OfferGetItem(&this->actor, play, GI_OCARINA_OF_TIME, 30.0f, 80.0f);
+        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(GI_OCARINA_OF_TIME), GI_OCARINA_OF_TIME, 30.0f, 80.0f);
+    } else if (ocarinaCheckState == 0 && Actor_HasParent(&this->actor, play)) {
+        this->actor.parent = NULL;
+        ocarinaCheckState = 1;
+    } else if (ocarinaCheckState == 1 && !Actor_HasParent(&this->actor, play)) {
+        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(0x040067), 0x040067, 30.0f, 80.0f);
+    } else if (Actor_HasParent(&this->actor, play)) {
+        //gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
+        Actor_Kill(&this->actor);
+    }*/
+
+    DmChar02_PlaySfxForCutscenes(this, play);
+}
+
+void DmChar02_Draw(Actor* thisx, PlayState* play) {
+    DmChar02* this = THIS;
+    s32 shouldDraw = false;
+
+    if ((play->csCtx.state == CS_STATE_IDLE) && (this->actor.world.pos.y < 100.0f)) {
+        shouldDraw = true;
+    } else if (Cutscene_IsCueInChannel(play, CS_CMD_ACTOR_CUE_107)) {
+        switch (play->csCtx.actorCues[Cutscene_GetCueChannel(play, CS_CMD_ACTOR_CUE_107)]->id) {
+            case 0x17:
+            case 0x1C:
+            case 0x26:
+                shouldDraw = true;
+                break;
+        }
+    }
+
+    if (shouldDraw) {
+    //if (shouldDraw && objectLoaded) {
+        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+        SkelAnime_DrawTransformFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
+                                       this->skelAnime.dListCount, DmChar02_OverrideLimbDraw, DmChar02_PostLimbDraw,
+                                       DmChar02_TransformLimbDraw, &this->actor);
+        /*if (objectStatic) {
+            GetItem_Draw(play, OBJECT_GI_RESERVE_C_00);
+        } else {
+            // TODO: use segment 0xD instead of 0x6?
+            GetItem_DrawDynamic(play, objectSegment, OBJECT_GI_RESERVE_C_00);
+        }*/
     }
 }
 

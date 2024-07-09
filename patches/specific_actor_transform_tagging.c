@@ -909,7 +909,8 @@ void EnFall2_Draw(Actor* thisx, PlayState* play) {
 }
 
 // @recomp Skip interpolation on item pickups the frame they're collected.
-void func_800A6A40(EnItem00* this, PlayState* play) {
+// @ap moved to item00.c
+/*void func_800A6A40(EnItem00* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (this->getItemId != GI_NONE) {
@@ -946,7 +947,7 @@ void func_800A6A40(EnItem00* this, PlayState* play) {
         actor_set_interpolation_skipped(&this->actor);
         actor_set_custom_flag_1(&this->actor);
     }
-}
+}*/
 
 extern Vtx ovl_Obj_Entotu_Vtx_000D10[7];
 extern Gfx object_f53_obj_DL_001C00[];

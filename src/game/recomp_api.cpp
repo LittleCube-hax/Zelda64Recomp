@@ -10,6 +10,7 @@
 #include "recomp_ui.h"
 #include "zelda_render.h"
 #include "zelda_sound.h"
+#include "../../lib/mm-decomp/include/z64item.h"
 #include "librecomp/helpers.hpp"
 #include "../patches/input.h"
 #include "../patches/graphics.h"
@@ -65,9 +66,25 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
     if (getLocationHasLocalItem(location)) {
         int64_t item = getItemAtLocation(location) & 0xFFFFFF;
 
-        if ((item & 0xFF00) == 0x0000) {
+        if ((item & 0xFF0000) == 0x0000) {
             _return(ctx, (u32) (item & 0xFF));
             return;
+        } else {
+            switch (item & 0xFF0000) {
+                case 0x020000:
+                    _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
+                    return;
+                case 0x040000:
+                    switch (item & 0xFF) {
+                        case ITEM_SONG_TIME:
+                            _return(ctx, (u32) GI_B0);
+                            break;
+                        case ITEM_SONG_HEALING:
+                            _return(ctx, (u32) GI_AF);
+                            break;
+                    }
+                    return;
+            }
         }
     }
 
