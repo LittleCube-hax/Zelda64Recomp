@@ -218,7 +218,6 @@ void EnOsn_Idle(EnOsn* this, PlayState* play) {
     //    !CHECK_QUEST_ITEM(QUEST_SONG_HEALING)) {
     if ((gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] != ITEM_NONE) &&
         (!recomp_location_is_checked(0x040068) || !recomp_location_is_checked(GI_MASK_DEKU))) {
-        recomp_printf("xz distance: %f, y distance: %f\n", this->actor.xzDistToPlayer, this->actor.playerHeightRel);
         if ((this->actor.xzDistToPlayer <= 60.0f) && (fabsf(this->actor.playerHeightRel) <= fabsf(80.0f))) {
             //shouldSetForm = true;
             //prevForm = gSaveContext.save.playerForm;

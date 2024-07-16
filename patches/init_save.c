@@ -10,10 +10,86 @@
 extern SavePlayerData sSaveDefaultPlayerData;
 extern ItemEquips sSaveDefaultItemEquips;
 extern Inventory sSaveDefaultInventory;
+extern Inventory sSaveDebugInventory;
+
+ItemEquips sSaveDebugItemEquips = {
+    {
+        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_POTION_RED, ITEM_OCARINA_OF_TIME },
+        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_MASK_GORON, ITEM_OCARINA_OF_TIME },
+        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_MASK_ZORA, ITEM_OCARINA_OF_TIME },
+        { ITEM_DEKU_NUT, ITEM_DEKU_NUT, ITEM_MASK_DEKU, ITEM_OCARINA_OF_TIME },
+    },
+    {
+        { SLOT_OCARINA, SLOT_BOW, SLOT_BOTTLE_2, SLOT_OCARINA },
+        { SLOT_OCARINA, SLOT_MAGIC_BEANS, SLOT_MASK_GORON, SLOT_BOMBCHU },
+        { SLOT_OCARINA, SLOT_POWDER_KEG, SLOT_MASK_ZORA, SLOT_BOMBCHU },
+        { SLOT_OCARINA, SLOT_BOW, SLOT_MASK_DEKU, SLOT_BOMBCHU },
+    },
+    0x11,
+};
 
 void Sram_ClearHighscores(void);
 void Sram_GenerateRandomSaveFields(void);
 void Sram_ResetSave(void);
+
+void Sram_SetInitialWeekEvents(void) {
+    SET_WEEKEVENTREG(WEEKEVENTREG_15_20);
+    SET_WEEKEVENTREG(WEEKEVENTREG_59_04);
+    SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
+
+    // Guards let you out of Clock Town
+    SET_WEEKEVENTREG(WEEKEVENTREG_12_20);
+
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_EAST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WEST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_NORTH_CLOCK_TOWN);
+
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_TERMINA_FIELD);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_IKANA_GRAVEYARD);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_ROMANI_RANCH);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_GORMAN_TRACK);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_MOUNTAIN_VILLAGE_WINTER);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_GORON_SHRINE);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_SNOWHEAD);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_SOUTHERN_SWAMP_POISONED);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WOODFALL);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_DEKU_PALACE);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_GREAT_BAY_COAST);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_PIRATES_FORTRESS);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_ZORA_HALL);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WATERFALL_RAPIDS);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_IKANA_CANYON);
+    // Attached to the scene but unused. Entrance cutscene is instead triggered by `ACTOR_OBJ_DEMO`
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_IKANA_CASTLE);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_STONE_TOWER);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_STONE_TOWER_INVERTED);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_EAST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WEST_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_NORTH_CLOCK_TOWN);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WOODFALL_TEMPLE);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_SNOWHEAD_TEMPLE);
+    // Attached to the scene but unused. Entrance cutscene is instead triggered by `ACTOR_OBJ_DEMO`
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_PIRATES_FORTRESS_EXTERIOR);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_STONE_TOWER_TEMPLE);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_STONE_TOWER_TEMPLE_INVERTED);
+    // Unused as no cutscene is attached to this script
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_THE_MOON);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_MOON_DEKU_TRIAL);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_MOON_GORON_TRIAL);
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_MOON_ZORA_TRIAL);
+
+    // skippable mask transformations
+    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(30, 0x10));
+    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(30, 0x20));
+    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(30, 0x40));
+    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(30, 0x80));
+
+    // moon's tear deku scrub starts out in flower
+    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(73, 0x04));
+
+    // skip the princess prison cutscene
+    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WOODFALL_TEMPLE_PRISON);
+}
 
 void Sram_InitDebugSave(void) {
     Sram_ResetSave();
@@ -23,7 +99,7 @@ void Sram_InitDebugSave(void) {
     Lib_MemCpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
     gSaveContext.save.saveInfo.checksum = 0;
     
-    gSaveContext.save.playerForm = PLAYER_FORM_DEKU;
+    gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
 
     gSaveContext.save.hasTatl = true;
 
@@ -33,24 +109,27 @@ void Sram_InitDebugSave(void) {
     gSaveContext.save.saveInfo.horseData.pos.z = -1285;
     gSaveContext.save.saveInfo.horseData.yaw = -0x7554;
 
-    gSaveContext.save.entrance = ENTRANCE(CUTSCENE, 0);
-    gSaveContext.save.isFirstCycle = true;
+    gSaveContext.save.isFirstCycle = false;
 
-    SET_WEEKEVENTREG(WEEKEVENTREG_15_20);
-    SET_WEEKEVENTREG(WEEKEVENTREG_59_04);
-    SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
+    Sram_SetInitialWeekEvents();
 
-    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_EAST_CLOCK_TOWN);
-    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_WEST_CLOCK_TOWN);
-    SET_WEEKEVENTREG(WEEKEVENTREG_ENTERED_NORTH_CLOCK_TOWN);
-
-    gSaveContext.nextCutsceneIndex = 0;
+    // skip the *insanely long* skull kid tatl/tael backstory cutscene
+    u8* save_ptr = (u8*) &gSaveContext;
+    save_ptr[0x5EB] |= 0x10;
+    save_ptr[0x42F3] |= 0x10;
 
     gSaveContext.cycleSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
-    gSaveContext.save.saveInfo.playerData.magicLevel = 0;
+
+    apItemGive(GI_OCARINA_OF_TIME);
+    apItemGive(0x040000 | ITEM_SONG_TIME);
+
+    gSaveContext.save.saveInfo.playerData.healthCapacity = 0x70;
+    gSaveContext.save.saveInfo.playerData.health = 0x70;
 
     Sram_GenerateRandomSaveFields();
+
+    gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;
 }
 
 void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {

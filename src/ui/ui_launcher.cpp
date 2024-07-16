@@ -5,6 +5,14 @@
 #include "RmlUi/Core.h"
 #include "nfd.h"
 #include <filesystem>
+#include <fstream>
+
+#include "Archipelago.h"
+
+extern "C" void apClearItems();
+extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify);
+extern "C" void apCheckLocation(int64_t id);
+extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
 
 std::string version_number = "v1.1.1";
 
@@ -77,6 +85,39 @@ public:
 		);
 		recompui::register_event(listener, "start_game",
 			[](const std::string& param, Rml::Event& event) {
+				std::ifstream apconnect("apconnect.txt");
+
+				bool goodFile = apconnect.good();
+
+				std::string apEnabled;
+				getline(apconnect, apEnabled);
+
+				if (goodFile && apEnabled == "true") {
+					std::string address;
+					std::string playerName;
+					std::string password;
+
+					getline(apconnect, address);
+					getline(apconnect, playerName);
+					getline(apconnect, password);
+
+					AP_Init(address.c_str(), "The Majora's Mask Recompilation", playerName.c_str(), password.c_str());
+
+					AP_SetItemClearCallback(apClearItems);
+					AP_SetItemRecvCallback(apRecvItem);
+					AP_SetLocationCheckedCallback(apCheckLocation);
+
+					AP_Start();
+
+					while (!AP_IsConnected()) {
+						if (AP_GetConnectionStatus() == AP_ConnectionStatus::ConnectionRefused || AP_GetConnectionStatus() == AP_ConnectionStatus::NotFound) {
+							AP_Stop();
+							recompui::message_box(
+								"Unable to connect. Double-check that the server is active and the player name and address were entered correctly.\n");
+							return;
+						}
+					}
+				}
 				recomp::start_game(supported_games[0].game_id);
 				recompui::set_current_menu(recompui::Menu::None);
 			}

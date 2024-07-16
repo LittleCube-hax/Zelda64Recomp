@@ -213,13 +213,54 @@ void controls_play_update(PlayState* play) {
     gSaveContext.options.zTargetSetting = recomp_get_targeting_mode();
 }
 
+static bool initSave = false;
+static u8* prevWeekEventRegs;
+static u8* prevEventInf;
+
+void* ZeldaArena_Malloc(size_t size);
+
 // @recomp Patched to add hooks for various added functionality.
 void Play_Main(GameState* thisx) {
     static Input* prevInput = NULL;
     PlayState* this = (PlayState*)thisx;
     u32 new_items_size;
+    u32 i;
+    u8* save_ptr;
 
     gPlay = this;
+
+    /*if (CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_L)) {
+        save_ptr = (u8*) &gSaveContext;
+        for (i = 0; i < sizeof(gSaveContext); ++i) {
+            recomp_printf("save[0x%04X]: 0x%02X\n", i, save_ptr[i]);
+        }
+    }*/
+
+    /*if (initSave) {
+        for (i = 0; i < 100; ++i) {
+            if (gSaveContext.save.saveInfo.weekEventReg[i] != prevWeekEventRegs[i]) {
+                //recomp_printf("DIFFERENT WEEKEVENTREG!! reg %d was 0x%02X, is now 0x%02X\n", i, prevWeekEventRegs[i], gSaveContext.save.saveInfo.weekEventReg[i]);
+                prevWeekEventRegs[i] = gSaveContext.save.saveInfo.weekEventReg[i];
+            }
+        }
+        for (i = 0; i < 8; ++i) {
+            if (gSaveContext.eventInf[i] != prevEventInf[i]) {
+                recomp_printf("DIFFERENT EVENTINF!! reg %d was 0x%02X, is now 0x%02X\n", i, prevEventInf[i], gSaveContext.eventInf[i]);
+                prevEventInf[i] = gSaveContext.eventInf[i];
+            }
+        }
+    } else {
+        recomp_printf("init prevweekeventregs\n");
+        prevWeekEventRegs = ZeldaArena_Malloc(100);
+        for (i = 0; i < 100; ++i) {
+            prevWeekEventRegs[i] = gSaveContext.save.saveInfo.weekEventReg[i];
+        }
+        prevEventInf = ZeldaArena_Malloc(8);
+        for (i = 0; i < 8; ++i) {
+            prevEventInf[i] = gSaveContext.eventInf[i];
+        }
+        initSave = true;
+    }*/
 
     if (playing) {
         new_items_size = recomp_get_items_size();

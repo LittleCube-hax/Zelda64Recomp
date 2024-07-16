@@ -58,6 +58,18 @@ void func_8082DB90(PlayState* play, Player* this, PlayerAnimationHeader* anim);
  */
 #define GIFIELD(flags, dropType) ((flags) | (dropType))
 
+#define GID_SONG_SONATA (GID_MASK_FIERCE_DEITY + 1)
+#define GID_SONG_LULLABY (GID_MASK_FIERCE_DEITY + 2)
+#define GID_SONG_NOVA (GID_MASK_FIERCE_DEITY + 3)
+#define GID_SONG_ELEGY (GID_MASK_FIERCE_DEITY + 4)
+#define GID_SONG_OATH (GID_MASK_FIERCE_DEITY + 5)
+
+#define GID_SONG_TIME (GID_MASK_FIERCE_DEITY + 6)
+#define GID_SONG_HEALING (GID_MASK_FIERCE_DEITY + 7)
+#define GID_SONG_EPONA (GID_MASK_FIERCE_DEITY + 8)
+#define GID_SONG_SOARING (GID_MASK_FIERCE_DEITY + 9)
+#define GID_SONG_STORMS (GID_MASK_FIERCE_DEITY + 10)
+
 GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     // GI_RUPEE_GREEN
     GET_ITEM(ITEM_RUPEE_GREEN, OBJECT_GI_RUPY, GID_RUPEE_GREEN, 0xC4, GIFIELD(0, ITEM00_RUPEE_GREEN), CHEST_ANIM_SHORT),
@@ -289,7 +301,7 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     GET_ITEM(ITEM_REMAINS_GOHT, OBJECT_UNSET_0, GID_REMAINS_GOHT, 0x56, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_REMAINS_GYORG
-    GET_ITEM(ITEM_REMAINS_GYORG, OBJECT_UNSET_0, GID_REMAINS_GYORG, 0x57, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_REMAINS_GYORG, OBJECT_BSMASK, GID_REMAINS_GYORG, 0x57, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_REMAINS_TWINMOLD
     GET_ITEM(ITEM_REMAINS_TWINMOLD, OBJECT_UNSET_0, GID_REMAINS_TWINMOLD, 0x58, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
@@ -489,20 +501,20 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     GET_ITEM(ITEM_LETTER_MAMA, OBJECT_GI_RESERVE_B_01, GID_LETTER_MAMA, 0xA1, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_A2
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA2, 0, 0),
+    GET_ITEM(ITEM_SONG_STORMS, OBJECT_GI_MELODY, GID_SONG_STORMS, 0xA2, 0, 0),
     // GI_A3
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA3, 0, 0),
+    GET_ITEM(ITEM_SONG_SOARING, OBJECT_GI_MELODY, GID_SONG_SOARING, 0xA3, 0, 0),
     // GI_A4
     GET_ITEM(ITEM_NONE, OBJECT_GI_KI_TAN_MASK, GID_MASK_KEATON, 0xA4, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_A5
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA5, 0, 0),
+    GET_ITEM(ITEM_SONG_EPONA, OBJECT_GI_MELODY, GID_SONG_EPONA, 0xA5, 0, 0),
     // GI_A6
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA6, 0, 0),
-    // GI_A7
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA7, 0, 0),
-    // GI_A8
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xA8, 0, 0),
+    GET_ITEM(ITEM_SONG_TIME, OBJECT_GI_MELODY, GID_SONG_TIME, 0xA6, 0, 0),
+    // GI_A7 (Oath to Order)
+    GET_ITEM(ITEM_SONG_OATH, OBJECT_GI_MELODY, GID_SONG_OATH, 0xA7, 0, 0),
+    // GI_A8 (Elegy of Emptiness)
+    GET_ITEM(ITEM_SONG_ELEGY, OBJECT_GI_MELODY, GID_SONG_ELEGY, 0xA8, 0, 0),
     // GI_BOTTLE_STOLEN
     GET_ITEM(ITEM_BOTTLE, OBJECT_GI_BOTTLE, GID_BOTTLE, 0xA9, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
     // GI_LETTER_TO_KAFEI
@@ -511,25 +523,25 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     // GI_PENDANT_OF_MEMORIES
     GET_ITEM(ITEM_PENDANT_OF_MEMORIES, OBJECT_GI_RESERVE_C_01, GID_PENDANT_OF_MEMORIES, 0xAB,
              GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
-    // GI_AC
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xAC, 0, 0),
-    // GI_AD
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xAD, 0, 0),
-    // GI_AE
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xAE, 0, 0),
-    // GI_AF
-    GET_ITEM(ITEM_SONG_HEALING, OBJECT_GI_MELODY, GID_05, 0xB0, 0, 0),
-    // GI_B0
-    GET_ITEM(ITEM_SONG_TIME, OBJECT_GI_MELODY, GID_04, 0xB0, 0, 0),
+    // GI_AC (New Wave Bossa Nova)
+    GET_ITEM(ITEM_SONG_NOVA, OBJECT_GI_MELODY, GID_SONG_NOVA, 0xAC, 0, 0),
+    // GI_AD (Goron's Lullaby)
+    GET_ITEM(ITEM_SONG_LULLABY, OBJECT_GI_MELODY, GID_SONG_LULLABY, 0xAD, 0, 0),
+    // GI_AE (Sonata of Awakening)
+    GET_ITEM(ITEM_SONG_SONATA, OBJECT_GI_MELODY, GID_SONG_SONATA, 0xAE, 0, 0),
+    // GI_AF (Song of Healing)
+    GET_ITEM(ITEM_SONG_HEALING, OBJECT_GI_MELODY, GID_SONG_HEALING, 0xAF, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), 0),
+    // GI_B0 (Song of Time)
+    GET_ITEM(ITEM_SONG_TIME, OBJECT_GI_MELODY, GID_04, 0xB0, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), 0),
     // GI_B1
     //GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xB1, 0, 0),
     GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB1, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_B2
     //GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xB2, 0, 0),
-    GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB2, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
+    GET_ITEM(ITEM_NONE, OBJECT_GI_BOTTLE_04, GID_FAIRY, 0xB2, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_B3
     //GET_ITEM(ITEM_NONE, OBJECT_GI_MSSA, GID_MASK_SUN, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
-    GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB3, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
+    GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
     // GI_TINGLE_MAP_CLOCK_TOWN
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB4, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
@@ -550,6 +562,10 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
              CHEST_ANIM_LONG),
 };
 
+u8 getItem(s16 gi) {
+    return sGetItemTable_original[gi - 1].itemId;
+}
+
 u16 getObjectId(s16 gi) {
     return sGetItemTable_original[gi - 1].objectId;
 }
@@ -565,7 +581,11 @@ u8 getTextId(s16 gi) {
 
 s16 trueGI;
 bool itemWorkaround = false;
+bool bossWorkaround = false;
 bool has_ocarina = false;
+
+OSMesgQueue objectQueue;
+void* giObjectSegment = NULL;
 
 void func_8082F164(Player* this, u16 button);
 s32 func_80850734(PlayState* play, Player* this);
@@ -575,6 +595,70 @@ void func_8082DC64(PlayState* play, Player* this);
 void Player_AnimSfx_PlayVoice(Player* this, u16 sfxId);
 void func_808475B4(Player* this);
 void func_8084748C(Player* this, f32* speed, f32 speedTarget, s16 yawTarget);
+
+void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 drawIdPlusOne) {
+    f32 sp34;
+    void* segment;
+
+    if (player->stateFlags3 & PLAYER_STATE3_4000000) {
+        sp34 = 6.0f;
+    } else {
+        sp34 = 14.0f;
+    }
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    if (bossWorkaround) {
+        segment = giObjectSegment;
+    } else {
+        segment = player->giObjectSegment;
+    }
+
+    gSegments[6] = OS_K0_TO_PHYSICAL(segment);
+
+    gSPSegment(POLY_OPA_DISP++, 0x06, segment);
+    gSPSegment(POLY_XLU_DISP++, 0x06, segment);
+
+    Matrix_Translate((Math_SinS(player->actor.shape.rot.y) * 3.3f) + refPos->x, refPos->y + sp34,
+                     (Math_CosS(player->actor.shape.rot.y) * 3.3f) + refPos->z, MTXMODE_NEW);
+    Matrix_RotateZYX(0, (play->gameplayFrames * 1000), 0, MTXMODE_APPLY);
+    Matrix_Scale(0.2f, 0.2f, 0.2f, MTXMODE_APPLY);
+    GetItem_Draw(play, drawIdPlusOne - 1);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+extern Vec3f sPlayerGetItemRefPos;
+
+void Player_DrawGetItem(PlayState* play, Player* player) {
+    if (bossWorkaround || !player->giObjectLoading || (osRecvMesg(&player->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0)) {
+        Vec3f refPos;
+        s32 drawIdPlusOne;
+
+        player->giObjectLoading = false;
+        if ((player->actor.id == ACTOR_EN_TEST3) ||
+            ((player->transformation == PLAYER_FORM_DEKU) && (player->stateFlags1 & PLAYER_STATE1_400))) {
+            refPos.x = player->actor.world.pos.x;
+            refPos.z = player->actor.world.pos.z;
+            if (player->actor.id == ACTOR_EN_TEST3) {
+                if (player->stateFlags1 & PLAYER_STATE1_400) {
+                    refPos.y = player->actor.world.pos.y + 30.0f;
+                } else {
+                    refPos.x = player->bodyPartsPos[PLAYER_BODYPART_LEFT_HAND].x;
+                    refPos.y = player->bodyPartsPos[PLAYER_BODYPART_LEFT_HAND].y - 6.0f;
+                    refPos.z = player->bodyPartsPos[PLAYER_BODYPART_LEFT_HAND].z;
+                }
+            } else {
+                refPos.y = player->actor.world.pos.y + 28.0f;
+            }
+        } else {
+            Math_Vec3f_Copy(&refPos, &sPlayerGetItemRefPos);
+        }
+
+        drawIdPlusOne = ABS_ALT(player->getItemDrawIdPlusOne);
+        Player_DrawGetItemImpl(play, player, &refPos, drawIdPlusOne);
+    }
+}
 
 // Player_UpdateCurrentGetItemDrawId?
 void func_8082ECE0(Player* this) {
@@ -595,32 +679,46 @@ void func_80838830(Player* this, s16 objectId) {
         if (itemWorkaround) {
             objectId = sGetItemTable_original[trueGI - 1].objectId;
         }
-        osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
-        DmaMgr_SendRequestImpl(&this->giObjectDmaRequest, this->giObjectSegment, gObjectTable[objectId].vromStart,
-                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               &this->giObjectLoadQueue, NULL);
+        if (!bossWorkaround) {
+            osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
+            DmaMgr_SendRequestImpl(&this->giObjectDmaRequest, this->giObjectSegment, gObjectTable[objectId].vromStart,
+                                   gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
+                                   &this->giObjectLoadQueue, NULL);
+        }
     }
 }
 
 // Player_GetItem?
 s32 func_808482E0(PlayState* play, Player* this) {
-    if (this->getItemId == GI_NONE) {
+    s16 gi = this->getItemId;
+    if (gi == GI_NONE) {
         return true;
     }
 
-    if (itemWorkaround) {
-        this->getItemId = trueGI;
-        if (has_ocarina) {
-            INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
-        }
-    }
-
     if (this->av1.actionVar1 == 0) {
-        GetItemEntry* giEntry = &sGetItemTable_original[this->getItemId - 1];
+        GetItemEntry* giEntry;
+        if (itemWorkaround) {
+            gi = trueGI;
+            if (has_ocarina) {
+                INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
+            }
+        }
+        giEntry = &sGetItemTable_original[gi - 1];
+
+        switch (giEntry->itemId) {
+            case ITEM_DEKU_NUT:
+            case ITEM_DEKU_STICK:
+                Item_Give(play, giEntry->itemId);
+                break;
+            default:
+                if (giEntry->itemId >= ITEM_DEKU_STICKS_5 && giEntry->itemId <= ITEM_DEKU_NUTS_10) {
+                    Item_Give(play, giEntry->itemId);
+                }
+                break;
+        }
 
         this->av1.actionVar1 = 1;
         Message_StartTextbox(play, giEntry->textId, &this->actor);
-        Item_Give(play, giEntry->itemId);
 
         if ((this->getItemId >= GI_MASK_DEKU) && (this->getItemId <= GI_MASK_KAFEIS_MASK)) {
             Audio_PlayFanfare(NA_BGM_GET_NEW_MASK);
@@ -661,8 +759,6 @@ s32 func_808482E0(PlayState* play, Player* this) {
         }
         this->getItemId = GI_NONE;
     }
-
-    itemWorkaround = false;
 
     return false;
 }
@@ -752,7 +848,9 @@ s8 sItemItemActions[] = {
 };
 
 PlayerItemAction Player_ItemToItemAction(Player* this, ItemId item) {
-    itemWorkaround = false;
+    if (item != 0x4D) {
+        itemWorkaround = false;
+    }
     if (item >= ITEM_FD) {
         return PLAYER_IA_NONE;
     } else if (item == ITEM_FC) {
@@ -763,6 +861,150 @@ PlayerItemAction Player_ItemToItemAction(Player* this, ItemId item) {
         return PLAYER_IA_ZORA_FINS;
     } else {
         return sItemItemActions[item];
+    }
+}
+
+typedef struct AnimSfxEntry {
+    /* 0x0 */ u16 sfxId;
+    /* 0x2 */ s16 flags; // negative marks the end
+} AnimSfxEntry;          // size = 0x4
+
+extern LinkAnimationHeader gPlayerAnim_pn_getA;
+extern LinkAnimationHeader gPlayerAnim_pn_getB;
+extern LinkAnimationHeader gPlayerAnim_link_demo_get_itemA;
+extern LinkAnimationHeader gPlayerAnim_link_demo_get_itemB;
+extern LinkAnimationHeader gPlayerAnim_link_normal_box_kick;
+
+extern AnimSfxEntry D_8085D73C[];
+extern AnimSfxEntry D_8085D74C[];
+
+s32 Player_GrabPlayer(PlayState* play, Player* this);
+s32 func_8085B28C(PlayState* play, Player* this, PlayerCsAction csAction);
+void func_8085B384(Player* this, PlayState* play);
+s32 Player_InflictDamage(PlayState* play, s32 damage);
+void Player_TalkWithPlayer(PlayState* play, Actor* actor);
+void func_8085B74C(PlayState* play);
+void func_8085B820(PlayState* play, s16 arg1);
+PlayerItemAction func_8085B854(PlayState* play, Player* this, ItemId itemId);
+s32 func_8085B930(PlayState* play, PlayerAnimationHeader* talkAnim, AnimationMode animMode);
+
+void Player_UpdateCommon(Player* this, PlayState* play, Input* input);
+s32 Player_StartFishing(PlayState* play);
+void func_8085B170(PlayState* play, Player* this);
+s32 func_8083A658(PlayState* play, Player* this);
+void Player_InitItemAction(PlayState* play, Player* this, PlayerItemAction itemAction);
+
+void Player_UseItem(PlayState* play, Player* this, ItemId item);
+
+void func_80836988(Player* this, PlayState* play);
+
+void func_808484F0(Player* this);
+
+void func_80838A20(PlayState* play, Player* this);
+void func_80839978(PlayState* play, Player* this);
+void func_80839A10(PlayState* play, Player* this);
+
+s32 func_8083249C(Player* this);
+s32 func_80847994(PlayState* play, Player* this);
+void func_80848294(PlayState* play, Player* this);
+void func_8082E794(Player* this);
+void func_80839E74(Player* this, PlayState* play);
+void func_80833B18(PlayState* play, Player* this, s32 arg2, f32 speed, f32 velocityY, s16 arg5,
+                   s32 invincibilityTimer);
+void func_8082E920(PlayState* play, Player* this, s32 moveFlags);
+void Player_PlayAnimSfx(Player* this, AnimSfxEntry* entry);
+void Player_AnimSfx_PlayFloorLand(Player* this);
+
+void Player_Action_65(Player* this, PlayState* play) {
+    func_8083249C(this);
+
+    if (PlayerAnimation_Update(play, &this->skelAnime)) {
+        if (this->av2.actionVar2 != 0) {
+            if (this->av2.actionVar2 > 1) {
+                this->av2.actionVar2--;
+            }
+
+            if (func_808482E0(play, this) && (this->av2.actionVar2 == 1)) {
+                Player_SetModels(this, Player_ActionToModelGroup(this, this->itemAction));
+
+                if (((this->getItemDrawIdPlusOne == GID_REMAINS_ODOLWA + 1) ||
+                    (this->getItemDrawIdPlusOne == GID_REMAINS_GOHT + 1) ||
+                    (this->getItemDrawIdPlusOne == GID_REMAINS_GYORG + 1) ||
+                    (this->getItemDrawIdPlusOne == GID_REMAINS_TWINMOLD + 1)) && 0) {
+                    // TODO: make sure this fires properly at blue warp
+                    Player_StopCutscene(this);
+                    func_80848250(play, this);
+                    this->stateFlags1 &= ~PLAYER_STATE1_20000000;
+                    func_8085B28C(play, NULL, PLAYER_CSACTION_93);
+                } else {
+                    s32 var_a2 = ((this->talkActor != NULL) && (this->exchangeItemAction <= PLAYER_IA_MINUS1)) ||
+                                 (this->stateFlags3 & PLAYER_STATE3_20);
+
+                    if (var_a2 || (gSaveContext.healthAccumulator == 0)) {
+                        Player_StopCutscene(this);
+                        if (var_a2) {
+                            func_80848250(play, this);
+                            this->exchangeItemAction = PLAYER_IA_NONE;
+                            if (!func_80847994(play, this)) {
+                                Player_TalkWithPlayer(play, this->talkActor);
+                            }
+                        } else {
+                            func_80848294(play, this);
+                        }
+                    }
+                }
+            }
+        } else {
+            func_8082E794(this);
+
+            if ((this->getItemId == GI_STRAY_FAIRY) || (this->getItemId == GI_SKULL_TOKEN) ||
+                (this->getItemId == GI_ICE_TRAP)) {
+                Player_StopCutscene(this);
+                this->stateFlags1 &= ~(PLAYER_STATE1_400 | PLAYER_STATE1_800);
+                if (this->getItemId == GI_STRAY_FAIRY) {
+                    func_80839E74(this, play);
+                } else {
+                    this->actor.colChkInfo.damage = 0;
+                    func_80833B18(play, this, 3, 0.0f, 0.0f, 0, 20);
+                }
+            } else {
+                if (this->skelAnime.animation == &gPlayerAnim_link_normal_box_kick) {
+                    func_8082DB90(play, this,
+                                  (this->transformation == PLAYER_FORM_DEKU) ? &gPlayerAnim_pn_getB
+                                                                             : &gPlayerAnim_link_demo_get_itemB);
+                } else {
+                    func_8082DB90(play, this,
+                                  (this->transformation == PLAYER_FORM_DEKU) ? &gPlayerAnim_pn_getA
+                                                                             : &gPlayerAnim_link_demo_get_itemA);
+                }
+
+                func_8082E920(play, this,
+                              ANIM_FLAG_1 | ANIM_FLAG_UPDATE_Y | ANIM_FLAG_4 | ANIM_FLAG_8 | ANIM_FLAG_NOMOVE |
+                                  ANIM_FLAG_80);
+                Player_StopCutscene(this);
+                this->csId = play->playerCsIds[PLAYER_CS_ID_ITEM_GET];
+                this->av2.actionVar2 = 2;
+            }
+        }
+    } else if (this->av2.actionVar2 == 0) {
+        if (this->transformation == PLAYER_FORM_HUMAN) {
+            Player_PlayAnimSfx(this, D_8085D73C);
+        } else if (this->transformation == PLAYER_FORM_DEKU) {
+            Player_PlayAnimSfx(this, D_8085D74C);
+        }
+    } else {
+        if ((this->skelAnime.animation == &gPlayerAnim_link_demo_get_itemB) ||
+            (this->skelAnime.animation == &gPlayerAnim_pn_getB)) {
+            Math_ScaledStepToS(&this->actor.shape.rot.y, BINANG_ADD(Camera_GetCamDirYaw(GET_ACTIVE_CAM(play)), 0x8000),
+                               0xFA0);
+        } else if ((this->skelAnime.animation == &gPlayerAnim_pn_getA) &&
+                   PlayerAnimation_OnFrame(&this->skelAnime, 10.0f)) {
+            Player_AnimSfx_PlayFloorLand(this);
+        }
+
+        if (PlayerAnimation_OnFrame(&this->skelAnime, 21.0f)) {
+            func_8082ECE0(this);
+        }
     }
 }
 
@@ -788,6 +1030,162 @@ void Player_Action_60(Player* this, PlayState* play) {
 
     func_808475B4(this);
     func_8084748C(this, &this->linearVelocity, 0.0f, this->actor.shape.rot.y);
+}
+
+u8 Item_CheckObtainabilityImpl(u8 item) {
+    s16 i;
+    u8 slot;
+    u8 bottleSlot;
+
+    slot = SLOT(item);
+    if (item >= ITEM_DEKU_STICKS_5) {
+        slot = SLOT(sExtraItemBases[item - ITEM_DEKU_STICKS_5]);
+    }
+
+    if ((item >= ITEM_SONG_SONATA) && (item <= ITEM_SONG_LULLABY_INTRO)) {
+        return ITEM_NONE;
+    } else if (item == ITEM_SKULL_TOKEN) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_TINGLE_MAP) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_BOMBERS_NOTEBOOK) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_SHIELD_HERO) && (item <= ITEM_SHIELD_MIRROR)) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_KEY_BOSS) || (item == ITEM_COMPASS) || (item == ITEM_DUNGEON_MAP)) {
+        if (!CHECK_DUNGEON_ITEM(item - ITEM_KEY_BOSS, gSaveContext.mapIndex)) {
+            return ITEM_NONE;
+        }
+        return item;
+
+    } else if (item == ITEM_KEY_SMALL) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_OCARINA_OF_TIME) || (item == ITEM_BOMBCHU) || (item == ITEM_HOOKSHOT) ||
+               (item == ITEM_LENS_OF_TRUTH) || (item == ITEM_SWORD_GREAT_FAIRY) || (item == ITEM_PICTOGRAPH_BOX)) {
+        if (INV_CONTENT(item) == ITEM_NONE) {
+            return ITEM_NONE;
+        }
+        return INV_CONTENT(item);
+
+    } else if ((item >= ITEM_BOMBS_5) && (item == ITEM_BOMBS_30)) {
+        //! @bug: Should be a range check: (item <= ITEM_BOMBS_30)
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item == ITEM_QUIVER_30) || (item == ITEM_BOW)) {
+        if (CUR_UPG_VALUE(UPG_QUIVER) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item == ITEM_QUIVER_40) || (item == ITEM_QUIVER_50)) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_BOMB_BAG_20) || (item == ITEM_BOMB)) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item >= ITEM_DEKU_STICK_UPGRADE_20) && (item <= ITEM_DEKU_NUT_UPGRADE_40)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_BOMB_BAG_30) && (item <= ITEM_WALLET_GIANT)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_MAGIC_BEANS) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_POWDER_KEG) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_HEART_CONTAINER) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_RECOVERY_HEART) {
+        return ITEM_RECOVERY_HEART;
+
+    } else if ((item == ITEM_MAGIC_JAR_SMALL) || (item == ITEM_MAGIC_JAR_BIG)) {
+        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_12_80)) {
+            return ITEM_NONE;
+        }
+        return item;
+
+    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_LONGSHOT) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_BOTTLE) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
+               (item == ITEM_HYLIAN_LOACH)) {
+        return ITEM_NONE;
+
+    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+               (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
+               (item == ITEM_SEAHORSE_CAUGHT)) {
+        bottleSlot = SLOT(item);
+
+        if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
+            if (item == ITEM_CHATEAU_2) {
+                item = ITEM_CHATEAU;
+
+            } else if (item == ITEM_MILK) {
+                item = ITEM_MILK_BOTTLE;
+
+            } else if (item == ITEM_GOLD_DUST_2) {
+                item = ITEM_GOLD_DUST;
+
+            } else if (item == ITEM_HYLIAN_LOACH_2) {
+                item = ITEM_HYLIAN_LOACH;
+
+            } else if (item == ITEM_SEAHORSE_CAUGHT) {
+                item = ITEM_SEAHORSE;
+            }
+            bottleSlot = SLOT(item);
+
+            for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[bottleSlot + i] == ITEM_BOTTLE) {
+                    return ITEM_NONE;
+                }
+            }
+        } else {
+            for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[bottleSlot + i] == ITEM_NONE) {
+                    return ITEM_NONE;
+                }
+            }
+        }
+    } else if ((item >= ITEM_MOONS_TEAR) && (item <= ITEM_MASK_GIANT)) {
+        return ITEM_NONE;
+    }
+
+    return gSaveContext.save.saveInfo.inventory.items[slot];
 }
 
 extern LinkAnimationHeader gPlayerAnim_pn_getB;
@@ -883,10 +1281,13 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
             if (this->getItemId > GI_NONE) {
                 if (this->getItemId < GI_MAX) {
                     GetItemEntry* giEntry = &sGetItemTable_original[this->getItemId - 1];
-
                     interactRangeActor->parent = &this->actor;
                     if ((Item_CheckObtainability(giEntry->itemId) == ITEM_NONE) ||
                         ((s16)giEntry->objectId == OBJECT_GI_BOMB_2)) {
+                        if (itemWorkaround) {
+                            this->getItemId = trueGI;
+                            giEntry = &sGetItemTable_original[trueGI - 1];
+                        }
                         Player_DetachHeldActor(play, this);
                         func_80838830(this, giEntry->objectId);
 
@@ -914,6 +1315,9 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                     if (this->getItemId != GI_NONE) {
                         //if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A)) {
                         if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A)) {
+                            if (itemWorkaround) {
+                                this->getItemId = -trueGI;
+                            }
                             GetItemEntry* giEntry = &sGetItemTable_original[-this->getItemId - 1];
                             EnBox* chest = (EnBox*)interactRangeActor;
 
@@ -991,7 +1395,6 @@ s32 func_808411D4(PlayState* play, Player* this, f32* arg2, s32 arg3);
 
 void func_808345C8(void) {
     if (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU) {
-        recomp_printf("change to hooman\n");
         gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
         gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
     }
@@ -1005,7 +1408,6 @@ void Player_CsAction_6(PlayState* play, Player* this, CsCmdActorCue* cue) {
         if (R_PLAY_FILL_SCREEN_ALPHA > 255) {
             R_PLAY_FILL_SCREEN_ON = -64;
             R_PLAY_FILL_SCREEN_ALPHA = 255;
-            recomp_printf("change to hooman\n");
             gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
             this->actor.update = func_8012301C;
             this->actor.draw = NULL;
@@ -1033,7 +1435,6 @@ void Player_CsAction_43(PlayState* play, Player* this, CsCmdActorCue* cue) {
         if (R_PLAY_FILL_SCREEN_ALPHA > 255) {
             R_PLAY_FILL_SCREEN_ON = -64;
             R_PLAY_FILL_SCREEN_ALPHA = 255;
-            recomp_printf("change to hooman\n");
             gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
             this->actor.update = func_8012301C;
             this->actor.draw = NULL;
@@ -1050,31 +1451,17 @@ void Player_CsAction_43(PlayState* play, Player* this, CsCmdActorCue* cue) {
     }
 }*/
 
+#define LOCATION_QUEST_HEART_PIECE (0x070000 | (actor->id))
+
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
-    bool shuffled = false;
     u32 i;
-
-    if (getItemId != GI_NONE) {
-        for (i = 0; i < sizeof(shuffledList)/sizeof(shuffledList[0]); ++i) {
-            if (getItemId == shuffledList[i]) {
-                shuffled = true;
-            }
-        }
-    }
+    u8 item;
 
     if (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME) {
         has_ocarina = true;
     } else {
         has_ocarina = false;
-    }
-
-    if (shuffled) {
-        itemWorkaround = true;
-        trueGI = apGetItemId(getItemId);
-    } else {
-        itemWorkaround = false;
-        trueGI = getItemId;
     }
 
     if (!(player->stateFlags1 &
@@ -1091,10 +1478,46 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                 s32 absYawDiff = ABS_ALT(yawDiff);
 
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
-                    if (shuffled) {
+                    itemWorkaround = false;
+                    trueGI = getItemId;
+                    item = getItem(getItemId);
+                    if (getItemId == GI_NONE) {
+                    } else if (item == ITEM_DEKU_STICK) {
+                    } else if ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) {
+                    } else if (item == ITEM_DEKU_NUT) {
+                    } else if ((item == ITEM_DEKU_NUTS_5) || (item == ITEM_DEKU_NUTS_10)) {
+                    } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
+                    } else if ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) {
+                    } else if (item == ITEM_MAGIC_JAR_SMALL) {
+                    } else if (item == ITEM_MAGIC_JAR_BIG) {
+                    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
+                    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
+                               (item == ITEM_HYLIAN_LOACH)) {
+                    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+                                (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
+                                (item == ITEM_SEAHORSE_CAUGHT)) {
+                    } else {
+                        itemWorkaround = true;
+                        trueGI = apGetItemId(getItemId);
+                    }
+                    if (getItemId == GI_HEART_PIECE) {
+                        recomp_printf("Actor HP: 0x%06X\n", LOCATION_QUEST_HEART_PIECE);
+                        itemWorkaround = true;
+                        trueGI = apGetItemId(LOCATION_QUEST_HEART_PIECE);
+                        if (LOCATION_QUEST_HEART_PIECE == 0x070243 && recomp_location_is_checked(LOCATION_QUEST_HEART_PIECE)) {
+                            // stupid gramma double heart piece
+                            recomp_send_location(0x080000);
+                        } else {
+                            recomp_send_location(LOCATION_QUEST_HEART_PIECE);
+                        }
+                    } else {
                         recomp_send_location(getItemId);
                     }
-                    player->getItemId = getItemId;
+                    if (itemWorkaround) {
+                        player->getItemId = GI_DEED_LAND;
+                    } else {
+                        player->getItemId = getItemId;
+                    }
                     player->interactRangeActor = actor;
                     player->getItemDirection = absYawDiff;
 
@@ -1111,7 +1534,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
     return false;
 }
 
-s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange) {
+s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround) {
     Player* player = GET_PLAYER(play);
 
     if (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME) {
@@ -1119,9 +1542,6 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
     } else {
         has_ocarina = false;
     }
-
-    itemWorkaround = true;
-    trueGI = getItemId;
 
     if (!(player->stateFlags1 &
           (PLAYER_STATE1_80 | PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
@@ -1137,10 +1557,27 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
                 s32 absYawDiff = ABS_ALT(yawDiff);
 
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
-                    if (location != 0) {
-                        recomp_send_location(location);
+                    trueGI = getItemId;
+                    if (use_workaround) {
+                        itemWorkaround = true;
+                    } else {
+                        itemWorkaround = false;
                     }
-                    player->getItemId = GI_DEED_LAND;
+                    if (itemWorkaround) {
+                        recomp_send_location(location);
+                        player->getItemId = GI_DEED_LAND;
+                    } else {
+                        player->getItemId = getItemId;
+                    }
+                    if (((s16) getItemId) < 0) {
+                        getItemId *= -1;
+                    }
+                    if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
+                        bossWorkaround = true;
+                        loadObject(play, &giObjectSegment, &objectQueue, getObjectId(getItemId));
+                    } else {
+                        bossWorkaround = false;
+                    }
                     player->interactRangeActor = actor;
                     player->getItemDirection = absYawDiff;
 
@@ -1163,24 +1600,16 @@ u8 Item_Give(PlayState* play, u8 item) {
     u8 temp;
     u8 slot;
     bool give = false;
-    const u32 SHUFFLED_ITEMS_LEN = 2;
-    u8 shuffled_items[] = { ITEM_MOONS_TEAR, ITEM_DEED_LAND, ITEM_OCARINA_OF_TIME };
 
-    // TODO: Song of Time removes Ocarina from inventory
-
-    u32 item_i;
-    for (item_i = 0; item_i < SHUFFLED_ITEMS_LEN; ++item_i) {
-        if (item == shuffled_items[item_i]) {
-            //recomp_send_location(item);
-            return ITEM_NONE;
-        }
+    if (item == ITEM_NONE) {
+        return ITEM_NONE;
     }
 
-    slot = SLOT(item);
     if (item >= ITEM_DEKU_STICKS_5) {
         slot = SLOT(sExtraItemBases[item - ITEM_DEKU_STICKS_5]);
-        give = true;
-    } else if (item == ITEM_DEKU_STICK) {
+    }
+
+    if (item == ITEM_DEKU_STICK) {
         if (INV_CONTENT(ITEM_DEKU_STICK) != ITEM_DEKU_STICK) {
             Inventory_ChangeUpgrade(UPG_DEKU_STICKS, 1);
             AMMO(ITEM_DEKU_STICK) = 1;
@@ -1190,6 +1619,7 @@ u8 Item_Give(PlayState* play, u8 item) {
                 AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
             }
         }
+        give = true;
 
     } else if ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) {
         if (INV_CONTENT(ITEM_DEKU_STICK) != ITEM_DEKU_STICK) {
@@ -1201,8 +1631,9 @@ u8 Item_Give(PlayState* play, u8 item) {
                 AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
             }
         }
-        give = true;
+
         item = ITEM_DEKU_STICK;
+        give = true;
 
     } else if (item == ITEM_DEKU_NUT) {
         if (INV_CONTENT(ITEM_DEKU_NUT) != ITEM_DEKU_NUT) {
@@ -1214,6 +1645,7 @@ u8 Item_Give(PlayState* play, u8 item) {
                 AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
             }
         }
+        give = true;
 
     } else if ((item == ITEM_DEKU_NUTS_5) || (item == ITEM_DEKU_NUTS_10)) {
         if (INV_CONTENT(ITEM_DEKU_NUT) != ITEM_DEKU_NUT) {
@@ -1227,6 +1659,7 @@ u8 Item_Give(PlayState* play, u8 item) {
         }
         item = ITEM_DEKU_NUT;
         give = true;
+
     } else if (item == ITEM_BOMB) {
         if ((AMMO(ITEM_BOMB) += 1) > CUR_CAPACITY(UPG_BOMB_BAG)) {
             AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
@@ -1244,6 +1677,34 @@ u8 Item_Give(PlayState* play, u8 item) {
             AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
         }
         return ITEM_NONE;
+
+    } else if (item == ITEM_BOMBCHU) {
+        if (INV_CONTENT(ITEM_BOMBCHU) != ITEM_BOMBCHU) {
+            INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
+            AMMO(ITEM_BOMBCHU) = 10;
+            return ITEM_NONE;
+        }
+        if ((AMMO(ITEM_BOMBCHU) += 10) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+            AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        }
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
+        if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOMBCHU] != ITEM_BOMBCHU) {
+            INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
+            AMMO(ITEM_BOMBCHU) += sBombchuRefillCounts[item - ITEM_BOMBCHUS_20];
+
+            if (AMMO(ITEM_BOMBCHU) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+                AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+            }
+            return ITEM_NONE;
+        }
+
+        if ((AMMO(ITEM_BOMBCHU) += sBombchuRefillCounts[item - ITEM_BOMBCHUS_20]) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+            AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        }
+        return ITEM_NONE;
+
     } else if ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) {
         AMMO(ITEM_BOW) += sArrowRefillCounts[item - ITEM_ARROWS_10];
 
@@ -1251,6 +1712,7 @@ u8 Item_Give(PlayState* play, u8 item) {
             AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
         }
         return ITEM_BOW;
+
     } else if (item == ITEM_RECOVERY_HEART) {
         Health_ChangeBy(play, 0x10);
         return item;
@@ -1274,6 +1736,79 @@ u8 Item_Give(PlayState* play, u8 item) {
     } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
         Rupees_ChangeBy(sRupeeRefillCounts[item - ITEM_RUPEE_GREEN]);
         return ITEM_NONE;
+
+    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
+               (item == ITEM_HYLIAN_LOACH)) {
+        slot = SLOT(item);
+
+        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+            if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.saveInfo.inventory.items[slot + i] = item;
+                return ITEM_NONE;
+            }
+        }
+        return item;
+
+    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+               (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
+               (item == ITEM_SEAHORSE_CAUGHT)) {
+        slot = SLOT(item);
+
+        if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
+            if (item == ITEM_CHATEAU_2) {
+                item = ITEM_CHATEAU;
+
+            } else if (item == ITEM_MILK) {
+                item = ITEM_MILK_BOTTLE;
+
+            } else if (item == ITEM_GOLD_DUST_2) {
+                item = ITEM_GOLD_DUST;
+
+            } else if (item == ITEM_HYLIAN_LOACH_2) {
+                item = ITEM_HYLIAN_LOACH;
+
+            } else if (item == ITEM_SEAHORSE_CAUGHT) {
+                item = ITEM_SEAHORSE;
+            }
+            slot = SLOT(item);
+
+            for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_BOTTLE) {
+                    if (item == ITEM_HOT_SPRING_WATER) {
+                        Interface_StartBottleTimer(60, i);
+                    }
+
+                    if ((slot + i) == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = item;
+                        Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_LEFT);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
+                    } else if ((slot + i) == C_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = item;
+                        Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_DOWN);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
+                    } else if ((slot + i) == C_SLOT_EQUIP(0, EQUIP_SLOT_C_RIGHT)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = item;
+                        Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+                    }
+
+                    gSaveContext.save.saveInfo.inventory.items[slot + i] = item;
+                    return ITEM_NONE;
+                }
+            }
+        } else {
+            for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
+                    gSaveContext.save.saveInfo.inventory.items[slot + i] = item;
+                    return ITEM_NONE;
+                }
+            }
+        }
+
+    } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
+        SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOLWA);
+        return ITEM_NONE;
+
     }
 
     if (give) {
@@ -1301,12 +1836,16 @@ u8 apItemGive(u32 gi) {
     u8 temp;
     u8 slot;
     u8 item;
+    u8 dungeonIndex;
 
     switch (gi & 0xFF0000) {
         case 0x010000:
             switch (gi & 0xFF) {
                 case 0x7F:
                     SET_WEEKEVENTREG(WEEKEVENTREG_08_80);
+                    return ITEM_NONE;
+                default:
+                    gSaveContext.save.saveInfo.inventory.strayFairies[gi & 0xFF] += 1;
                     return ITEM_NONE;
             }
             break;
@@ -1318,6 +1857,20 @@ u8 apItemGive(u32 gi) {
         case 0x040000:
             item = gi & 0xFF;
             SET_QUEST_ITEM(item - ITEM_SONG_SONATA + QUEST_SONG_SONATA);
+            return ITEM_NONE;
+        case 0x090000:
+            item = gi & 0xFF;
+            dungeonIndex = (gi & 0xFF00) >> 8;
+            switch (item) {
+                case ITEM_COMPASS:
+                case ITEM_DUNGEON_MAP:
+                case ITEM_KEY_BOSS:
+                    SET_DUNGEON_ITEM(item - ITEM_KEY_BOSS, dungeonIndex);
+                    break;
+                case ITEM_KEY_SMALL:
+                    DUNGEON_KEY_COUNT(dungeonIndex) += 1;
+                    break;
+            }
             return ITEM_NONE;
         default:
             if (gi == 0) {

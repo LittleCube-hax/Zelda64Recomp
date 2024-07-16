@@ -155,6 +155,10 @@ void EnBox_Init(Actor* thisx, PlayState* play) {
     //this->getItemId = ENBOX_GET_ITEM(thisx);
     this->getItemId = apGetItemId(LOCATION_ENBOX);
 
+    if (recomp_location_is_checked(LOCATION_ENBOX)) {
+        Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
+    }
+
     if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor)) || this->getItemId == GI_NONE) {
         this->alpha = 255;
         this->iceSmokeTimer = 100;
@@ -280,7 +284,12 @@ void EnBox_WaitOpen(EnBox* this, PlayState* play) {
 
         endFrame = Animation_GetLastFrame(anim);
         Animation_Change(&this->skelAnime, anim, playSpeed, 0.0f, endFrame, ANIMMODE_ONCE, 0.0f);
-        recomp_send_location(LOCATION_ENBOX);
+
+        // Account for Treasure Game chest (always same location)
+        if (LOCATION_ENBOX != 0x061700 || ENBOX_GET_ITEM((Actor*) this) == 0x0C) {
+            recomp_send_location(LOCATION_ENBOX);
+            recomp_printf("box location: 0x%06X, box item: 0x%06X\n", LOCATION_ENBOX, ENBOX_GET_ITEM((Actor*) this));
+        }
         EnBox_SetupAction(this, EnBox_Open);
         if (this->unk_1EC > 0) {
             Actor_SpawnAsChild(&play->actorCtx, &this->dyna.actor, play, ACTOR_DEMO_TRE_LGT,
@@ -315,7 +324,8 @@ void EnBox_WaitOpen(EnBox* this, PlayState* play) {
             if ((this->getItemId == GI_MASK_GIANT) && (INV_CONTENT(ITEM_MASK_GIANT) == ITEM_MASK_GIANT)) {
                 this->getItemId = GI_RECOVERY_HEART;
             }
-            Actor_OfferGetItemNearby(&this->dyna.actor, play, -this->getItemId);
+            //Actor_OfferGetItemNearby(&this->dyna.actor, play, -this->getItemId);
+            Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, LOCATION_ENBOX, 50.0f, 10.0f, false);
         }
         if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor))) {
             EnBox_SetupAction(this, EnBox_Open);

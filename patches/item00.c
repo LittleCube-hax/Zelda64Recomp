@@ -11,7 +11,7 @@
 
 #define THIS ((EnItem00*)thisx)
 
-#define LOCATION_HEART_PIECE ((play->sceneId << 8) | this->collectibleFlag)
+#define LOCATION_HEART_PIECE ((0x050000) | (play->sceneId << 8) | this->collectibleFlag)
 
 #define ENITEM00_GET_8000(thisx) ((thisx)->params & 0x8000)
 #define ENITEM00_GET_7F00(thisx) (((thisx)->params & 0x7F00) >> 8)
@@ -25,12 +25,13 @@ bool objectStatic;
 bool objectLoading;
 bool objectLoaded;
 OSMesgQueue objectLoadQueue;
-void* objectSegment;
+void* objectSegment = NULL;
 
 void func_800A640C(EnItem00* this, PlayState* play);
 void func_800A6A40(EnItem00* this, PlayState* play);
 
 void* ZeldaArena_Malloc(size_t size);
+void ZeldaArena_Free(void* ptr);
 void Actor_ProcessInitChain(Actor* thisx, InitChainEntry* ichain);
 s32 Collider_InitAndSetCylinder(struct PlayState* play, ColliderCylinder* collider, struct Actor* actor, ColliderCylinderInit* src);
 void EnItem00_WaitForHeartObject(EnItem00* this, PlayState* play);
@@ -77,7 +78,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     GetItemId i;
     bool shuffled = false;
 
-    objectSegment = ZeldaArena_Malloc(0x2000);
+    //objectSegment = ZeldaArena_Malloc(0x9000);
     objectStatic = false;
     objectLoading = false;
     objectLoaded = false;
@@ -99,6 +100,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
             thisx->params = ITEM00_RECOVERY_HEART;
             this->getItemId = GI_RECOVERY_HEART;*/
             Actor_Kill(thisx);
+            return;
         } else {
             Actor_Kill(thisx);
             return;
@@ -323,7 +325,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     }
 
     if ((getItemId != GI_NONE) && !Actor_HasParent(thisx, play)) {
-        Actor_OfferGetItemHook(thisx, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f);
+        Actor_OfferGetItemHook(thisx, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f, false);
     }
 
     this->actionFunc = func_800A6A40;
@@ -495,13 +497,32 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
     if (getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
-            Actor_OfferGetItemHook(&this->actor, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f);
+            u32 location = 0;
+            bool use_workaround = false;
+            bool boss_workaround = false;
+            switch (this->actor.params) {
+                case ITEM00_HEART_PIECE:
+                    location = LOCATION_HEART_PIECE;
+                    use_workaround = true;
+                    if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
+                        giObjectSegment = objectSegment;
+                        boss_workaround = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, use_workaround);
             /*recomp_send_location(LOCATION_HEART_PIECE);
             Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
             Message_StartTextbox(play, getTextId(apGetItemId(LOCATION_HEART_PIECE)), NULL);
             play->msgCtx.textDelayTimer = 4;
             Actor_Kill(thisx);*/
         }
+    }
+
+    if (this->actor.params == ITEM00_SHIELD_HERO) {
+        apItemGive(GI_SHIELD_HERO);
     }
 
     switch (this->actor.params) {
@@ -511,9 +532,10 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
         case ITEM00_SHIELD_HERO:
         case ITEM00_MAP:
         case ITEM00_COMPASS:
-            if (Actor_HasParent(&this->actor, play)) {
+            if (objectLoaded && Actor_HasParent(&this->actor, play)) {
                 Flags_SetCollectible(play, this->collectibleFlag);
-                Actor_Kill(&this->actor);
+                recomp_printf("Heart Piece location: 0x%06X\n", LOCATION_HEART_PIECE);
+                Actor_Kill(thisx);
             }
             return;
 
@@ -549,15 +571,17 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 }
 
 void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
-    s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(this->getItemId));
+    u16 objectId = getObjectId(this->getItemId);
+    s16 objectSlot = Object_GetSlot(&play->objectCtx, objectId);
 
     if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
         this->actor.objectSlot = objectSlot;
         Actor_SetObjectDependency(play, &this->actor);
         objectStatic = true;
+        this->actionFunc = func_800A640C;
         objectLoaded = true;
     } else if (!objectLoading && !objectLoaded) {
-        loadObject(play, objectSegment, &objectLoadQueue, getObjectId(this->getItemId));
+        loadObject(play, &objectSegment, &objectLoadQueue, objectId);
         objectLoading = true;
     } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         objectLoading = false;
@@ -650,13 +674,22 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
     }
 }
 
+void EnItem00_Destroy(Actor* thisx, PlayState* play) {
+    EnItem00* this = THIS;
+
+    Collider_DestroyCylinder(play, &this->collider);
+    if (!bossWorkaround && objectSegment != NULL) {
+        ZeldaArena_Free(objectSegment);
+    }
+}
+
 // @recomp Skip interpolation on item pickups the frame they're collected.
 void func_800A6A40(EnItem00* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (this->getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
-            Actor_OfferGetItemHook(&this->actor, play, this->getItemId, 0, 50.0f, 80.0f);
+            Actor_OfferGetItemHook(&this->actor, play, this->getItemId, 0, 50.0f, 80.0f, false);
             this->unk152++;
         } else {
             this->getItemId = GI_NONE;

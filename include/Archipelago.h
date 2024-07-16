@@ -14,6 +14,7 @@ bool AP_IsInit();
 bool AP_IsConnected();
 
 void AP_Start();
+void AP_Stop();
 
 struct AP_NetworkVersion {
     int major;
@@ -52,8 +53,12 @@ void AP_SetDeathLinkSupported(bool);
 
 //Parameter Function must reset local state
 void AP_SetItemClearCallback(void (*f_itemclr)());
-//Parameter Function must collect item id given with parameter. Secound parameter indicates whether or not to notify player
-void AP_SetItemRecvCallback(void (*f_itemrecv)(int64_t,bool));
+
+//Parameter Function must collect item id given with parameter
+//Second parameter indicates player who sent the item
+//Third parameter indicates whether or not to notify player
+void AP_SetItemRecvCallback(void (*f_itemrecv)(int64_t,int,bool));
+
 //Parameter Function must mark given location id as checked
 void AP_SetLocationCheckedCallback(void (*f_locrecv)(int64_t));
 
@@ -82,6 +87,8 @@ void AP_SendItem(std::set<int64_t> const& locations);
 // Gives all Items/Locations in current game
 int64_t getItemAtLocation(int64_t location_id);
 bool getLocationHasLocalItem(int64_t location_id);
+std::string getItemName(std::string game, int64_t id);
+std::string getLocationName(std::string game, int64_t id);
 int64_t getItemId(size_t item_i);
 int64_t getLocationId(size_t location_i);
 
@@ -143,7 +150,7 @@ void AP_Say(std::string);
 /* Connection Information Types */
 
 enum struct AP_ConnectionStatus {
-    Disconnected, Connected, Authenticated, ConnectionRefused
+    Disconnected, Connected, Authenticated, ConnectionRefused, NotFound
 };
 
 #define AP_PERMISSION_DISABLED 0b000
@@ -168,7 +175,7 @@ struct AP_RoomInfo {
 
 int AP_GetRoomInfo(AP_RoomInfo*);
 AP_ConnectionStatus AP_GetConnectionStatus();
-int AP_GetUUID();
+uint64_t AP_GetUUID();
 int AP_GetPlayerID();
 
 /* Serverside Data Types */

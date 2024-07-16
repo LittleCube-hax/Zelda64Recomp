@@ -52,3 +52,5 @@ recomp_get_location = 0x8F0000C4;
 recomp_has_item = 0x8F0000C8;
 recomp_location_is_checked = 0x8F0000CC;
 apGetItemId = 0x8F0000D0;
+apSay = 0x8F0000D4;
+recomp_get_item_foreign = 0x8F0000D8;

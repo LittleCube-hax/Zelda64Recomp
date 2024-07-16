@@ -28,12 +28,272 @@ void GetItem_DrawSmallRupee(PlayState* play, s16 drawId);
 void GetItem_DrawWallet(PlayState* play, s16 drawId);
 void GetItem_DrawRemains(PlayState* play, s16 drawId);
 
+extern Gfx gGiEmptyBottleCorkDL[];
+extern Gfx gGiEmptyBottleGlassDL[];
+extern Gfx gGiSmallKeyDL[];
+extern Gfx gGiKamaroMaskDL[];
+extern Gfx gGiKamaroMaskEmptyDL[];
+extern Gfx gGiCouplesMaskFullDL[];
+extern Gfx gGiCouplesMaskHalfDL[];
+extern Gfx gGiSerenadeColorDL[];
+extern Gfx gGiSongNoteDL[];
+extern Gfx gGiRequiemColorDL[];
+extern Gfx gGiNocturneColorDL[];
+extern Gfx gGiPreludeColorDL[];
+extern Gfx gGiRecoveryHeartDL[];
+extern Gfx gGiBossKeyDL[];
+extern Gfx gGiBossKeyGemDL[];
+extern Gfx gGiCompassDL[];
+extern Gfx gGiCompassGlassDL[];
+extern Gfx gGiBombersNotebookEmptyDL[];
+extern Gfx gGiBombersNotebookDL[];
+extern Gfx gGiStoneMaskEmptyDL[];
+extern Gfx gGiStoneMaskDL[];
+extern Gfx gGiKafeiMaskDL[];
+extern Gfx gGiKafeiMaskEmptyDL[];
+extern Gfx gGiCircusLeaderMaskFaceDL[];
+extern Gfx gGiCircusLeaderMaskEyebrowsDL[];
+extern Gfx gGiBremenMaskDL[];
+extern Gfx gGiBremenMaskEmptyDL[];
+extern Gfx gGiAllNightMaskEyesDL[];
+extern Gfx gGiAllNightMaskFaceDL[];
+extern Gfx gGiNutDL[];
+extern Gfx gGiHeartBorderDL[];
+extern Gfx gGiHeartContainerDL[];
+extern Gfx gGiHeartBorderDL[];
+extern Gfx gGiHeartPieceDL[];
+extern Gfx gGiQuiverInnerDL[];
+extern Gfx gGiQuiver30InnerColorDL[];
+extern Gfx gGiQuiver30OuterColorDL[];
+extern Gfx gGiQuiverOuterDL[];
+extern Gfx gGiQuiver40InnerColorDL[];
+extern Gfx gGiQuiver40OuterColorDL[];
+extern Gfx gGiQuiver50InnerColorDL[];
+extern Gfx gGiQuiver50OuterColorDL[];
+extern Gfx gGiBombBagDL[];
+extern Gfx gGiBombBag20BagColorDL[];
+extern Gfx gGiBombBag20RingColorDL[];
+extern Gfx gGiBombBagRingDL[];
+extern Gfx gGiBombBag30BagColorDL[];
+extern Gfx gGiBombBag30RingColorDL[];
+extern Gfx gGiBombBag40BagColorDL[];
+extern Gfx gGiBombBag40RingColorDL[];
+extern Gfx gGiStickDL[];
+extern Gfx gGiDungeonMapDL[];
+extern Gfx gGiMagicJarSmallDL[];
+extern Gfx gGiMagicJarLargeDL[];
+extern Gfx gGiBombDL[];
+extern Gfx gGiStoneOfAgonyDL[];
+extern Gfx gGiWalletDL[];
+extern Gfx gGiAdultWalletColorDL[];
+extern Gfx gGiAdultWalletRupeeOuterColorDL[];
+extern Gfx gGiWalletRupeeOuterDL[];
+extern Gfx gGiAdultWalletStringColorDL[];
+extern Gfx gGiWalletStringDL[];
+extern Gfx gGiAdultWalletRupeeInnerColorDL[];
+extern Gfx gGiWalletRupeeInnerDL[];
+extern Gfx gGiGiantsWalletColorDL[];
+extern Gfx gGiGiantsWalletRupeeOuterColorDL[];
+extern Gfx gGiGiantsWalletStringColorDL[];
+extern Gfx gGiGiantsWalletRupeeInnerColorDL[];
+extern Gfx gGiDonGeroMaskFaceDL[];
+extern Gfx gGiDonGeroMaskBodyDL[];
+extern Gfx gGiArrowSmallDL[];
+extern Gfx gGiArrowMediumDL[];
+extern Gfx gGiArrowLargeDL[];
+extern Gfx gGiBombchuDL[];
+extern Gfx gGiHerosShieldEmblemDL[];
+extern Gfx gGiHerosShieldDL[];
+extern Gfx gGiHookshotEmptyDL[];
+extern Gfx gGiHookshotDL[];
+extern Gfx gGiHookshotEmptyDL[];
+extern Gfx gGiHookshotDL[];
+extern Gfx gGiOcarinaOfTimeDL[];
+extern Gfx gGiOcarinaOfTimeHolesDL[];
+extern Gfx gGiMilkBottleContentsDL[];
+extern Gfx gGiMilkBottleGlassDL[];
+extern Gfx gGiKeatonMaskDL[];
+extern Gfx gGiKeatonMaskEyesDL[];
+extern Gfx gGiTingleMapDL[];
+extern Gfx gGiTingleMapEmptyDL[];
+extern Gfx gGiBowHandleDL[];
+extern Gfx gGiBowStringDL[];
+extern Gfx gGiLensDL[];
+extern Gfx gGiLensGlassDL[];
+extern Gfx gGiPotionContainerPotDL[];
+extern Gfx gGiPotionContainerLiquidDL[];
+extern Gfx gGiPotionContainerPatternDL[];
+extern Gfx gGiPotionContainerGreenPotColorDL[];
+extern Gfx gGiPotionContainerGreenLiquidColorDL[];
+extern Gfx gGiPotionContainerGreenPatternColorDL[];
+extern Gfx gGiPotionContainerRedPotColorDL[];
+extern Gfx gGiPotionContainerRedLiquidColorDL[];
+extern Gfx gGiPotionContainerRedPatternColorDL[];
+extern Gfx gGiPotionContainerBluePotColorDL[];
+extern Gfx gGiPotionContainerBlueLiquidColorDL[];
+extern Gfx gGiPotionContainerBluePatternColorDL[];
+extern Gfx gGiMirrorShieldEmptyDL[];
+extern Gfx gGiMirrorShieldDL[];
+extern Gfx gGiBeanDL[];
+extern Gfx gGiFishContainerDL[];
+extern Gfx gGiLetterToMamaEnvelopeLetterDL[];
+extern Gfx gGiLetterToMamaInscriptionsDL[];
+extern Gfx gGiBiggoronSwordDL[];
+extern Gfx gGiSunMaskFaceDL[];
+extern Gfx gGiSunMaskEyesSidePatternsDL[];
+extern Gfx gGiBlastMaskEmptyDL[];
+extern Gfx gGiBlastMaskDL[];
+extern Gfx gGiFairyBottleEmptyDL[];
+extern Gfx gGiFairyBottleGlassCorkDL[];
+extern Gfx gGiFairyBottleContentsDL[];
+extern Mtx gGiFairyBottleBillboardRotMtx;
+extern Gfx gGiMaskOfScentsFaceDL[];
+extern Gfx gGiMaskOfScentsTeethDL[];
+extern Gfx gGiCaptainsHatBodyDL[];
+extern Gfx gGiCaptainsHatFaceDL[];
+extern Gfx gGiBunnyHoodDL[];
+extern Gfx gGiBunnyHoodEyesDL[];
+extern Gfx gGiMaskOfTruthDL[];
+extern Gfx gGiMaskOfTruthAccentsDL[];
+extern Gfx gGiTitleDeedEmptyDL[];
+extern Gfx gGiTitleDeedSwampColorDL[];
+extern Gfx gGiTitleDeedMountainColorDL[];
+extern Gfx gGiGoldRupeeInnerColorDL[];
+extern Gfx gGiGoldRupeeOuterColorDL[];
+extern Gfx gGiTitleDeedOceanColorDL[];
+extern Gfx gGiGoronMaskEmptyDL[];
+extern Gfx gGiGoronMaskDL[];
+extern Gfx gGiZoraMaskEmptyDL[];
+extern Gfx gGiZoraMaskDL[];
+extern Gfx gGiMagicArrowAmmoDL[];
+extern Gfx gGiMagicArrowFireColorDL[];
+extern Gfx gGiMagicArrowGlowDL[];
+extern Gfx gGiMagicArrowIceColorDL[];
+extern Gfx gGiMagicArrowLightColorDL[];
+extern Gfx gGiSkulltulaTokenDL[];
+extern Gfx gGiSkulltulaTokenFlameDL[];
+extern Gfx gGiBugContainerContentsDL[];
+extern Gfx gGiBugContainerGlassDL[];
+extern Gfx gGiPoeContainerLidDL[];
+extern Gfx gGiPoeContainerGlassDL[];
+extern Gfx gGiPoeContainerContentsDL[];
+extern Gfx gGiPoeContainerPoeColorDL[];
+extern Gfx gGiFairyContainerBaseCapDL[];
+extern Gfx gGiFairyContainerGlassDL[];
+extern Gfx gGiFairyContainerContentsDL[];
+extern Gfx gGiRupeeInnerDL[];
+extern Gfx gGiGreenRupeeInnerColorDL[];
+extern Gfx gGiRupeeOuterDL[];
+extern Gfx gGiGreenRupeeOuterColorDL[];
+extern Gfx gGiBlueRupeeInnerColorDL[];
+extern Gfx gGiBlueRupeeOuterColorDL[];
+extern Gfx gGiRedRupeeInnerColorDL[];
+extern Gfx gGiRedRupeeOuterColorDL[];
+extern Gfx gGiPoeContainerLidDL[];
+extern Gfx gGiPoeContainerGlassDL[];
+extern Gfx gGiPoeContainerContentsDL[];
+extern Gfx gGiPoeContainerBigPoeColorDL[];
+extern Gfx gGiPurpleRupeeInnerColorDL[];
+extern Gfx gGiPurpleRupeeOuterColorDL[];
+extern Gfx gGiSilverRupeeInnerColorDL[];
+extern Gfx gGiSilverRupeeOuterColorDL[];
+extern Gfx gGiKokiriSwordBladeHiltDL[];
+extern Gfx gGiKokiriSwordGuardDL[];
+extern Gfx gSkulltulaTokenDL[];
+extern Gfx gSkulltulaTokenFlameDL[];
+extern Gfx gGiRedPotionBottleEmptyDL[];
+extern Gfx gGiRedPotionBottleDL[];
+extern Gfx gGiZoraEggBottleContentsDL[];
+extern Gfx gGiZoraEggBottleGlassAndCorkDL[];
+extern Gfx gGiMoonsTearItemDL[];
+extern Gfx gGiMoonsTearGlowDL[];
+extern Gfx gGiTitleDeedLandColorDL[];
+extern Gfx gGiDekuMaskEmptyDL[];
+extern Gfx gGiDekuMaskDL[];
+extern Gfx gRemainsOdolwaDL[];
+extern Gfx gGiPowderKegBarrelDL[];
+extern Gfx gGiPowderKegGoronSkullAndFuseDL[];
+extern Gfx gGiGoldDustPowderDL[];
+extern Gfx gGiGoldDustPowderEmptyDL[];
+extern Gfx gGiSeahorseBottleEmptyDL[];
+extern Gfx gGiSeahorseBottleGlassAndCorkDL[];
+extern Gfx gGiHylianLoachBottleContentsDL[];
+extern Gfx gGiHylianLoachBottleGlassCorkWaterDL[];
+extern Gfx gGiHylianLoachEmptyDL[];
+extern Gfx gGiHylianLoachDL[];
+extern Gfx gGiSeahorseEmptyDL[];
+extern Gfx gGiSeahorseBodyDL[];
+extern Gfx gGiSeahorseGlowDL[];
+extern Mtx gGiSeahorseBillboardRotMtx;
+extern Gfx gRemainsGohtDL[];
+extern Gfx gRemainsGyorgDL[];
+extern Gfx gRemainsTwinmoldDL[];
+extern Gfx gGiRazorSwordDL[];
+extern Gfx gGiRazorSwordEmptyDL[];
+extern Gfx gGiGildedSwordDL[];
+extern Gfx gGiGildedSwordEmptyDL[];
+extern Gfx gGiGreatFairysSwordBladeDL[];
+extern Gfx gGiGreatFairysSwordHiltEmblemDL[];
+extern Gfx gGiGarosMaskCloakDL[];
+extern Gfx gGiGarosMaskFaceDL[];
+extern Gfx gGiGreatFairyMaskFaceDL[];
+extern Gfx gGiGreatFairyMaskLeavesDL[];
+extern Gfx gGiGibdoMaskEmptyDL[];
+extern Gfx gGiGibdoMaskDL[];
+extern Gfx gGiRoomKeyEmptyDL[];
+extern Gfx gGiRoomKeyDL[];
+extern Gfx gGiLetterToKafeiEnvelopeLetterDL[];
+extern Gfx gGiLetterToKafeiInscriptionsDL[];
+extern Gfx gGiPendantOfMemoriesEmptyDL[];
+extern Gfx gGiPendantOfMemoriesDL[];
+extern Gfx gGiMagicMushroomEmptyDL[];
+extern Gfx gGiMagicMushroomDL[];
+extern Gfx gGiRomaniMaskCapDL[];
+extern Gfx gGiRomaniMaskNoseEyeDL[];
+extern Gfx gGiPostmanHatCapDL[];
+extern Gfx gGiPostmanHatBunnyLogoDL[];
+extern Gfx gGiGiantMaskEmptyDL[];
+extern Gfx gGiGiantMaskDL[];
+extern Gfx gGiChateauRomaniBottleEmptyDL[];
+extern Gfx gGiChateauRomaniBottleDL[];
+extern Gfx gGiPictoBoxFrameDL[];
+extern Gfx gGiPictoBoxBodyAndLensDL[];
+extern Gfx gGiFierceDeityMaskFaceDL[];
+extern Gfx gGiFierceDeityMaskHairAndHatDL[];
+extern Gfx gGiMinuetColorDL[];
+extern Gfx gGiBoleroColorDL[];
+
+Gfx gGiTimeColorDL[] = {
+    gsDPSetEnvColor(50, 64, 168, 255),
+    gsSPEndDisplayList(),
+};
+
+Gfx gGiHealingColorDL[] = {
+    gsDPSetEnvColor(255, 0, 183, 255),
+    gsSPEndDisplayList(),
+};
+
+Gfx gGiEponaColorDL[] = {
+    gsDPSetEnvColor(140, 45, 10, 255),
+    gsSPEndDisplayList(),
+};
+
+Gfx gGiSoaringColorDL[] = {
+    gsDPSetEnvColor(255, 199, 179, 255),
+    gsSPEndDisplayList(),
+};
+
+Gfx gGiStormsColorDL[] = {
+    gsDPSetEnvColor(0, 1, 84, 255),
+    gsSPEndDisplayList(),
+};
+
 typedef struct {
     /* 0x0 */ void (*drawFunc)(PlayState*, s16);
     /* 0x4 */ void* drawResources[8]; // Either display lists (Gfx*) or matrices (Mtx*)
 } DrawItemTableEntry;                 // size = 0x24
-/*
-static DrawItemTableEntry sDrawItemTable[] = {
+
+static DrawItemTableEntry sDrawItemTable_new[] = {
     // GID_BOTTLE, OBJECT_GI_BOTTLE
     { GetItem_DrawOpa0Xlu1, { gGiEmptyBottleCorkDL, gGiEmptyBottleGlassDL } },
     // GID_KEY_SMALL, OBJECT_GI_KEY
@@ -285,7 +545,27 @@ static DrawItemTableEntry sDrawItemTable[] = {
     { GetItem_DrawOpa0Xlu1, { gGiPictoBoxFrameDL, gGiPictoBoxBodyAndLensDL } },
     // GID_MASK_FIERCE_DEITY, OBJECT_GI_MASK03
     { GetItem_DrawOpa01, { gGiFierceDeityMaskFaceDL, gGiFierceDeityMaskHairAndHatDL } },
-};*/
+    // GID_SONG_SONATA, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiMinuetColorDL, gGiSongNoteDL } },
+    // GID_SONG_LULLABY, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiBoleroColorDL, gGiSongNoteDL } },
+    // GID_SONG_NOVA, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiSerenadeColorDL, gGiSongNoteDL } },
+    // GID_SONG_ELEGY, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiRequiemColorDL, gGiSongNoteDL } },
+    // GID_SONG_OATH, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiNocturneColorDL, gGiSongNoteDL } },
+    // GID_SONG_TIME, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiTimeColorDL, gGiSongNoteDL } },
+    // GID_SONG_HEALING, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiHealingColorDL, gGiSongNoteDL } },
+    // GID_SONG_EPONA, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiEponaColorDL, gGiSongNoteDL } },
+    // GID_SONG_SOARING, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiSoaringColorDL, gGiSongNoteDL } },
+    // GID_SONG_STORMS, OBJECT_GI_MELODY
+    { GetItem_DrawXlu01, { gGiStormsColorDL, gGiSongNoteDL } },
+};
 
 typedef enum {
     OPA0,
@@ -413,13 +693,26 @@ ObjectType sGetObjectType[] = {
     OPA01,
     OPA0XLU1,
     OPA0XLU1,
-    OPA01
+    OPA01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01,
+    XLU01
 };
 
 static DmaRequest objectDmaRequest;
 static OSMesg objectLoadMsg;
 
-bool loadObject(PlayState* play, void* objectSegment, OSMesgQueue* objectLoadQueue, s16 objectId) {
+void ZeldaArena_Free(void* ptr);
+void* ZeldaArena_Malloc(size_t size);
+
+bool loadObject(PlayState* play, void** objectSegment, OSMesgQueue* objectLoadQueue, s16 objectId) {
     s32 objectSlot = Object_GetSlot(&play->objectCtx, objectId);
 
     if (Object_IsLoaded(&play->objectCtx, objectSlot)) {
@@ -427,22 +720,27 @@ bool loadObject(PlayState* play, void* objectSegment, OSMesgQueue* objectLoadQue
     }
 
     if (objectId != OBJECT_UNSET_0) {
+        size_t objectSize = gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart;
+        if (*objectSegment != NULL) {
+            ZeldaArena_Free(*objectSegment);
+        }
+        *objectSegment = ZeldaArena_Malloc(objectSize);
         osCreateMesgQueue(objectLoadQueue, &objectLoadMsg, 1);
-        DmaMgr_SendRequestImpl(&objectDmaRequest, objectSegment, gObjectTable[objectId].vromStart,
-                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               objectLoadQueue, NULL);
+        DmaMgr_SendRequestImpl(&objectDmaRequest, *objectSegment, gObjectTable[objectId].vromStart,
+                               objectSize, 0, objectLoadQueue, NULL);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**
  * Draw "Get Item" Model
  * Calls the corresponding draw function for the given draw ID
  */
-/*void GetItem_Draw(PlayState* play, s16 drawId) {
-    sDrawItemTable[drawId].drawFunc(play, drawId);
-}*/
+void GetItem_Draw(PlayState* play, s16 drawId) {
+    sDrawItemTable_new[drawId].drawFunc(play, drawId);
+}
 
 void GetItem_DrawDynamic(PlayState* play, void* objectSegment, s16 drawId) {
     OPEN_DISPS(play->state.gfxCtx);
@@ -474,6 +772,98 @@ void GetItem_DrawDynamic(PlayState* play, void* objectSegment, s16 drawId) {
     GetItem_Draw(play, drawId);
 
     gSegments[6] = prevSegment;
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+/**
+ * Draw `drawResources[0]` as Opa
+ */
+void GetItem_DrawOpa0(PlayState* play, s16 drawId) {
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+/**
+ * Draw `drawResources[0]` as Opa and `drawResources[1]` as Xlu
+ */
+void GetItem_DrawOpa0Xlu1(PlayState* play, s16 drawId) {
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+
+    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_XLU_DISP++, sDrawItemTable_new[drawId].drawResources[1]);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+/**
+ * Draw `drawResources[0]` and `drawResources[1]` as Opa
+ */
+void GetItem_DrawOpa01(PlayState* play, s16 drawId) {
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[1]);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+/**
+ * Draw `drawResources[0]` and `drawResources[1]` as Xlu
+ */
+void GetItem_DrawXlu01(PlayState* play, s16 drawId) {
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_XLU_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+    gSPDisplayList(POLY_XLU_DISP++, sDrawItemTable_new[drawId].drawResources[1]);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void GetItem_DrawRemains(PlayState* play, s16 drawId) {
+    s32 pad;
+    s8 objectSlot;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    //objectSlot = Object_GetSlot(&play->objectCtx, OBJECT_BSMASK);
+
+    //gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.slots[objectSlot].segment);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+
+    POLY_OPA_DISP = Play_SetFog(play, POLY_OPA_DISP);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

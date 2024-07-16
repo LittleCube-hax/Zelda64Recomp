@@ -24,6 +24,8 @@
 std::vector<u32> items;
 std::vector<u32> locations;
 
+std::vector<int> item_i_to_player;
+
 extern "C" void recompf(const char* zc_format, ...) {
     va_list va_args;
     va_start(va_args, zc_format);
@@ -45,8 +47,9 @@ extern "C" void apClearItems() {
     
 }
 
-extern "C" void apRecvItem(int64_t id, bool notify) {
+extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify) {
     items.push_back(id & 0xFFFFFF);
+    item_i_to_player.push_back(sending_player_id);
 }
 
 extern "C" void apCheckLocation(int64_t id) {
@@ -71,16 +74,59 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
             return;
         } else {
             switch (item & 0xFF0000) {
+                case 0x010000:
+                    _return(ctx, (u32) GI_B2);
+                    return;
                 case 0x020000:
                     _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
                     return;
                 case 0x040000:
                     switch (item & 0xFF) {
                         case ITEM_SONG_TIME:
-                            _return(ctx, (u32) GI_B0);
+                            _return(ctx, (u32) GI_A6);
                             break;
                         case ITEM_SONG_HEALING:
                             _return(ctx, (u32) GI_AF);
+                            break;
+                        case ITEM_SONG_EPONA:
+                            _return(ctx, (u32) GI_A5);
+                            break;
+                        case ITEM_SONG_SOARING:
+                            _return(ctx, (u32) GI_A3);
+                            break;
+                        case ITEM_SONG_STORMS:
+                            _return(ctx, (u32) GI_A2);
+                            break;
+                        case ITEM_SONG_SONATA:
+                            _return(ctx, (u32) GI_AE);
+                            break;
+                        case ITEM_SONG_LULLABY:
+                            _return(ctx, (u32) GI_AD);
+                            break;
+                        case ITEM_SONG_NOVA:
+                            _return(ctx, (u32) GI_AC);
+                            break;
+                        case ITEM_SONG_ELEGY:
+                            _return(ctx, (u32) GI_A8);
+                            break;
+                        case ITEM_SONG_OATH:
+                            _return(ctx, (u32) GI_A7);
+                            break;
+                    }
+                    return;
+                case 0x090000:
+                    switch (item & 0xFF) {
+                        case ITEM_DUNGEON_MAP:
+                            _return(ctx, (u32) GI_MAP);
+                            break;
+                        case ITEM_COMPASS:
+                            _return(ctx, (u32) GI_COMPASS);
+                            break;
+                        case ITEM_KEY_BOSS:
+                            _return(ctx, (u32) GI_KEY_BOSS);
+                            break;
+                        case ITEM_KEY_SMALL:
+                            _return(ctx, (u32) GI_KEY_SMALL);
                             break;
                     }
                     return;
@@ -102,6 +148,11 @@ extern "C" void recomp_get_items_size(uint8_t* rdram, recomp_context* ctx) {
 extern "C" void recomp_get_item(uint8_t* rdram, recomp_context* ctx) {
     u32 items_i = _arg<0, u32>(rdram, ctx);
     _return(ctx, ((u32) items[items_i]));
+}
+
+extern "C" void recomp_get_item_foreign(uint8_t* rdram, recomp_context* ctx) {
+    u32 items_i = _arg<0, u32>(rdram, ctx);
+    _return(ctx, item_i_to_player[items_i] != AP_GetPlayerID());
 }
 
 extern "C" void recomp_get_locations_size(uint8_t* rdram, recomp_context* ctx) {

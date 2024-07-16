@@ -603,12 +603,16 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             BUTTON_STATUS(EQUIP_SLOT_C_RIGHT) = BTN_DISABLED;
                             set_extra_item_slot_status(BTN_DISABLED);
                         } else {
-                            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+                            if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_BOW) {
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+                            }
 
                             if (play->unk_1887C >= 2) {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                             } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
-                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                                //BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                                gSaveContext.buttonStatus[EQUIP_SLOT_B] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+                                BUTTON_STATUS(EQUIP_SLOT_B) = BTN_DISABLED;
                             } else {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                             }
@@ -662,13 +666,17 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     BUTTON_STATUS(EQUIP_SLOT_C_RIGHT) = BTN_DISABLED;
                     set_extra_item_slot_status(BTN_DISABLED);
                 } else {
-                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+                    if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_BOW) {
+                        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+                    }
                 }
 
                 if (play->unk_1887C >= 2) {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                 } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
-                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                    //BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+                    BUTTON_STATUS(EQUIP_SLOT_B) = BTN_DISABLED;
                 } else {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                 }

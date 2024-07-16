@@ -24,7 +24,7 @@
 #define STRAY_FAIRY_FLAG_CIRCLES_QUICKLY_IN_FOUNTAIN (1 << 2)
 #define STRAY_FAIRY_FLAG_GREAT_FAIRYS_MASK_EQUIPPED (1 << 3)
 
-#define LOCATION_STRAY_FAIRY (0x010000 | STRAY_FAIRY_GET_FLAG(&this->actor))
+#define LOCATION_STRAY_FAIRY (0x010000 | (play->sceneId << 8) | STRAY_FAIRY_GET_FLAG(&this->actor))
 
 extern FlexSkeletonHeader gStrayFairySkel;
 extern AnimationHeader gStrayFairyFlyingAnim;
@@ -132,9 +132,18 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
     ActorShape_Init(&thisx->shape, 0.0f, NULL, 0.0f);
     thisx->shape.shadowAlpha = 255;
 
+    if (recomp_location_is_checked(LOCATION_STRAY_FAIRY)) {
+        Actor_Kill(thisx);
+        return;
+    }
+
     switch (STRAY_FAIRY_TYPE(thisx)) {
         case STRAY_FAIRY_TYPE_CLOCK_TOWN:
-            if (recomp_location_is_checked(LOCATION_STRAY_FAIRY)) {
+            /*if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80)) {
+                Actor_Kill(thisx);
+                return;
+            }*/
+            if (recomp_location_is_checked(0x01007F)) {
                 Actor_Kill(thisx);
                 return;
             }
@@ -275,7 +284,7 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
             if (STRAY_FAIRY_TYPE(&this->actor) == STRAY_FAIRY_TYPE_CLOCK_TOWN) {
                 player->actor.freezeTimer = 100;
                 player->stateFlags1 |= PLAYER_STATE1_20000000;
-                recomp_send_location(LOCATION_STRAY_FAIRY);
+                recomp_send_location(0x01007F);
                 // Bring me back to North Clock Town!
                 Message_StartTextbox(play, 0x579, NULL);
                 this->actionFunc = EnElforg_ClockTownFairyCollected;
@@ -285,6 +294,8 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
 
             if (Map_IsInDungeonOrBossArea(play)) {
                 gSaveContext.save.saveInfo.inventory.strayFairies[gSaveContext.dungeonIndex]++;
+                recomp_printf("stray fairy location: 0x%06X\n", LOCATION_STRAY_FAIRY);
+                recomp_send_location(LOCATION_STRAY_FAIRY);
                 // You found a Stray Fairy!
                 Message_StartTextbox(play, 0x11, NULL);
                 if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=

@@ -70,7 +70,7 @@ void ObjMoonStone_Update(Actor* thisx, PlayState* play) {
         objectStatic = true;
         objectLoaded = true;
     } else if (!objectLoading && !objectLoaded) {
-        loadObject(play, objectSegment, &objectLoadQueue, getObjectId(moonsTearTrueGI));
+        loadObject(play, &objectSegment, &objectLoadQueue, getObjectId(moonsTearTrueGI));
         objectLoading = true;
     } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         objectLoading = false;
