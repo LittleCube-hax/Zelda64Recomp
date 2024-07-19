@@ -499,14 +499,12 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
         if (!Actor_HasParent(&this->actor, play)) {
             u32 location = 0;
             bool use_workaround = false;
-            bool boss_workaround = false;
             switch (this->actor.params) {
                 case ITEM00_HEART_PIECE:
                     location = LOCATION_HEART_PIECE;
                     use_workaround = true;
                     if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
                         giObjectSegment = objectSegment;
-                        boss_workaround = true;
                     }
                     break;
                 default:
@@ -566,7 +564,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, this->unk154);
 
-    //this->getItemId = GI_NONE;
+    this->getItemId = GI_NONE;
     this->actionFunc = func_800A6A40;
 }
 
@@ -680,6 +678,7 @@ void EnItem00_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyCylinder(play, &this->collider);
     if (!bossWorkaround && objectSegment != NULL) {
         ZeldaArena_Free(objectSegment);
+        objectSegment = NULL;
     }
 }
 

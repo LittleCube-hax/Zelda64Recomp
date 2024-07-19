@@ -1486,6 +1486,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                     } else if ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) {
                     } else if (item == ITEM_DEKU_NUT) {
                     } else if ((item == ITEM_DEKU_NUTS_5) || (item == ITEM_DEKU_NUTS_10)) {
+                    } else if (item == ITEM_MAGIC_BEANS) {
                     } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
                     } else if ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) {
                     } else if (item == ITEM_MAGIC_JAR_SMALL) {

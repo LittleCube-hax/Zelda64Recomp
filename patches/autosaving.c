@@ -661,6 +661,8 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     save_ptr[0x5EB] |= 0x10;
     save_ptr[0x42F3] |= 0x10;
 
+    CLEAR_EVENTINF(EVENTINF_41);
+
     playing = true;
     old_items_size = 0;
 }
@@ -968,7 +970,6 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
             this->isTalking = false;
         } else if ((Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE) && Message_ShouldAdvance(play)) {
             if (play->msgCtx.choiceIndex != 0) {
-                recomp_printf("you saved and quit!\n");
                 Audio_PlaySfx_MessageDecide();
                 play->msgCtx.msgMode = MSGMODE_OWL_SAVE_0;
                 play->msgCtx.unk120D6 = 0;

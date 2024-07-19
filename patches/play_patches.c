@@ -229,13 +229,6 @@ void Play_Main(GameState* thisx) {
 
     gPlay = this;
 
-    /*if (CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_L)) {
-        save_ptr = (u8*) &gSaveContext;
-        for (i = 0; i < sizeof(gSaveContext); ++i) {
-            recomp_printf("save[0x%04X]: 0x%02X\n", i, save_ptr[i]);
-        }
-    }*/
-
     /*if (initSave) {
         for (i = 0; i < 100; ++i) {
             if (gSaveContext.save.saveInfo.weekEventReg[i] != prevWeekEventRegs[i]) {
@@ -273,6 +266,13 @@ void Play_Main(GameState* thisx) {
 
             old_items_size = new_items_size;
         }
+
+        /*if (CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_L)) {
+            save_ptr = (u8*) &gSaveContext;
+            for (i = 0; i < sizeof(gSaveContext); ++i) {
+                recomp_printf("save[0x%04X]: 0x%02X\n", i, save_ptr[i]);
+            }
+        }*/
     }
 
     // @recomp
