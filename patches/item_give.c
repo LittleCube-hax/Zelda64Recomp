@@ -1069,11 +1069,18 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
         return ITEM_NONE;
 
     } else if ((item == ITEM_OCARINA_OF_TIME) || (item == ITEM_BOMBCHU) || (item == ITEM_HOOKSHOT) ||
-               (item == ITEM_LENS_OF_TRUTH) || (item == ITEM_SWORD_GREAT_FAIRY) || (item == ITEM_PICTOGRAPH_BOX)) {
+               (item == ITEM_LENS_OF_TRUTH) || (item == ITEM_SWORD_GREAT_FAIRY)) {
         if (INV_CONTENT(item) == ITEM_NONE) {
             return ITEM_NONE;
         }
         return INV_CONTENT(item);
+
+    } else if (item == ITEM_PICTOGRAPH_BOX) {
+        if (recomp_location_is_checked(GI_PICTOGRAPH_BOX)) {
+            return ITEM_PICTOGRAPH_BOX;
+        } else {
+            return ITEM_NONE;
+        }
 
     } else if ((item >= ITEM_BOMBS_5) && (item == ITEM_BOMBS_30)) {
         //! @bug: Should be a range check: (item <= ITEM_BOMBS_30)
