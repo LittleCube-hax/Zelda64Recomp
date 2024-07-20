@@ -1813,9 +1813,8 @@ u8 Item_Give(PlayState* play, u8 item) {
             }
         }
 
-    } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
-        SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOLWA);
-        return ITEM_NONE;
+    } else if (item == ITEM_SONG_LULLABY_INTRO) {
+        SET_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
 
     }
 
