@@ -25,7 +25,7 @@ bool objectStatic;
 bool objectLoading;
 bool objectLoaded;
 OSMesgQueue objectLoadQueue;
-void* objectSegment = NULL;
+void* objectSegment;
 
 void func_800A640C(EnItem00* this, PlayState* play);
 void func_800A6A40(EnItem00* this, PlayState* play);
@@ -79,9 +79,6 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     bool shuffled = false;
 
     //objectSegment = ZeldaArena_Malloc(0x9000);
-    objectStatic = false;
-    objectLoading = false;
-    objectLoaded = false;
     this->collectibleFlag = ENITEM00_GET_7F00(thisx);
 
     thisx->params &= 0xFF;
@@ -107,6 +104,10 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
         }
     } else if (shuffled) {
         this->getItemId = apGetItemId(LOCATION_HEART_PIECE);
+        objectStatic = false;
+        objectLoading = false;
+        objectLoaded = false;
+        objectSegment = NULL;
         if (this->getItemId == GI_RECOVERY_HEART) {
             sp30 = 0;
             //thisx->params = ITEM00_RECOVERY_HEART;
@@ -676,7 +677,7 @@ void EnItem00_Destroy(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
 
     Collider_DestroyCylinder(play, &this->collider);
-    if (!bossWorkaround && objectSegment != NULL) {
+    if (!bossWorkaround && objectSegment != NULL && this->actor.params == ITEM00_HEART_PIECE) {
         ZeldaArena_Free(objectSegment);
         objectSegment = NULL;
     }
