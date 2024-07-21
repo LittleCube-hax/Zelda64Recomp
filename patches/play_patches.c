@@ -229,32 +229,6 @@ void Play_Main(GameState* thisx) {
 
     gPlay = this;
 
-    /*if (initSave) {
-        for (i = 0; i < 100; ++i) {
-            if (gSaveContext.save.saveInfo.weekEventReg[i] != prevWeekEventRegs[i]) {
-                //recomp_printf("DIFFERENT WEEKEVENTREG!! reg %d was 0x%02X, is now 0x%02X\n", i, prevWeekEventRegs[i], gSaveContext.save.saveInfo.weekEventReg[i]);
-                prevWeekEventRegs[i] = gSaveContext.save.saveInfo.weekEventReg[i];
-            }
-        }
-        for (i = 0; i < 8; ++i) {
-            if (gSaveContext.eventInf[i] != prevEventInf[i]) {
-                recomp_printf("DIFFERENT EVENTINF!! reg %d was 0x%02X, is now 0x%02X\n", i, prevEventInf[i], gSaveContext.eventInf[i]);
-                prevEventInf[i] = gSaveContext.eventInf[i];
-            }
-        }
-    } else {
-        recomp_printf("init prevweekeventregs\n");
-        prevWeekEventRegs = ZeldaArena_Malloc(100);
-        for (i = 0; i < 100; ++i) {
-            prevWeekEventRegs[i] = gSaveContext.save.saveInfo.weekEventReg[i];
-        }
-        prevEventInf = ZeldaArena_Malloc(8);
-        for (i = 0; i < 8; ++i) {
-            prevEventInf[i] = gSaveContext.eventInf[i];
-        }
-        initSave = true;
-    }*/
-
     if (playing) {
         new_items_size = recomp_get_items_size();
 
@@ -266,13 +240,6 @@ void Play_Main(GameState* thisx) {
 
             old_items_size = new_items_size;
         }
-
-        /*if (CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_L)) {
-            save_ptr = (u8*) &gSaveContext;
-            for (i = 0; i < sizeof(gSaveContext); ++i) {
-                recomp_printf("save[0x%04X]: 0x%02X\n", i, save_ptr[i]);
-            }
-        }*/
     }
 
     // @recomp
