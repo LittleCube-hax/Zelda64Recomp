@@ -92,10 +92,6 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
 
     if (Flags_GetCollectible(play, this->collectibleFlag) || (thisx->params == ITEM00_HEART_PIECE && recomp_location_is_checked(LOCATION_HEART_PIECE))) {
         if (thisx->params == ITEM00_HEART_PIECE) {
-            /*sp30 = 0;
-            this->collectibleFlag = 0;
-            thisx->params = ITEM00_RECOVERY_HEART;
-            this->getItemId = GI_RECOVERY_HEART;*/
             Actor_Kill(thisx);
             return;
         } else {
@@ -110,7 +106,6 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
         objectSegment = NULL;
         if (this->getItemId == GI_RECOVERY_HEART) {
             sp30 = 0;
-            //thisx->params = ITEM00_RECOVERY_HEART;
         }
     }
 
@@ -512,11 +507,6 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
                     break;
             }
             Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, use_workaround);
-            /*recomp_send_location(LOCATION_HEART_PIECE);
-            Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
-            Message_StartTextbox(play, getTextId(apGetItemId(LOCATION_HEART_PIECE)), NULL);
-            play->msgCtx.textDelayTimer = 4;
-            Actor_Kill(thisx);*/
         }
     }
 
