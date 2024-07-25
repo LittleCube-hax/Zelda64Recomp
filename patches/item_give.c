@@ -295,16 +295,16 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     // GI_54
     GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x54, 0, 0),
     // GI_REMAINS_ODOLWA
-    GET_ITEM(ITEM_REMAINS_ODOLWA, OBJECT_UNSET_0, GID_REMAINS_ODOLWA, 0x55, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_REMAINS_ODOLWA, OBJECT_BSMASK, GID_REMAINS_ODOLWA, 0x55, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_REMAINS_GOHT
-    GET_ITEM(ITEM_REMAINS_GOHT, OBJECT_UNSET_0, GID_REMAINS_GOHT, 0x56, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_REMAINS_GOHT, OBJECT_BSMASK, GID_REMAINS_GOHT, 0x56, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_REMAINS_GYORG
     GET_ITEM(ITEM_REMAINS_GYORG, OBJECT_BSMASK, GID_REMAINS_GYORG, 0x57, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_REMAINS_TWINMOLD
-    GET_ITEM(ITEM_REMAINS_TWINMOLD, OBJECT_UNSET_0, GID_REMAINS_TWINMOLD, 0x58, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_REMAINS_TWINMOLD, OBJECT_BSMASK, GID_REMAINS_TWINMOLD, 0x58, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_POTION_RED_BOTTLE
     GET_ITEM(ITEM_LONGSHOT, OBJECT_GI_BOTTLE_RED, GID_57, GIFIELD(GIFIELD_40, ITEM00_BOMBS_0),
@@ -1460,6 +1460,10 @@ void Player_CsAction_43(PlayState* play, Player* this, CsCmdActorCue* cue) {
 
 #define LOCATION_QUEST_HEART_PIECE (0x070000 | (actor->id))
 
+#define LOCATION_GRANNY_STORY_1 0x070243
+#define LOCATION_GRANNY_STORY_2 0x080243
+#define LOCATION_PLAYGROUND_ANY_DAY 0x0801C9
+
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
     u32 i;
@@ -1498,10 +1502,10 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                     } else if ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) {
                     } else if (item == ITEM_MAGIC_JAR_SMALL) {
                     } else if (item == ITEM_MAGIC_JAR_BIG) {
-                    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
+                    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != 0x1C9)) {
                     } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
                                (item == ITEM_HYLIAN_LOACH)) {
-                    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+                    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK) && (item != ITEM_CHATEAU) && (item != ITEM_CHATEAU_2)) ||
                                 (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
                                 (item == ITEM_SEAHORSE_CAUGHT)) {
                     } else {
@@ -1512,12 +1516,16 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                         recomp_printf("Actor HP: 0x%06X\n", LOCATION_QUEST_HEART_PIECE);
                         itemWorkaround = true;
                         trueGI = apGetItemId(LOCATION_QUEST_HEART_PIECE);
-                        if (LOCATION_QUEST_HEART_PIECE == 0x070243 && recomp_location_is_checked(LOCATION_QUEST_HEART_PIECE)) {
+                        if (LOCATION_QUEST_HEART_PIECE == LOCATION_GRANNY_STORY_1 && recomp_location_is_checked(LOCATION_GRANNY_STORY_1)) {
                             // stupid gramma double heart piece
-                            recomp_send_location(0x080000);
+                            recomp_send_location(LOCATION_GRANNY_STORY_2);
                         } else {
                             recomp_send_location(LOCATION_QUEST_HEART_PIECE);
                         }
+                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == 0x1C9) {
+                        // Deku Playground Any Day
+                        recomp_send_location(LOCATION_PLAYGROUND_ANY_DAY);
+                        trueGI = apGetItemId(LOCATION_PLAYGROUND_ANY_DAY);
                     } else {
                         recomp_send_location(getItemId);
                     }
