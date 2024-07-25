@@ -379,3 +379,14 @@ void EnMnk_Init(Actor* thisx, PlayState* play) {
     this->picto.actor.shape.rot.x = this->picto.actor.shape.rot.z = 0;
     this->picto.validationFunc = EnMnk_ValidatePictograph;
 }
+
+void EnMnk_Destroy(Actor* thisx, PlayState* play) {
+    EnMnk* this = THIS;
+
+    Collider_DestroyCylinder(play, &this->collider);
+    if ((MONKEY_GET_TYPE(&this->picto.actor) == MONKEY_TIED_UP) && (this->flags & MONKEY_FLAGS_2000)) {
+        //Item_Give(play, ITEM_SONG_SONATA);
+        recomp_send_location(0x040061);
+        CLEAR_EVENTINF(EVENTINF_24);
+    }
+}
