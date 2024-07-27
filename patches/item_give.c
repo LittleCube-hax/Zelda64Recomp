@@ -579,10 +579,10 @@ u8 getTextId(s16 gi) {
     return sGetItemTable_original[gi - 1].textId;
 }
 
-s16 trueGI;
-bool itemWorkaround = false;
+static s16 trueGI;
+static bool itemWorkaround = false;
 bool bossWorkaround = false;
-bool has_ocarina = false;
+static bool has_ocarina = false;
 
 OSMesgQueue objectQueue;
 void* giObjectSegment = NULL;
@@ -705,7 +705,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
         }
         giEntry = &sGetItemTable_original[gi - 1];
 
-        switch (giEntry->itemId) {
+        /*switch (giEntry->itemId) {
             case ITEM_DEKU_NUT:
             case ITEM_DEKU_STICK:
                 Item_Give(play, giEntry->itemId);
@@ -715,6 +715,10 @@ s32 func_808482E0(PlayState* play, Player* this) {
                     Item_Give(play, giEntry->itemId);
                 }
                 break;
+        }*/
+
+        if (!itemWorkaround) {
+            Item_Give(play, giEntry->itemId);
         }
 
         this->av1.actionVar1 = 1;
@@ -1397,72 +1401,8 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
 
     return false;
 }
-/*
-s32 func_808411D4(PlayState* play, Player* this, f32* arg2, s32 arg3);
-
-void func_808345C8(void) {
-    if (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU) {
-        gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
-        gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
-    }
-}
-
-void Player_CsAction_6(PlayState* play, Player* this, CsCmdActorCue* cue) {
-    f32 sp24;
-
-    if (R_PLAY_FILL_SCREEN_ON > 0) {
-        R_PLAY_FILL_SCREEN_ALPHA += R_PLAY_FILL_SCREEN_ON;
-        if (R_PLAY_FILL_SCREEN_ALPHA > 255) {
-            R_PLAY_FILL_SCREEN_ON = -64;
-            R_PLAY_FILL_SCREEN_ALPHA = 255;
-            gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
-            this->actor.update = func_8012301C;
-            this->actor.draw = NULL;
-            this->av1.actionVar1 = 0;
-        }
-    } else if (R_PLAY_FILL_SCREEN_ON < 0) {
-        R_PLAY_FILL_SCREEN_ALPHA += R_PLAY_FILL_SCREEN_ON;
-        if (R_PLAY_FILL_SCREEN_ALPHA < 0) {
-            R_PLAY_FILL_SCREEN_ON = 0;
-            R_PLAY_FILL_SCREEN_ALPHA = 0;
-        }
-    } else {
-        sp24 = 2.5f;
-        func_808411D4(play, this, &sp24, 0xA);
-        this->av2.actionVar2++;
-        if (this->av2.actionVar2 >= 0x15) {
-            this->csAction = PLAYER_CSACTION_10;
-        }
-    }
-}
-
-void Player_CsAction_43(PlayState* play, Player* this, CsCmdActorCue* cue) {
-    if (R_PLAY_FILL_SCREEN_ON > 0) {
-        R_PLAY_FILL_SCREEN_ALPHA += R_PLAY_FILL_SCREEN_ON;
-        if (R_PLAY_FILL_SCREEN_ALPHA > 255) {
-            R_PLAY_FILL_SCREEN_ON = -64;
-            R_PLAY_FILL_SCREEN_ALPHA = 255;
-            gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
-            this->actor.update = func_8012301C;
-            this->actor.draw = NULL;
-            this->av1.actionVar1 = 0;
-        }
-    } else if (R_PLAY_FILL_SCREEN_ON < 0) {
-        R_PLAY_FILL_SCREEN_ALPHA += R_PLAY_FILL_SCREEN_ON;
-        if (R_PLAY_FILL_SCREEN_ALPHA < 0) {
-            R_PLAY_FILL_SCREEN_ON = 0;
-            R_PLAY_FILL_SCREEN_ALPHA = 0;
-        }
-    } else {
-        PlayerAnimation_Update(play, &this->skelAnime);
-    }
-}*/
 
 #define LOCATION_QUEST_HEART_PIECE (0x070000 | (actor->id))
-
-#define LOCATION_GRANNY_STORY_1 0x070243
-#define LOCATION_GRANNY_STORY_2 0x080243
-#define LOCATION_PLAYGROUND_ANY_DAY 0x0801C9
 
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
@@ -1522,11 +1462,11 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                         } else {
                             recomp_send_location(LOCATION_QUEST_HEART_PIECE);
                         }
-                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == 0x1C9) {
+                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == 0x1C9 && !recomp_location_is_checked(LOCATION_PLAYGROUND_ANY_DAY)) {
                         // Deku Playground Any Day
                         recomp_send_location(LOCATION_PLAYGROUND_ANY_DAY);
                         trueGI = apGetItemId(LOCATION_PLAYGROUND_ANY_DAY);
-                    } else {
+                    } else if (itemWorkaround) {
                         recomp_send_location(getItemId);
                     }
                     if (itemWorkaround) {
@@ -1574,11 +1514,7 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
 
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
                     trueGI = getItemId;
-                    if (use_workaround) {
-                        itemWorkaround = true;
-                    } else {
-                        itemWorkaround = false;
-                    }
+                    itemWorkaround = use_workaround;
                     if (itemWorkaround) {
                         recomp_send_location(location);
                         player->getItemId = GI_DEED_LAND;
@@ -1883,6 +1819,10 @@ u8 apItemGive(u32 gi) {
                     SET_DUNGEON_ITEM(item - ITEM_KEY_BOSS, dungeonIndex);
                     break;
                 case ITEM_KEY_SMALL:
+                    if (DUNGEON_KEY_COUNT(dungeonIndex) < 0) {
+                        DUNGEON_KEY_COUNT(dungeonIndex) = 1;
+                        break;
+                    }
                     DUNGEON_KEY_COUNT(dungeonIndex) += 1;
                     break;
             }

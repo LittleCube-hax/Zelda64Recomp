@@ -294,3 +294,25 @@ void EnGinkoMan_DepositDialogue(EnGinkoMan* this, PlayState* play) {
             break;
     }
 }
+
+void EnGinkoMan_BankAward(EnGinkoMan* this, PlayState* play) {
+    if (Actor_HasParent(&this->actor, play)) {
+        // Parent is the player when starting to receive the award
+        this->actor.parent = NULL;
+        EnGinkoMan_SetupBankAward2(this);
+    } else if (this->curTextId == 0x45B) {
+        //if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE)) {
+        if (recomp_location_is_checked(GI_WALLET_ADULT)) {
+            Actor_OfferGetItem(&this->actor, play, GI_RUPEE_BLUE, 500.0f, 100.0f);
+        } else {
+            Actor_OfferGetItem(&this->actor, play, GI_WALLET_ADULT, 500.0f, 100.0f);
+        }
+    } else if (this->curTextId == 0x45C) {
+        Actor_OfferGetItem(&this->actor, play, GI_RUPEE_BLUE, 500.0f, 100.0f);
+    //} else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE)) {
+    } else if (recomp_location_is_checked(LOCATION_BANK_1000_REWARD)) {
+        Actor_OfferGetItem(&this->actor, play, GI_RUPEE_BLUE, 500.0f, 100.0f);
+    } else {
+        Actor_OfferGetItem(&this->actor, play, GI_HEART_PIECE, 500.0f, 100.0f);
+    }
+}

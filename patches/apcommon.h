@@ -6,6 +6,12 @@
 
 #define ITEM_AP 0xB3
 
+#define LOCATION_GRANNY_STORY_1 0x070243
+#define LOCATION_GRANNY_STORY_2 0x080243
+#define LOCATION_PLAYGROUND_ANY_DAY 0x0801C9
+#define LOCATION_PLAYGROUND_ALL_DAYS 0x0701C9
+#define LOCATION_BANK_1000_REWARD 0x070177
+
 // WEEKEVENTREG_17_80: we have given the Moon's Tear to the scrub
 // WEEKEVENTREG_74_80: the Moon's Tear has fallen
 // WEEKEVENTREG_74_40: we have collected the Moon's Tear
