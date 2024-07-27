@@ -459,9 +459,14 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
             if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                 (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
                 CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_L)) {
+                int i;
+                int first_i;
                 if (pauseCtx->cursorSlot[PAUSE_ITEM] == SLOT(ITEM_MOONS_TEAR)) {
-                    int i = INV_CONTENT(ITEM_MOONS_TEAR) + 0x6E;  // convert to GI
-                    int first_i = i;
+                    if (INV_CONTENT(ITEM_MOONS_TEAR) == ITEM_NONE) {
+                        first_i = i = GI_DEED_OCEAN;
+                    } else {
+                        first_i = i = INV_CONTENT(ITEM_MOONS_TEAR) + 0x6E;  // convert to GI
+                    }
                     // cycle through the player's moon's tear slot items
                     while (true) {
                         ++i;
@@ -476,6 +481,54 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                         if (recomp_has_item(i)) {
                             // the player has it, give it to them
                             INV_CONTENT(ITEM_MOONS_TEAR) = i - 0x6E;
+                            Audio_PlaySfx(NA_SE_SY_CURSOR);
+                            break;
+                        }
+                    }
+                } else if (pauseCtx->cursorSlot[PAUSE_ITEM] == SLOT(ITEM_ROOM_KEY)) {
+                    if (INV_CONTENT(ITEM_ROOM_KEY) == ITEM_NONE) {
+                        first_i = i = GI_LETTER_TO_MAMA;
+                    } else {
+                        first_i = i = INV_CONTENT(ITEM_ROOM_KEY) + 0x73;  // convert to GI
+                    }
+                    // cycle through the player's moon's tear slot items
+                    while (true) {
+                        ++i;
+                        if (i == (GI_LETTER_TO_MAMA + 1)) {
+                            i = GI_ROOM_KEY;
+                        }
+                        if (i == first_i) {
+                            // we've done a full cycle,
+                            // the player has no other items
+                            break;
+                        }
+                        if (recomp_has_item(i)) {
+                            // the player has it, give it to them
+                            INV_CONTENT(ITEM_ROOM_KEY) = i - 0x73;
+                            Audio_PlaySfx(NA_SE_SY_CURSOR);
+                            break;
+                        }
+                    }
+                } else if (pauseCtx->cursorSlot[PAUSE_ITEM] == SLOT(ITEM_LETTER_TO_KAFEI)) {
+                    if (INV_CONTENT(ITEM_LETTER_TO_KAFEI) == ITEM_NONE) {
+                        first_i = i = GI_PENDANT_OF_MEMORIES;
+                    } else {
+                        first_i = i = INV_CONTENT(ITEM_LETTER_TO_KAFEI) + 0x7B;  // convert to GI
+                    }
+                    // cycle through the player's moon's tear slot items
+                    while (true) {
+                        ++i;
+                        if (i == (GI_PENDANT_OF_MEMORIES + 1)) {
+                            i = GI_LETTER_TO_KAFEI;
+                        }
+                        if (i == first_i) {
+                            // we've done a full cycle,
+                            // the player has no other items
+                            break;
+                        }
+                        if (recomp_has_item(i)) {
+                            // the player has it, give it to them
+                            INV_CONTENT(ITEM_LETTER_TO_KAFEI) = i - 0x7B;
                             Audio_PlaySfx(NA_SE_SY_CURSOR);
                             break;
                         }
