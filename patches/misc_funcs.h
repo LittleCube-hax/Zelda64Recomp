@@ -21,5 +21,8 @@ DECLARE_FUNC(bool, recomp_location_is_checked, u32 id);
 DECLARE_FUNC(u32, apGetItemId, u32 location_id);
 DECLARE_FUNC(void, apSay, char* __s);
 DECLARE_FUNC(bool, recomp_get_item_foreign, u32 items_i);
+DECLARE_FUNC(u32, recomp_get_items_index, u8 file_no);
+DECLARE_FUNC(void, recomp_save_items_index, u8 file_no, u32 items_index);
+DECLARE_FUNC(void, recomp_complete_goal);
 
 #endif

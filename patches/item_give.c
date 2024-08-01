@@ -70,7 +70,7 @@ void func_8082DB90(PlayState* play, Player* this, PlayerAnimationHeader* anim);
 #define GID_SONG_SOARING (GID_MASK_FIERCE_DEITY + 9)
 #define GID_SONG_STORMS (GID_MASK_FIERCE_DEITY + 10)
 
-GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
+GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     // GI_RUPEE_GREEN
     GET_ITEM(ITEM_RUPEE_GREEN, OBJECT_GI_RUPY, GID_RUPEE_GREEN, 0xC4, GIFIELD(0, ITEM00_RUPEE_GREEN), CHEST_ANIM_SHORT),
     // GI_RUPEE_BLUE
@@ -115,7 +115,7 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     GET_ITEM(ITEM_RECOVERY_HEART, OBJECT_GI_HEART, GID_RECOVERY_HEART, 0x10, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_STRAY_FAIRY
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x11, 0, 0),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_UNSET_0, GID_NONE, 0x11, 0, 0),
     // GI_12
     GET_ITEM(ITEM_RECOVERY_HEART, OBJECT_GI_HEART, GID_RECOVERY_HEART, 0x12, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
@@ -373,7 +373,7 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     // GI_75
     GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x75, 0, 0),
     // GI_ICE_TRAP
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x76, 0, 0),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_UNSET_0, GID_NONE, 0x76, 0, 0),
     // GI_77
     GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x77, 0, 0),
     // GI_MASK_DEKU
@@ -505,7 +505,7 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     // GI_A3
     GET_ITEM(ITEM_SONG_SOARING, OBJECT_GI_MELODY, GID_SONG_SOARING, 0xA3, 0, 0),
     // GI_A4
-    GET_ITEM(ITEM_NONE, OBJECT_GI_KI_TAN_MASK, GID_MASK_KEATON, 0xA4, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_KI_TAN_MASK, GID_MASK_KEATON, 0xA4, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_A5
     GET_ITEM(ITEM_SONG_EPONA, OBJECT_GI_MELODY, GID_SONG_EPONA, 0xA5, 0, 0),
@@ -538,10 +538,10 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
     GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB1, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_B2
     //GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0xB2, 0, 0),
-    GET_ITEM(ITEM_NONE, OBJECT_GI_BOTTLE_04, GID_FAIRY, 0xB2, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_BOTTLE_04, GID_FAIRY, 0xB2, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_B3
     //GET_ITEM(ITEM_NONE, OBJECT_GI_MSSA, GID_MASK_SUN, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
-    GET_ITEM(ITEM_NONE, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
     // GI_TINGLE_MAP_CLOCK_TOWN
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB4, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
@@ -563,24 +563,25 @@ GetItemEntry sGetItemTable_original[GI_MAX - 1] = {
 };
 
 u8 getItem(s16 gi) {
-    return sGetItemTable_original[gi - 1].itemId;
+    return sGetItemTable_ap[gi - 1].itemId;
 }
 
 u16 getObjectId(s16 gi) {
-    return sGetItemTable_original[gi - 1].objectId;
+    return sGetItemTable_ap[gi - 1].objectId;
 }
 
 s8 getGid(s16 gi) {
-    s8 gid = sGetItemTable_original[gi - 1].gid;
+    s8 gid = sGetItemTable_ap[gi - 1].gid;
     return (((gid < 0) ? -1 : 1)*gid) - 1;
 }
 
 u8 getTextId(s16 gi) {
-    return sGetItemTable_original[gi - 1].textId;
+    return sGetItemTable_ap[gi - 1].textId;
 }
 
 static s16 trueGI;
 static bool itemWorkaround = false;
+static bool drawIdChosen = false;
 bool bossWorkaround = false;
 static bool has_ocarina = false;
 
@@ -599,6 +600,10 @@ void func_8084748C(Player* this, f32* speed, f32 speedTarget, s16 yawTarget);
 void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 drawIdPlusOne) {
     f32 sp34;
     void* segment;
+
+    if (itemWorkaround && !drawIdChosen) {
+        return;
+    }
 
     if (player->stateFlags3 & PLAYER_STATE3_4000000) {
         sp34 = 6.0f;
@@ -631,7 +636,7 @@ void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 
 extern Vec3f sPlayerGetItemRefPos;
 
 void Player_DrawGetItem(PlayState* play, Player* player) {
-    if (bossWorkaround || !player->giObjectLoading || (osRecvMesg(&player->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0)) {
+    if ((bossWorkaround && osRecvMesg(&objectQueue, NULL, OS_MESG_NOBLOCK) == 0) || !player->giObjectLoading || (osRecvMesg(&player->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0)) {
         Vec3f refPos;
         s32 drawIdPlusOne;
 
@@ -664,20 +669,20 @@ void Player_DrawGetItem(PlayState* play, Player* player) {
 void func_8082ECE0(Player* this) {
     GetItemEntry* giEntry;
     if (itemWorkaround) {
-        //trueGI = this->getItemId;
-        giEntry = &sGetItemTable_original[trueGI - 1];
+        giEntry = &sGetItemTable_ap[trueGI - 1];
     } else {
-        giEntry = &sGetItemTable_original[this->getItemId - 1];
+        giEntry = &sGetItemTable_ap[this->getItemId - 1];
     }
 
     this->getItemDrawIdPlusOne = ABS_ALT(giEntry->gid);
+    drawIdChosen = true;
 }
 
 void func_80838830(Player* this, s16 objectId) {
     if (objectId != OBJECT_UNSET_0) {
         this->giObjectLoading = true;
         if (itemWorkaround) {
-            objectId = sGetItemTable_original[trueGI - 1].objectId;
+            objectId = sGetItemTable_ap[trueGI - 1].objectId;
         }
         if (!bossWorkaround) {
             osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
@@ -703,7 +708,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
                 INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
             }
         }
-        giEntry = &sGetItemTable_original[gi - 1];
+        giEntry = &sGetItemTable_ap[gi - 1];
 
         /*switch (giEntry->itemId) {
             case ITEM_DEKU_NUT:
@@ -720,6 +725,8 @@ s32 func_808482E0(PlayState* play, Player* this) {
         if (!itemWorkaround) {
             Item_Give(play, giEntry->itemId);
         }
+
+        itemWorkaround = false;
 
         this->av1.actionVar1 = 1;
         Message_StartTextbox(play, giEntry->textId, &this->actor);
@@ -765,107 +772,6 @@ s32 func_808482E0(PlayState* play, Player* this) {
     }
 
     return false;
-}
-
-s8 sItemItemActions[] = {
-    PLAYER_IA_OCARINA,                 // ITEM_OCARINA_OF_TIME,
-    PLAYER_IA_BOW,                     // ITEM_BOW,
-    PLAYER_IA_BOW_FIRE,                // ITEM_ARROW_FIRE,
-    PLAYER_IA_BOW_ICE,                 // ITEM_ARROW_ICE,
-    PLAYER_IA_BOW_LIGHT,               // ITEM_ARROW_LIGHT,
-    PLAYER_IA_PICTOGRAPH_BOX,          // ITEM_OCARINA_FAIRY,
-    PLAYER_IA_BOMB,                    // ITEM_BOMB,
-    PLAYER_IA_BOMBCHU,                 // ITEM_BOMBCHU,
-    PLAYER_IA_DEKU_STICK,              // ITEM_DEKU_STICK,
-    PLAYER_IA_DEKU_NUT,                // ITEM_DEKU_NUT,
-    PLAYER_IA_MAGIC_BEANS,             // ITEM_MAGIC_BEANS,
-    PLAYER_IA_PICTOGRAPH_BOX,          // ITEM_SLINGSHOT,
-    PLAYER_IA_POWDER_KEG,              // ITEM_POWDER_KEG,
-    PLAYER_IA_PICTOGRAPH_BOX,          // ITEM_PICTOGRAPH_BOX,
-    PLAYER_IA_LENS_OF_TRUTH,           // ITEM_LENS_OF_TRUTH,
-    PLAYER_IA_HOOKSHOT,                // ITEM_HOOKSHOT,
-    PLAYER_IA_SWORD_TWO_HANDED,        // ITEM_SWORD_GREAT_FAIRY,
-    PLAYER_IA_PICTOGRAPH_BOX,          // ITEM_LONGSHOT, // OoT Leftover
-    PLAYER_IA_BOTTLE_EMPTY,            // ITEM_BOTTLE,
-    PLAYER_IA_BOTTLE_POTION_RED,       // ITEM_POTION_RED,
-    PLAYER_IA_BOTTLE_POTION_GREEN,     // ITEM_POTION_GREEN,
-    PLAYER_IA_BOTTLE_POTION_BLUE,      // ITEM_POTION_BLUE,
-    PLAYER_IA_BOTTLE_FAIRY,            // ITEM_FAIRY,
-    PLAYER_IA_BOTTLE_DEKU_PRINCESS,    // ITEM_DEKU_PRINCESS,
-    PLAYER_IA_BOTTLE_MILK,             // ITEM_MILK_BOTTLE,
-    PLAYER_IA_BOTTLE_MILK_HALF,        // ITEM_MILK_HALF,
-    PLAYER_IA_BOTTLE_FISH,             // ITEM_FISH,
-    PLAYER_IA_BOTTLE_BUG,              // ITEM_BUG,
-    PLAYER_IA_BOTTLE_BUG,              // ITEM_BLUE_FIRE, // !
-    PLAYER_IA_BOTTLE_POE,              // ITEM_POE,
-    PLAYER_IA_BOTTLE_BIG_POE,          // ITEM_BIG_POE,
-    PLAYER_IA_BOTTLE_SPRING_WATER,     // ITEM_SPRING_WATER,
-    PLAYER_IA_BOTTLE_HOT_SPRING_WATER, // ITEM_HOT_SPRING_WATER,
-    PLAYER_IA_BOTTLE_ZORA_EGG,         // ITEM_ZORA_EGG,
-    PLAYER_IA_BOTTLE_GOLD_DUST,        // ITEM_GOLD_DUST,
-    PLAYER_IA_BOTTLE_MUSHROOM,         // ITEM_MUSHROOM,
-    PLAYER_IA_BOTTLE_SEAHORSE,         // ITEM_SEA_HORSE,
-    PLAYER_IA_BOTTLE_CHATEAU,          // ITEM_CHATEAU,
-    PLAYER_IA_BOTTLE_HYLIAN_LOACH,     // ITEM_HYLIAN_LOACH,
-    PLAYER_IA_BOTTLE_POE,              // ITEM_OBABA_DRINK, // !
-    PLAYER_IA_MOONS_TEAR,              // ITEM_MOONS_TEAR,
-    PLAYER_IA_DEED_LAND,               // ITEM_DEED_LAND,
-    PLAYER_IA_DEED_SWAMP,              // ITEM_DEED_SWAMP,
-    PLAYER_IA_DEED_MOUNTAIN,           // ITEM_DEED_MOUNTAIN,
-    PLAYER_IA_DEED_OCEAN,              // ITEM_DEED_OCEAN,
-    PLAYER_IA_ROOM_KEY,                // ITEM_ROOM_KEY,
-    PLAYER_IA_LETTER_MAMA,             // ITEM_LETTER_MAMA,
-    PLAYER_IA_LETTER_TO_KAFEI,         // ITEM_LETTER_TO_KAFEI,
-    PLAYER_IA_PENDANT_OF_MEMORIES,     // ITEM_PENDANT_MEMORIES,
-    PLAYER_IA_38,                      // ITEM_TINGLE_MAP, // !
-    PLAYER_IA_MASK_DEKU,               // ITEM_MASK_DEKU,
-    PLAYER_IA_MASK_GORON,              // ITEM_MASK_GORON,
-    PLAYER_IA_MASK_ZORA,               // ITEM_MASK_ZORA,
-    PLAYER_IA_MASK_FIERCE_DEITY,       // ITEM_MASK_FIERCE_DEITY,
-    PLAYER_IA_MASK_TRUTH,              // ITEM_MASK_TRUTH,
-    PLAYER_IA_MASK_KAFEIS_MASK,        // ITEM_MASK_KAFEIS_MASK,
-    PLAYER_IA_MASK_ALL_NIGHT,          // ITEM_MASK_ALL_NIGHT,
-    PLAYER_IA_MASK_BUNNY,              // ITEM_MASK_BUNNY,
-    PLAYER_IA_MASK_KEATON,             // ITEM_MASK_KEATON,
-    PLAYER_IA_MASK_GARO,               // ITEM_MASK_GARO,
-    PLAYER_IA_MASK_ROMANI,             // ITEM_MASK_ROMANI,
-    PLAYER_IA_MASK_CIRCUS_LEADER,      // ITEM_MASK_CIRCUS_LEADER,
-    PLAYER_IA_MASK_POSTMAN,            // ITEM_MASK_POSTMAN,
-    PLAYER_IA_MASK_COUPLE,             // ITEM_MASK_COUPLE,
-    PLAYER_IA_MASK_GREAT_FAIRY,        // ITEM_MASK_GREAT_FAIRY,
-    PLAYER_IA_MASK_GIBDO,              // ITEM_MASK_GIBDO,
-    PLAYER_IA_MASK_DON_GERO,           // ITEM_MASK_DON_GERO,
-    PLAYER_IA_MASK_KAMARO,             // ITEM_MASK_KAMARO,
-    PLAYER_IA_MASK_CAPTAIN,            // ITEM_MASK_CAPTAIN,
-    PLAYER_IA_MASK_STONE,              // ITEM_MASK_STONE,
-    PLAYER_IA_MASK_BREMEN,             // ITEM_MASK_BREMEN,
-    PLAYER_IA_MASK_BLAST,              // ITEM_MASK_BLAST,
-    PLAYER_IA_MASK_SCENTS,             // ITEM_MASK_SCENTS,
-    PLAYER_IA_MASK_GIANT,              // ITEM_MASK_GIANT,
-    PLAYER_IA_BOW_FIRE,                // ITEM_BOW_FIRE,
-    PLAYER_IA_BOW_ICE,                 // ITEM_BOW_ICE,
-    PLAYER_IA_BOW_LIGHT,               // ITEM_BOW_LIGHT,
-    PLAYER_IA_SWORD_KOKIRI,            // ITEM_SWORD_KOKIRI,
-    PLAYER_IA_SWORD_RAZOR,             // ITEM_SWORD_RAZOR,
-    PLAYER_IA_SWORD_GILDED,            // ITEM_SWORD_GILDED,
-    PLAYER_IA_SWORD_TWO_HANDED,        // ITEM_SWORD_DEITY,
-};
-
-PlayerItemAction Player_ItemToItemAction(Player* this, ItemId item) {
-    if (item != 0x4D) {
-        itemWorkaround = false;
-    }
-    if (item >= ITEM_FD) {
-        return PLAYER_IA_NONE;
-    } else if (item == ITEM_FC) {
-        return PLAYER_IA_LAST_USED;
-    } else if (item == ITEM_FISHING_ROD) {
-        return PLAYER_IA_FISHING_ROD;
-    } else if ((item == ITEM_SWORD_KOKIRI) && (this->transformation == PLAYER_FORM_ZORA)) {
-        return PLAYER_IA_ZORA_FINS;
-    } else {
-        return sItemItemActions[item];
-    }
 }
 
 typedef struct AnimSfxEntry {
@@ -1291,13 +1197,13 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
         if (interactRangeActor != NULL) {
             if (this->getItemId > GI_NONE) {
                 if (this->getItemId < GI_MAX) {
-                    GetItemEntry* giEntry = &sGetItemTable_original[this->getItemId - 1];
+                    GetItemEntry* giEntry = &sGetItemTable_ap[this->getItemId - 1];
                     interactRangeActor->parent = &this->actor;
                     if ((Item_CheckObtainability(giEntry->itemId) == ITEM_NONE) ||
                         ((s16)giEntry->objectId == OBJECT_GI_BOMB_2)) {
                         if (itemWorkaround) {
                             this->getItemId = trueGI;
-                            giEntry = &sGetItemTable_original[trueGI - 1];
+                            giEntry = &sGetItemTable_ap[trueGI - 1];
                         }
                         Player_DetachHeldActor(play, this);
                         func_80838830(this, giEntry->objectId);
@@ -1329,7 +1235,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                             if (itemWorkaround) {
                                 this->getItemId = -trueGI;
                             }
-                            GetItemEntry* giEntry = &sGetItemTable_original[-this->getItemId - 1];
+                            GetItemEntry* giEntry = &sGetItemTable_ap[-this->getItemId - 1];
                             EnBox* chest = (EnBox*)interactRangeActor;
 
                             if ((giEntry->itemId != ITEM_NONE) &&
@@ -1339,7 +1245,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                                   (giEntry->field & GIFIELD_20)))) {
                                 this->getItemId =
                                     (giEntry->itemId == ITEM_MASK_CAPTAIN) ? -GI_RECOVERY_HEART : -GI_RUPEE_BLUE;
-                                giEntry = &sGetItemTable_original[-this->getItemId - 1];
+                                giEntry = &sGetItemTable_ap[-this->getItemId - 1];
                             }
 
                             func_80832558(play, this, func_80837C78);
@@ -1403,6 +1309,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
 }
 
 #define LOCATION_QUEST_HEART_PIECE (0x070000 | (actor->id))
+#define ACTOR_ID_DEKU_PLAYGROUND_WORKER 0x1C9
 
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
@@ -1432,22 +1339,24 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                     itemWorkaround = false;
                     trueGI = getItemId;
                     item = getItem(getItemId);
-                    if (getItemId == GI_NONE) {
-                    } else if (item == ITEM_DEKU_STICK) {
-                    } else if ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) {
-                    } else if (item == ITEM_DEKU_NUT) {
-                    } else if ((item == ITEM_DEKU_NUTS_5) || (item == ITEM_DEKU_NUTS_10)) {
-                    } else if (item == ITEM_MAGIC_BEANS) {
-                    } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
-                    } else if ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) {
-                    } else if (item == ITEM_MAGIC_JAR_SMALL) {
-                    } else if (item == ITEM_MAGIC_JAR_BIG) {
-                    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != 0x1C9)) {
-                    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
-                               (item == ITEM_HYLIAN_LOACH)) {
-                    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK) && (item != ITEM_CHATEAU) && (item != ITEM_CHATEAU_2)) ||
+                    drawIdChosen = false;
+                    if ((getItemId == GI_NONE) ||
+                     (getItemId == GI_MAX) ||
+                     (item == ITEM_DEKU_STICK) ||
+                     ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) ||
+                     (item == ITEM_DEKU_NUT) ||
+                     ((item == ITEM_DEKU_NUTS_5) || (item == ITEM_DEKU_NUTS_10)) ||
+                     (item == ITEM_MAGIC_BEANS) ||
+                     ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) ||
+                     ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) ||
+                     (item == ITEM_MAGIC_JAR_SMALL) ||
+                     (item == ITEM_MAGIC_JAR_BIG) ||
+                     ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != ACTOR_ID_DEKU_PLAYGROUND_WORKER)) ||
+                     ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) ||
+                               (item == ITEM_HYLIAN_LOACH)) ||
+                     (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK) && (item != ITEM_CHATEAU) && (item != ITEM_CHATEAU_2)) ||
                                 (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
-                                (item == ITEM_SEAHORSE_CAUGHT)) {
+                                (item == ITEM_SEAHORSE_CAUGHT))) {
                     } else {
                         itemWorkaround = true;
                         trueGI = apGetItemId(getItemId);
@@ -1459,10 +1368,11 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                         if (LOCATION_QUEST_HEART_PIECE == LOCATION_GRANNY_STORY_1 && recomp_location_is_checked(LOCATION_GRANNY_STORY_1)) {
                             // stupid gramma double heart piece
                             recomp_send_location(LOCATION_GRANNY_STORY_2);
+                            trueGI = apGetItemId(LOCATION_GRANNY_STORY_2);
                         } else {
                             recomp_send_location(LOCATION_QUEST_HEART_PIECE);
                         }
-                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == 0x1C9 && !recomp_location_is_checked(LOCATION_PLAYGROUND_ANY_DAY)) {
+                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == ACTOR_ID_DEKU_PLAYGROUND_WORKER && !recomp_location_is_checked(LOCATION_PLAYGROUND_ANY_DAY)) {
                         // Deku Playground Any Day
                         recomp_send_location(LOCATION_PLAYGROUND_ANY_DAY);
                         trueGI = apGetItemId(LOCATION_PLAYGROUND_ANY_DAY);
@@ -1471,6 +1381,12 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                     }
                     if (itemWorkaround) {
                         player->getItemId = GI_DEED_LAND;
+                        if (trueGI >= GI_REMAINS_ODOLWA && trueGI <= GI_REMAINS_TWINMOLD) {
+                            bossWorkaround = true;
+                            loadObject(play, &giObjectSegment, &objectQueue, getObjectId(trueGI));
+                        } else {
+                            bossWorkaround = false;
+                        }
                     } else {
                         player->getItemId = getItemId;
                     }
@@ -1515,6 +1431,7 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
                     trueGI = getItemId;
                     itemWorkaround = use_workaround;
+                    drawIdChosen = false;
                     if (itemWorkaround) {
                         recomp_send_location(location);
                         player->getItemId = GI_DEED_LAND;
@@ -1555,6 +1472,22 @@ u8 Item_Give(PlayState* play, u8 item) {
 
     if (item == ITEM_NONE) {
         return ITEM_NONE;
+    } else if (item == ITEM_MASK_COUPLE) {
+        recomp_send_location(GI_MASK_COUPLE);
+        return ITEM_NONE;
+    } else if (item == ITEM_MASK_GORON) {
+        recomp_send_location(GI_MASK_GORON);
+        return ITEM_NONE;
+    } else if (item == ITEM_MASK_ZORA) {
+        recomp_send_location(GI_MASK_ZORA);
+        return ITEM_NONE;
+    } else if (item == ITEM_MASK_GIBDO) {
+        recomp_send_location(GI_MASK_GIBDO);
+        return ITEM_NONE;
+    } else if (item == ITEM_MASK_GREAT_FAIRY) {
+        recomp_printf("sending great fairy human\n");
+        recomp_send_location(GI_MASK_GREAT_FAIRY);
+        return ITEM_NONE;
     }
 
     if (item >= ITEM_DEKU_STICKS_5) {
@@ -1572,6 +1505,17 @@ u8 Item_Give(PlayState* play, u8 item) {
             }
         }
         give = true;
+
+    } else if (item == ITEM_MAGIC_BEANS) {
+        if (INV_CONTENT(ITEM_MAGIC_BEANS) == ITEM_NONE) {
+            INV_CONTENT(item) = item;
+            AMMO(ITEM_MAGIC_BEANS) = 1;
+        } else if (AMMO(ITEM_MAGIC_BEANS) < 20) {
+            AMMO(ITEM_MAGIC_BEANS)++;
+        } else {
+            AMMO(ITEM_MAGIC_BEANS) = 20;
+        }
+        return ITEM_NONE;
 
     } else if ((item == ITEM_DEKU_STICKS_5) || (item == ITEM_DEKU_STICKS_10)) {
         if (INV_CONTENT(ITEM_DEKU_STICK) != ITEM_DEKU_STICK) {
@@ -1759,7 +1703,6 @@ u8 Item_Give(PlayState* play, u8 item) {
 
     } else if (item == ITEM_SONG_LULLABY_INTRO) {
         SET_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
-
     }
 
     if (give) {

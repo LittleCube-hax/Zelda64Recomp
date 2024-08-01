@@ -22,6 +22,8 @@ typedef enum {
 
 #define ENIN_PATH_INDEX_NONE 0x3F
 
+#define LOCATION_RACE_GORMAN GI_MASK_GARO
+
 typedef enum EnInAnimation {
     /* -1 */ ENIN_ANIM_NONE = -1,
     /*  0 */ ENIN_ANIM_0,
@@ -416,8 +418,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     EnIn_ChangeAnim(&this->skelAnime, ENIN_ANIM_1);
                     EnIn_ChangeAnim(&this->unk4A4->skelAnime, ENIN_ANIM_7);
                     //if (INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO) {
-                    //if (recomp_location_is_checked(GI_MASK_GARO)) {
-                    if (false) {
+                    if (recomp_location_is_checked(LOCATION_RACE_GORMAN)) {
                         Actor_ContinueText(play, &this->actor, 0x347E);
                         ret = false;
                     } else {

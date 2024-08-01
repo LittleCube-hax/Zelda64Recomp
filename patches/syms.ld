@@ -54,3 +54,6 @@ recomp_location_is_checked = 0x8F0000CC;
 apGetItemId = 0x8F0000D0;
 apSay = 0x8F0000D4;
 recomp_get_item_foreign = 0x8F0000D8;
+recomp_get_items_index = 0x8F0000DC;
+recomp_save_items_index = 0x8F0000E0;
+recomp_complete_goal = 0x8F0000E4;

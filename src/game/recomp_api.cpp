@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <fstream>
 
 #include "librecomp/recomp.h"
 #include "librecomp/overlays.hpp"
@@ -180,6 +181,70 @@ extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {
 extern "C" void recomp_location_is_checked(uint8_t* rdram, recomp_context* ctx) {
     u32 id = _arg<0, u32>(rdram, ctx);
     _return(ctx, std::find(locations.begin(), locations.end(), id) != locations.end());
+}
+
+extern "C" void recomp_get_items_index(uint8_t* rdram, recomp_context* ctx) {
+    u8 file_no = _arg<0, u8>(rdram, ctx);
+    u32 items_index = _arg<1, u32>(rdram, ctx);
+
+    std::ifstream read_index_file("ap_save_indices.txt");
+
+    if (!read_index_file.good()) {
+        _return(ctx, 0);
+        return;
+    }
+
+    std::string line;
+
+    getline(read_index_file, line);
+    if (file_no == 0) {
+        _return(ctx, (u32) stol(line));
+        return;
+    }
+
+    getline(read_index_file, line);
+    _return(ctx, (u32) stol(line));
+}
+
+extern "C" void recomp_save_items_index(uint8_t* rdram, recomp_context* ctx) {
+    u8 file_no = _arg<0, u8>(rdram, ctx);
+    u32 items_index = _arg<1, u32>(rdram, ctx);
+
+    std::ifstream read_index_file("ap_save_indices.txt");
+
+    u32 index0 = 0;
+    u32 index1 = 0;
+
+    if (read_index_file.good()) {
+        std::string line;
+
+        getline(read_index_file, line);
+        if (file_no == 1) {
+            index0 = stol(line);
+        }
+
+        getline(read_index_file, line);
+        if (file_no == 0) {
+            index1 = stol(line);
+        }
+    }
+
+    if (file_no == 0) {
+        index0 = items_index;
+    } else {
+        index1 = items_index;
+    }
+
+    read_index_file.close();
+
+    std::ofstream write_index_file("ap_save_indices.txt", std::ofstream::trunc);
+
+    write_index_file << index0 << std::endl << index1 << std::endl;
+    write_index_file.close();
+}
+
+extern "C" void recomp_complete_goal(uint8_t* rdram, recomp_context* ctx) {
+    AP_StoryComplete();
 }
 
 extern "C" void recomp_update_inputs(uint8_t* rdram, recomp_context* ctx) {

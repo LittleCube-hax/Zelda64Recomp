@@ -26,6 +26,9 @@ static unsigned char ap_msg[128] = "You got an\x01 AP item\x00!\xbf";
 static unsigned char sf_msg[128] = "You got a\x05 Stray Fairy\x00!\xbf";
 static unsigned char sot_msg[128] = "You got the\x05 Song of Time\x00!\xbf";
 static unsigned char soh_msg[128] = "You got the\x05 Song of Healing\x00!\xbf";
+static unsigned char es_msg[128] = "You got \x05 Epona's Song\x00!\xbf";
+static unsigned char sost_msg[128] = "You got the\x05 Song of Storms\x00!\xbf";
+static unsigned char sos_msg[128] = "You got the\x05 Song of Soaring\x00!\xbf";
 static unsigned char soa_msg[128] = "You got the\x05 Sonata of Awakening\x00!\xbf";
 static unsigned char gl_msg[128] = "You got the\x05 Goron's Lullaby\x00!\xbf";
 static unsigned char nwbn_msg[128] = "You got the\x05 New Wave Bossa Nova\x00!\xbf";
@@ -141,6 +144,15 @@ void Message_OpenText(PlayState* play, u16 textId) {
     msgCtx->decodedTextLen = 0;
 
     switch (textId) {
+        case 0xA2:
+            msg = sost_msg;
+            break;
+        case 0xA3:
+            msg = sos_msg;
+            break;
+        case 0xA5:
+            msg = es_msg;
+            break;
         case 0xA7:
             msg = oto_msg;
             break;

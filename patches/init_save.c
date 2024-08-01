@@ -121,11 +121,8 @@ void Sram_InitDebugSave(void) {
     gSaveContext.cycleSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
 
-    apItemGive(GI_OCARINA_OF_TIME);
-    apItemGive(0x040000 | ITEM_SONG_TIME);
-
-    gSaveContext.save.saveInfo.playerData.healthCapacity = 0x70;
-    gSaveContext.save.saveInfo.playerData.health = 0x70;
+    gSaveContext.save.saveInfo.playerData.healthCapacity = 0x60;
+    gSaveContext.save.saveInfo.playerData.health = 0x60;
 
     Sram_GenerateRandomSaveFields();
 

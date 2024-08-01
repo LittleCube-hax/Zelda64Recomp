@@ -219,6 +219,8 @@ void Sram_EraseSave(FileSelectState* fileSelect2, SramContext* sramCtx, s32 file
 
     gSaveContext.save.time = D_801F6AF0;
     gSaveContext.flashSaveAvailable = D_801F6AF2;
+
+    recomp_save_items_index(fileNum, 0);
 }
 
 SaveContext prev_save_ctx;
@@ -664,7 +666,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     CLEAR_EVENTINF(EVENTINF_41);
 
     playing = true;
-    old_items_size = 0;
+    old_items_size = recomp_get_items_index(gSaveContext.fileNum);
 }
 
 extern u16 sPersistentCycleWeekEventRegs[ARRAY_COUNT(gSaveContext.save.saveInfo.weekEventReg)];
@@ -904,6 +906,12 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     gSaveContext.rupeeAccumulator = 0;
 
     Horse_ResetHorseData(play);
+
+    if (recomp_has_item(0x01007F)) {
+        apItemGive(0x01007F);
+    }
+
+    recomp_save_items_index(gSaveContext.fileNum, old_items_size);
 }
 
 extern s32 Actor_ProcessTalkRequest(Actor* actor, GameState* gameState);
@@ -913,6 +921,9 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     s32 i;
     s32 cutsceneIndex = gSaveContext.save.cutsceneIndex;
 
+    Sram_SaveEndOfCycle(gPlay);
+    return;
+/*
     bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
 
     if (SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[gSaveContext.fileNum * 2],
@@ -926,19 +937,23 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
                              gFlashSaveNumPages[gSaveContext.fileNum * 2 + 1]);
         Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
     }
-    gSaveContext.save.cutsceneIndex = cutsceneIndex;
+    gSaveContext.save.cutsceneIndex = cutsceneIndex;*/
+
+    if (recomp_has_item(0x01007F)) {
+        apItemGive(0x01007F);
+    }
 
     for (i = 0; i < ARRAY_COUNT(gSaveContext.eventInf); i++) {
         gSaveContext.eventInf[i] = 0;
     }
-
+/*
     for (i = 0; i < ARRAY_COUNT(gSaveContext.cycleSceneFlags); i++) {
         gSaveContext.cycleSceneFlags[i].chest = gSaveContext.save.saveInfo.permanentSceneFlags[i].chest;
         gSaveContext.cycleSceneFlags[i].switch0 = gSaveContext.save.saveInfo.permanentSceneFlags[i].switch0;
         gSaveContext.cycleSceneFlags[i].switch1 = gSaveContext.save.saveInfo.permanentSceneFlags[i].switch1;
         gSaveContext.cycleSceneFlags[i].clearedRoom = gSaveContext.save.saveInfo.permanentSceneFlags[i].clearedRoom;
         gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.save.saveInfo.permanentSceneFlags[i].collectible;
-    }
+    }*/
 
     for (i = 0; i < TIMER_ID_MAX; i++) {
         gSaveContext.timerStates[i] = TIMER_STATE_OFF;
@@ -975,6 +990,7 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
                 play->msgCtx.unk120D6 = 0;
                 play->msgCtx.unk120D4 = 0;
                 gSaveContext.save.owlWarpId = OBJ_WARPSTONE_GET_OWL_WARP_ID(&this->dyna.actor);
+                recomp_save_items_index(gSaveContext.fileNum, old_items_size);
             } else {
                 Message_CloseTextbox(play);
             }

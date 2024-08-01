@@ -112,6 +112,7 @@ public:
 					while (!AP_IsConnected()) {
 						if (AP_GetConnectionStatus() == AP_ConnectionStatus::ConnectionRefused || AP_GetConnectionStatus() == AP_ConnectionStatus::NotFound) {
 							AP_Stop();
+							apconnect.close();
 							recompui::message_box(
 								"Unable to connect. Double-check that the server is active and the player name and address were entered correctly.\n");
 							return;

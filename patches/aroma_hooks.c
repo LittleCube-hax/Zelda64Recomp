@@ -471,49 +471,49 @@ s32 func_80BDE92C(EnAl* this, PlayState* play);
 s32 func_80BDE7FC(Actor* thisx, PlayState* play);
 s32 func_80BDEA14(EnAl* this, PlayState* play);
 
-s32* func_80BDEABC(EnAl* this, PlayState* play) {
+u8* func_80BDEABC(EnAl* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (this->scheduleResult == 3) {
         this->msgScriptCallback = (MsgScriptCallback) func_80BDE92C;
-        return (s32*) D_80BDFD14;
+        return (u8*) D_80BDFD14;
     }
 
     switch (this->scheduleResult) {
         case 1:
             if (player->transformation == PLAYER_FORM_DEKU) {
-                return (s32*) D_80BDFDD0;
+                return (u8*) D_80BDFDD0;
             }
 
             //if (INV_CONTENT(ITEM_MASK_KAFEIS_MASK) != ITEM_MASK_KAFEIS_MASK) {
             if (!recomp_location_is_checked(GI_MASK_KAFEIS_MASK)) {
-                return (s32*) D_80BDFE8C;
+                return (u8*) D_80BDFE8C;
             }
 
             if (Player_GetMask(play) == PLAYER_MASK_KAFEIS_MASK) {
-                return (s32*) D_80BDFE7C;
+                return (u8*) D_80BDFE7C;
             }
-            return (s32*) D_80BDFE84;
+            return (u8*) D_80BDFE84;
 
         case 2:
             if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_89_08) && CHECK_WEEKEVENTREG(WEEKEVENTREG_85_80)) {
-                this->msgScriptCallback = func_80BDE7FC;
-                return (s32*) D_80BDFCBC;
+                this->msgScriptCallback = (MsgScriptCallback) func_80BDE7FC;
+                return (u8*) D_80BDFCBC;
             }
 
             this->msgScriptCallback = (MsgScriptCallback) func_80BDEA14;
             if (Player_GetMask(play) != PLAYER_MASK_KAFEIS_MASK) {
-                return (s32*) D_80BDFDE8;
+                return (u8*) D_80BDFDE8;
             }
 
             if (this->unk_4C2 & 0x800) {
-                return (s32*) D_80BDFED4;
+                return (u8*) D_80BDFED4;
             }
 
             if (this->unk_4C2 & 0x1000) {
-                return (s32*) D_80BDFF24;
+                return (u8*) D_80BDFF24;
             }
-            return (s32*) D_80BDFDF8;
+            return (u8*) D_80BDFDF8;
 
         default:
             return NULL;
