@@ -109,11 +109,12 @@ void EnTimeTag_Init(Actor* thisx, PlayState* play) {
             break;
 
         case TIMETAG_SOARING_ENGRAVING:
-            this->actionFunc = EnTimeTag_SoaringEngraving_Wait;
+            //this->actionFunc = EnTimeTag_SoaringEngraving_Wait;
             this->actor.flags |= ACTOR_FLAG_2000000;
             //if (CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
             if (recomp_location_is_checked(0x04006A)) {
                 this->actor.textId = 0;
+                this->actionFunc = EnTimeTag_SoaringEngraving_Wait;
             } else {
                 this->actor.textId = 0xC02;
             }
