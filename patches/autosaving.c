@@ -665,8 +665,8 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
 
     CLEAR_EVENTINF(EVENTINF_41);
 
-    playing = true;
     old_items_size = recomp_get_items_index(gSaveContext.fileNum);
+    playing = true;
 }
 
 extern u16 sPersistentCycleWeekEventRegs[ARRAY_COUNT(gSaveContext.save.saveInfo.weekEventReg)];

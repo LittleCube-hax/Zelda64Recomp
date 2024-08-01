@@ -10,23 +10,8 @@
 extern SavePlayerData sSaveDefaultPlayerData;
 extern ItemEquips sSaveDefaultItemEquips;
 extern Inventory sSaveDefaultInventory;
-extern Inventory sSaveDebugInventory;
 
-ItemEquips sSaveDebugItemEquips = {
-    {
-        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_POTION_RED, ITEM_OCARINA_OF_TIME },
-        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_MASK_GORON, ITEM_OCARINA_OF_TIME },
-        { ITEM_SWORD_KOKIRI, ITEM_BOW, ITEM_MASK_ZORA, ITEM_OCARINA_OF_TIME },
-        { ITEM_DEKU_NUT, ITEM_DEKU_NUT, ITEM_MASK_DEKU, ITEM_OCARINA_OF_TIME },
-    },
-    {
-        { SLOT_OCARINA, SLOT_BOW, SLOT_BOTTLE_2, SLOT_OCARINA },
-        { SLOT_OCARINA, SLOT_MAGIC_BEANS, SLOT_MASK_GORON, SLOT_BOMBCHU },
-        { SLOT_OCARINA, SLOT_POWDER_KEG, SLOT_MASK_ZORA, SLOT_BOMBCHU },
-        { SLOT_OCARINA, SLOT_BOW, SLOT_MASK_DEKU, SLOT_BOMBCHU },
-    },
-    0x11,
-};
+extern Inventory sSaveDebugInventory;
 
 void Sram_ClearHighscores(void);
 void Sram_GenerateRandomSaveFields(void);
@@ -92,6 +77,7 @@ void Sram_SetInitialWeekEvents(void) {
 }
 
 void Sram_InitDebugSave(void) {
+    PlayState* play = gPlay;
     Sram_ResetSave();
 
     Lib_MemCpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
@@ -123,6 +109,10 @@ void Sram_InitDebugSave(void) {
 
     gSaveContext.save.saveInfo.playerData.healthCapacity = 0x60;
     gSaveContext.save.saveInfo.playerData.health = 0x60;
+
+    SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
+    CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
+    Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
 
     Sram_GenerateRandomSaveFields();
 

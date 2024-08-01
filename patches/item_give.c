@@ -583,7 +583,6 @@ static s16 trueGI;
 static bool itemWorkaround = false;
 static bool drawIdChosen = false;
 bool bossWorkaround = false;
-static bool has_ocarina = false;
 
 OSMesgQueue objectQueue;
 void* giObjectSegment = NULL;
@@ -704,7 +703,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
         GetItemEntry* giEntry;
         if (itemWorkaround) {
             gi = trueGI;
-            if (has_ocarina) {
+            if (recomp_has_item(GI_OCARINA_OF_TIME)) {
                 INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
             }
         }
@@ -1316,12 +1315,6 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
     u32 i;
     u8 item;
 
-    if (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME) {
-        has_ocarina = true;
-    } else {
-        has_ocarina = false;
-    }
-
     if (!(player->stateFlags1 &
           (PLAYER_STATE1_80 | PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
            PLAYER_STATE1_80000 | PLAYER_STATE1_100000 | PLAYER_STATE1_200000)) &&
@@ -1408,12 +1401,6 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
 
 s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround) {
     Player* player = GET_PLAYER(play);
-
-    if (INV_CONTENT(ITEM_OCARINA_OF_TIME) == ITEM_OCARINA_OF_TIME) {
-        has_ocarina = true;
-    } else {
-        has_ocarina = false;
-    }
 
     if (!(player->stateFlags1 &
           (PLAYER_STATE1_80 | PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
@@ -1709,14 +1696,14 @@ u8 Item_Give(PlayState* play, u8 item) {
         temp = gSaveContext.save.saveInfo.inventory.items[slot];
         INV_CONTENT(item) = item;
 
-        if (has_ocarina) {
+        if (recomp_has_item(GI_OCARINA_OF_TIME)) {
             INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
         }
 
         return temp;
     }
 
-    if (has_ocarina) {
+    if (recomp_has_item(GI_OCARINA_OF_TIME)) {
         INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
     }
 
@@ -1819,7 +1806,20 @@ u8 apItemGive(u32 gi) {
         SET_QUEST_ITEM(item - ITEM_SONG_SONATA + QUEST_SONG_SONATA);
         return ITEM_NONE;
 
-    } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
+    } else if (item == ITEM_SWORD_KOKIRI) {
+        switch (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD)) {
+            case EQUIP_VALUE_SWORD_NONE:
+                break;
+            case EQUIP_VALUE_SWORD_KOKIRI:
+                item = ITEM_SWORD_RAZOR;
+                break;
+            case EQUIP_VALUE_SWORD_RAZOR:
+                item = ITEM_SWORD_GILDED;
+                break;
+            default:
+                // ...come on man, you have enough swords...
+                return ITEM_NONE;
+        }
         SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
         CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
@@ -1850,62 +1850,60 @@ u8 apItemGive(u32 gi) {
         }
 
     } else if ((item == ITEM_QUIVER_30) || (item == ITEM_BOW)) {
-        if (CUR_UPG_VALUE(UPG_QUIVER) == 0) {
-            Inventory_ChangeUpgrade(UPG_QUIVER, 1);
-            INV_CONTENT(ITEM_BOW) = ITEM_BOW;
-            AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 1);
-            return ITEM_NONE;
-        } else {
-            AMMO(ITEM_BOW)++;
-            if (AMMO(ITEM_BOW) > (s8)CUR_CAPACITY(UPG_QUIVER)) {
-                AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
-            }
+        switch (CUR_UPG_VALUE(UPG_QUIVER)) {
+            case 0:
+                Inventory_ChangeUpgrade(UPG_QUIVER, 1);
+                INV_CONTENT(ITEM_BOW) = ITEM_BOW;
+                AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 1);
+                return ITEM_NONE;
+            case 1:
+                Inventory_ChangeUpgrade(UPG_QUIVER, 2);
+                AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 2);
+                return ITEM_NONE;
+            case 2:
+                Inventory_ChangeUpgrade(UPG_QUIVER, 3);
+                AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 3);
+                return ITEM_NONE;
+            default:
+                AMMO(ITEM_BOW)++;
+                if (AMMO(ITEM_BOW) > (s8)CUR_CAPACITY(UPG_QUIVER)) {
+                    AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+                }
+                break;
         }
-
-    } else if (item == ITEM_QUIVER_40) {
-        Inventory_ChangeUpgrade(UPG_QUIVER, 2);
-        INV_CONTENT(ITEM_BOW) = ITEM_BOW;
-        AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 2);
-        return ITEM_NONE;
-
-    } else if (item == ITEM_QUIVER_50) {
-        Inventory_ChangeUpgrade(UPG_QUIVER, 3);
-        INV_CONTENT(ITEM_BOW) = ITEM_BOW;
-        AMMO(ITEM_BOW) = CAPACITY(UPG_QUIVER, 3);
-        return ITEM_NONE;
 
     } else if (item == ITEM_BOMB_BAG_20) {
-        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
-            Inventory_ChangeUpgrade(UPG_BOMB_BAG, 1);
-            INV_CONTENT(ITEM_BOMB) = ITEM_BOMB;
-            AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 1);
-            return ITEM_NONE;
-
-        } else {
-            AMMO(ITEM_BOMB)++;
-            if (AMMO(ITEM_BOMB) > CUR_CAPACITY(UPG_BOMB_BAG)) {
-                AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
-            }
+        switch (CUR_UPG_VALUE(UPG_BOMB_BAG)) {
+            case 0:
+                Inventory_ChangeUpgrade(UPG_BOMB_BAG, 1);
+                INV_CONTENT(ITEM_BOMB) = ITEM_BOMB;
+                AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 1);
+                return ITEM_NONE;
+            case 1:
+                Inventory_ChangeUpgrade(UPG_BOMB_BAG, 2);
+                AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 2);
+                return ITEM_NONE;
+            case 2:
+                Inventory_ChangeUpgrade(UPG_BOMB_BAG, 3);
+                AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 3);
+                return ITEM_NONE;
+            default:
+                AMMO(ITEM_BOMB)++;
+                if (AMMO(ITEM_BOMB) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+                    AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
+                }
+                break;
         }
 
-    } else if (item == ITEM_BOMB_BAG_30) {
-        Inventory_ChangeUpgrade(UPG_BOMB_BAG, 2);
-        INV_CONTENT(ITEM_BOMB) = ITEM_BOMB;
-        AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 2);
-        return ITEM_NONE;
-
-    } else if (item == ITEM_BOMB_BAG_40) {
-        Inventory_ChangeUpgrade(UPG_BOMB_BAG, 3);
-        INV_CONTENT(ITEM_BOMB) = ITEM_BOMB;
-        AMMO(ITEM_BOMB) = CAPACITY(UPG_BOMB_BAG, 3);
-        return ITEM_NONE;
-
     } else if (item == ITEM_WALLET_ADULT) {
+        if (CUR_UPG_VALUE(UPG_WALLET) == 2) {
+            // stop sending yourself wallets you freaks
+            return ITEM_NONE;
+        } else if (CUR_UPG_VALUE(UPG_WALLET) == 1) {
+            Inventory_ChangeUpgrade(UPG_WALLET, 2);
+            return ITEM_NONE;
+        }
         Inventory_ChangeUpgrade(UPG_WALLET, 1);
-        return ITEM_NONE;
-
-    } else if (item == ITEM_WALLET_GIANT) {
-        Inventory_ChangeUpgrade(UPG_WALLET, 2);
         return ITEM_NONE;
 
     } else if (item == ITEM_DEKU_STICK_UPGRADE_20) {
@@ -2203,7 +2201,7 @@ u8 apItemGive(u32 gi) {
     temp = gSaveContext.save.saveInfo.inventory.items[slot];
     INV_CONTENT(item) = item;
 
-    if (has_ocarina) {
+    if (recomp_has_item(GI_OCARINA_OF_TIME)) {
         INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
     }
 

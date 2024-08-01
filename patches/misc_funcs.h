@@ -16,7 +16,7 @@ DECLARE_FUNC(u32, recomp_get_items_size);
 DECLARE_FUNC(u32, recomp_get_item, u32 items_i);
 DECLARE_FUNC(u32, recomp_get_locations_size);
 DECLARE_FUNC(u32, recomp_get_location, u32 locations_i);
-DECLARE_FUNC(bool, recomp_has_item, u32 id);
+DECLARE_FUNC(u32, recomp_has_item, u32 id);
 DECLARE_FUNC(bool, recomp_location_is_checked, u32 id);
 DECLARE_FUNC(u32, apGetItemId, u32 location_id);
 DECLARE_FUNC(void, apSay, char* __s);

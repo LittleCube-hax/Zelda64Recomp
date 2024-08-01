@@ -167,7 +167,13 @@ extern "C" void recomp_get_location(uint8_t* rdram, recomp_context* ctx) {
 
 extern "C" void recomp_has_item(uint8_t* rdram, recomp_context* ctx) {
     u32 id = _arg<0, u32>(rdram, ctx);
-    _return(ctx, std::find(items.begin(), items.end(), id) != items.end());
+    u32 count = 0;
+    for (u32 i = 0; i < items.size(); ++i) {
+        if (items[i] == id) {
+            count += 1;
+        }
+    }
+    _return(ctx, count);
 }
 
 extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {
