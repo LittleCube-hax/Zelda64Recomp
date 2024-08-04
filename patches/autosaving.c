@@ -109,31 +109,31 @@ void func_80147314(SramContext* sramCtx, s32 fileNum) {
     gSaveContext.save.isOwlSave = false;
 
     // @recomp Prevent owl save/autosave deletion if autosaving is enabled.
-    if (!recomp_autosave_enabled()) {
-        gSaveContext.save.saveInfo.playerData.newf[0] = '\0';
-        gSaveContext.save.saveInfo.playerData.newf[1] = '\0';
-        gSaveContext.save.saveInfo.playerData.newf[2] = '\0';
-        gSaveContext.save.saveInfo.playerData.newf[3] = '\0';
-        gSaveContext.save.saveInfo.playerData.newf[4] = '\0';
-        gSaveContext.save.saveInfo.playerData.newf[5] = '\0';
+    //~ if (!recomp_autosave_enabled()) {
+        //~ gSaveContext.save.saveInfo.playerData.newf[0] = '\0';
+        //~ gSaveContext.save.saveInfo.playerData.newf[1] = '\0';
+        //~ gSaveContext.save.saveInfo.playerData.newf[2] = '\0';
+        //~ gSaveContext.save.saveInfo.playerData.newf[3] = '\0';
+        //~ gSaveContext.save.saveInfo.playerData.newf[4] = '\0';
+        //~ gSaveContext.save.saveInfo.playerData.newf[5] = '\0';
 
-        gSaveContext.save.saveInfo.checksum = 0;
-        gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext, offsetof(SaveContext, fileNum));
+        //~ gSaveContext.save.saveInfo.checksum = 0;
+        //~ gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext, offsetof(SaveContext, fileNum));
 
-        Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
-        Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2], gFlashOwlSaveNumPages[fileNum * 2]);
-        //! Note: should be `gFlashOwlSaveNumPages[fileNum * 2 + 1]`?
-        Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2 + 1], gFlashOwlSaveNumPages[fileNum * 2]);
+        //~ Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
+        //~ Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2], gFlashOwlSaveNumPages[fileNum * 2]);
+        //~ //! Note: should be `gFlashOwlSaveNumPages[fileNum * 2 + 1]`?
+        //~ Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2 + 1], gFlashOwlSaveNumPages[fileNum * 2]);
 
-        gSaveContext.save.isOwlSave = true;
+        //~ gSaveContext.save.isOwlSave = true;
 
-        gSaveContext.save.saveInfo.playerData.newf[0] = 'Z';
-        gSaveContext.save.saveInfo.playerData.newf[1] = 'E';
-        gSaveContext.save.saveInfo.playerData.newf[2] = 'L';
-        gSaveContext.save.saveInfo.playerData.newf[3] = 'D';
-        gSaveContext.save.saveInfo.playerData.newf[4] = 'A';
-        gSaveContext.save.saveInfo.playerData.newf[5] = '3';
-    }
+        //~ gSaveContext.save.saveInfo.playerData.newf[0] = 'Z';
+        //~ gSaveContext.save.saveInfo.playerData.newf[1] = 'E';
+        //~ gSaveContext.save.saveInfo.playerData.newf[2] = 'L';
+        //~ gSaveContext.save.saveInfo.playerData.newf[3] = 'D';
+        //~ gSaveContext.save.saveInfo.playerData.newf[4] = 'A';
+        //~ gSaveContext.save.saveInfo.playerData.newf[5] = '3';
+    //~ }
 }
 
 void delete_owl_save(SramContext* sramCtx, s32 fileNum) {
@@ -431,6 +431,7 @@ void autosave_post_play_update(PlayState* play) {
             time_now - last_autosave_time > (OS_USEC_TO_CYCLES(1000 * (recomp_autosave_interval() + extra_autosave_delay_milliseconds)))
         ) {
             do_autosave(play);
+            recomp_save_items_index(gSaveContext.fileNum, old_items_size);
             show_autosave_icon();
             autosave_reset_timer();
         }
@@ -974,6 +975,19 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     autosave_reset_timer_slow();
 }
 
+void Owl_Save(PlayState* play) {
+    play->state.unk_A3 = 1;
+    gSaveContext.save.isOwlSave = true;
+    Play_SaveCycleSceneFlags((GameState*) play);
+    func_8014546C(&play->sramCtx);
+
+    if (gSaveContext.fileNum != 0xFF) {
+        Sram_SetFlashPagesOwlSave(&play->sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
+                                  gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+        Sram_StartWriteToFlashOwlSave(&play->sramCtx);
+    }
+    gSaveContext.save.isOwlSave = false;
+}
 
 // @recomp If autosave is enabled, skip the part of the owl statue dialog that talks about the file being deleted on load, since it's not true.
 void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
@@ -986,14 +1000,14 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
         } else if ((Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE) && Message_ShouldAdvance(play)) {
             if (play->msgCtx.choiceIndex != 0) {
                 Audio_PlaySfx_MessageDecide();
-                play->msgCtx.msgMode = MSGMODE_OWL_SAVE_0;
+                //play->msgCtx.msgMode = MSGMODE_OWL_SAVE_0;
                 play->msgCtx.unk120D6 = 0;
                 play->msgCtx.unk120D4 = 0;
                 gSaveContext.save.owlWarpId = OBJ_WARPSTONE_GET_OWL_WARP_ID(&this->dyna.actor);
+                Owl_Save(play);
                 recomp_save_items_index(gSaveContext.fileNum, old_items_size);
-            } else {
-                Message_CloseTextbox(play);
             }
+            Message_CloseTextbox(play);
         }
     } else if (Actor_ProcessTalkRequest(&this->dyna.actor, &play->state)) {
         this->isTalking = true;
@@ -1001,11 +1015,14 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
         Actor_OfferTalkNearColChkInfoCylinder(&this->dyna.actor, play);
     }
 
-    // @recomp Skip the text talking about the save being deleted on load, if autosave is enabled.
-    if (recomp_autosave_enabled()) {
-        if (this->isTalking && play->msgCtx.currentTextId == 0xC01 && play->msgCtx.msgBufPos == 269) {
-            play->msgCtx.msgBufPos = 530;
+    // @recomp Skip the text talking about the save being deleted on load.
+    if (this->isTalking && play->msgCtx.currentTextId == 0xC01 && play->msgCtx.msgBufPos == 269) {
+        // @ap Also skip the text about quitting the game.
+        u32 i;
+        for (i = 0; i < 18; ++i) {
+            play->msgCtx.font.msgBuf.schar[569 + i] = play->msgCtx.font.msgBuf.schar[588 + i];
         }
+        play->msgCtx.msgBufPos = 530;
     }
 
     Collider_ResetCylinderAC(play, &this->collider.base);
