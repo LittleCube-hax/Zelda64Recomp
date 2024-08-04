@@ -1,3 +1,25 @@
+# Majora's Mask in AP
+The original README is below, but first, some instructions for using this as it stands.
+
+You're going to want to download the release here: [latest](github.com/LittlestCube/Archipelago/releases/latest)
+
+Unzip it, then edit the `apconnect.txt` file inside to connect to a server. This is a **temporary** solution, and will be changed in the future. When you open it, it should look like this:
+
+```
+true
+archipelago.gg:38281
+Player
+```
+
+The `true` means yes, connect to an AP server. You shouldn't have to deal with changing this.
+The `archipelago.gg:38281` is the server-ip:port for the AP server you'd like to connect to. Change it accordingly.
+`Player` is your slotname. Double-check to make sure it's correct when changing.
+
+Next, launch the .exe and click "Select Rom" if this is the first time (it will remember your ROM after closing, and even if you delete the original file). Find your US Majora's Mask v1.0 ROM and open it. The "Select Rom" option should now change to "Start Game" automatically. Click it to start.
+You should connect without a hitch. If you entered your connection information incorrectly, a dialog should pop up saying so. If you see the N64 logo, Congratulations!
+
+I hope you enjoy.
+
 # Zelda 64: Recompiled
 Zelda 64: Recompiled is a project that uses [N64: Recompiled](https://github.com/Mr-Wiseguy/N64Recomp) to **statically recompile** Majora's Mask (and soon Ocarina of Time) into a native port with many new features and enhancements. This project uses [RT64](https://github.com/rt64/rt64) as the rendering engine to provide some of these enhancements.
 
