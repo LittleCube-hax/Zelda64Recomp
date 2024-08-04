@@ -1,7 +1,7 @@
 # Majora's Mask in AP
 The original README is below, but first, some instructions for using this as it stands.
 
-You're going to want to download the release here: [latest](github.com/LittlestCube/Archipelago/releases/latest)
+You're going to want to download the release here: [latest](https://github.com/LittlestCube/Zelda64Recomp/releases/latest)
 
 Unzip it, then edit the `apconnect.txt` file inside to connect to a server. This is a **temporary** solution, and will be changed in the future. When you open it, it should look like this:
 
