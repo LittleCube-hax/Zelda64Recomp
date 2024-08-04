@@ -114,9 +114,9 @@ void EnTimeTag_Init(Actor* thisx, PlayState* play) {
             //if (CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
             if (recomp_location_is_checked(0x04006A)) {
                 this->actor.textId = 0;
-                this->actionFunc = EnTimeTag_SoaringEngraving_Wait;
             } else {
                 this->actor.textId = 0xC02;
+                this->actionFunc = EnTimeTag_SoaringEngraving_Wait;
             }
             break;
 
