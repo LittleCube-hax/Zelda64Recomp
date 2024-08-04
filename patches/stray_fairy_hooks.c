@@ -244,6 +244,8 @@ void EnElforg_ClockTownFairyCollected(EnElforg* this, PlayState* play) {
     }
 }
 
+void EnElforg_Freezing(EnElforg* this, PlayState* play);
+
 void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
     Vec3f pos;
     f32 scaledYDistance;
@@ -296,6 +298,7 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
                 //gSaveContext.save.saveInfo.inventory.strayFairies[gSaveContext.dungeonIndex]++;
                 recomp_printf("stray fairy location: 0x%06X\n", LOCATION_STRAY_FAIRY);
                 recomp_send_location(LOCATION_STRAY_FAIRY);
+                player->actor.freezeTimer = 10;
                 // You found a Stray Fairy!
                 Message_StartTextbox(play, apGetItemId(LOCATION_STRAY_FAIRY), NULL);
                 if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=
@@ -319,4 +322,21 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
             this->strayFairyFlags &= ~STRAY_FAIRY_FLAG_GREAT_FAIRYS_MASK_EQUIPPED;
         }
     }
+}
+
+void EnElforg_FairyCollected(EnElforg* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    EnElforg_CirclePlayer(this, play);
+
+    if (Actor_TextboxIsClosing(&this->actor, play)) {
+        player->actor.freezeTimer = 0;
+        player->stateFlags1 &= ~PLAYER_STATE1_20000000;
+        Actor_Kill(&this->actor);
+        CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
+        return;
+    } else {
+        player->actor.freezeTimer = 10;
+    }
+
+    Actor_PlaySfx_Flagged(&this->actor, NA_SE_PL_CHIBI_FAIRY_HEAL - SFX_FLAG);
 }
