@@ -677,6 +677,24 @@ extern u8 gAmmoItems[24];
 void Sram_ClearHighscores(void);
 void Sram_SetInitialWeekEvents(void);
 
+typedef struct PersistentCycleSceneFlags {
+    /* 0x0 */ u32 switch0;
+    /* 0x4 */ u32 switch1;
+    /* 0x8 */ u32 chest;
+    /* 0xC */ u32 collectible;
+} PersistentCycleSceneFlags; // size = 0x10
+
+#define PERSISTENT_CYCLE_FLAGS_SET(switch0, switch1, chest, collectible) { switch0, switch1, chest, collectible },
+#define PERSISTENT_CYCLE_FLAGS_NONE PERSISTENT_CYCLE_FLAGS_SET(0, 0, 0, 0)
+
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, persistentCycleFlags) \
+    persistentCycleFlags
+#define DEFINE_SCENE_UNSET(_enumValue) PERSISTENT_CYCLE_FLAGS_NONE
+
+PersistentCycleSceneFlags sPersistentCycleSceneFlags[SCENE_MAX] = {
+#include "tables/scene_table.h"
+};
+
 /**
  * Used by Song of Time (when clicking "Yes") and (indirectly) by the "Dawn of the New Day" cutscene
  */
@@ -697,17 +715,17 @@ void Sram_SaveEndOfCycle(PlayState* play) {
         gSaveContext.save.saveInfo.playerData.threeDayResetCount = 999;
     }
 
-    //sceneId = Play_GetOriginalSceneId(play->sceneId);
+    sceneId = Play_GetOriginalSceneId(play->sceneId);
     Play_SaveCycleSceneFlags(&play->state);
 
-    /*play->actorCtx.sceneFlags.chest &= sPersistentCycleSceneFlags[sceneId].chest;
+    play->actorCtx.sceneFlags.chest &= sPersistentCycleSceneFlags[sceneId].chest;
     play->actorCtx.sceneFlags.switches[0] &= sPersistentCycleSceneFlags[sceneId].switch0;
     play->actorCtx.sceneFlags.switches[1] &= sPersistentCycleSceneFlags[sceneId].switch1;
     play->actorCtx.sceneFlags.collectible[0] &= sPersistentCycleSceneFlags[sceneId].collectible;
-    play->actorCtx.sceneFlags.clearedRoom = 0;*/
+    play->actorCtx.sceneFlags.clearedRoom = 0;
 
     for (i = 0; i < SCENE_MAX; i++) {
-        /*gSaveContext.cycleSceneFlags[i].switch0 =
+        gSaveContext.cycleSceneFlags[i].switch0 =
             ((void)0, gSaveContext.cycleSceneFlags[i].switch0) & sPersistentCycleSceneFlags[i].switch0;
         gSaveContext.cycleSceneFlags[i].switch1 =
             ((void)0, gSaveContext.cycleSceneFlags[i].switch1) & sPersistentCycleSceneFlags[i].switch1;
@@ -717,15 +735,15 @@ void Sram_SaveEndOfCycle(PlayState* play) {
             ((void)0, gSaveContext.cycleSceneFlags[i].collectible) & sPersistentCycleSceneFlags[i].collectible;
         gSaveContext.cycleSceneFlags[i].clearedRoom = 0;
         gSaveContext.save.saveInfo.permanentSceneFlags[i].unk_14 = 0;
-        gSaveContext.save.saveInfo.permanentSceneFlags[i].rooms = 0;*/
+        gSaveContext.save.saveInfo.permanentSceneFlags[i].rooms = 0;
     }
 
     for (; i < ARRAY_COUNT(gSaveContext.cycleSceneFlags); i++) {
-        /*gSaveContext.cycleSceneFlags[i].chest = 0;
+        gSaveContext.cycleSceneFlags[i].chest = 0;
         gSaveContext.cycleSceneFlags[i].switch0 = 0;
         gSaveContext.cycleSceneFlags[i].switch1 = 0;
         gSaveContext.cycleSceneFlags[i].clearedRoom = 0;
-        gSaveContext.cycleSceneFlags[i].collectible = 0;*/
+        gSaveContext.cycleSceneFlags[i].collectible = 0;
     }
 
     for (i = 0; i < ARRAY_COUNT(gSaveContext.masksGivenOnMoon); i++) {
