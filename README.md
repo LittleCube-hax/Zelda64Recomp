@@ -12,8 +12,20 @@ Player
 ```
 
 The `true` means yes, connect to an AP server. You shouldn't have to deal with changing this.
+
+<br style="display: none;"/>
+
 The `archipelago.gg:38281` is the server-ip:port for the AP server you'd like to connect to. Change it accordingly.
+
+<br style="display: none;"/>
+
 `Player` is your slotname. Double-check to make sure it's correct when changing.
+
+<br style="display: none;"/>
+
+The fourth line is where you would put the password if there is one. If there isn't a password for the server, just leave it blank or make sure there are only three lines.
+
+<br style="display: none;"/>
 
 Next, launch the .exe and click "Select Rom" if this is the first time (it will remember your ROM after closing, and even if you delete the original file). Find your US Majora's Mask v1.0 ROM and open it. The "Select Rom" option should now change to "Start Game" automatically. Click it to start.
 You should connect without a hitch. If you entered your connection information incorrectly, a dialog should pop up saying so. If you see the N64 logo, Congratulations!
