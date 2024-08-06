@@ -288,7 +288,7 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
                 player->stateFlags1 |= PLAYER_STATE1_20000000;
                 recomp_send_location(0x01007F);
                 // Bring me back to North Clock Town!
-                Message_StartTextbox(play, 0x579, NULL);
+                Message_StartTextbox(play, apGetItemId(LOCATION_STRAY_FAIRY), NULL);
                 this->actionFunc = EnElforg_ClockTownFairyCollected;
                 CutsceneManager_Queue(CS_ID_GLOBAL_TALK);
                 return;
