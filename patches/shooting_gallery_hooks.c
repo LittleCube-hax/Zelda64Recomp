@@ -152,7 +152,6 @@ void EnSyatekiMan_Town_EndGame(EnSyatekiMan* this, PlayState* play) {
         if ((this->talkWaitTimer <= 0) && !play->interfaceCtx.perfectLettersOn) {
             Flags_SetAllTreasure(play, this->score);
             this->talkWaitTimer = 15;
-            //if ((HS_GET_TOWN_SHOOTING_GALLERY_HIGH_SCORE() < this->score) || (this->score == 50)) {
             if (this->score >= 40) {
                 if (this->score == 50) {
                     if (!recomp_location_is_checked(LOCATION_TOWN_GALLERY_PERFECT)) {

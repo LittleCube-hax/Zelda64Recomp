@@ -321,7 +321,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     }
 
     if ((getItemId != GI_NONE) && !Actor_HasParent(thisx, play)) {
-        Actor_OfferGetItemHook(thisx, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f, false);
+        Actor_OfferGetItemHook(thisx, play, getItemId, LOCATION_HEART_PIECE, 50.0f, 20.0f, false, true);
     }
 
     this->actionFunc = func_800A6A40;
@@ -494,11 +494,11 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
     if (getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
             u32 location = 0;
-            bool use_workaround = false;
+            bool shuffled = false;
             switch (this->actor.params) {
                 case ITEM00_HEART_PIECE:
                     location = LOCATION_HEART_PIECE;
-                    use_workaround = true;
+                    shuffled = true;
                     if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
                         giObjectSegment = objectSegment;
                     }
@@ -506,7 +506,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
                 default:
                     break;
             }
-            Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, use_workaround);
+            Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, shuffled, shuffled);
         }
     }
 
@@ -679,7 +679,7 @@ void func_800A6A40(EnItem00* this, PlayState* play) {
 
     if (this->getItemId != GI_NONE) {
         if (!Actor_HasParent(&this->actor, play)) {
-            Actor_OfferGetItemHook(&this->actor, play, this->getItemId, 0, 50.0f, 80.0f, false);
+            Actor_OfferGetItemHook(&this->actor, play, this->getItemId, 0, 50.0f, 80.0f, false, false);
             this->unk152++;
         } else {
             this->getItemId = GI_NONE;

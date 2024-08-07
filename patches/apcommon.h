@@ -26,7 +26,7 @@ extern void* giObjectSegment;
 
 bool loadObject(PlayState* play, void** objectSegment, OSMesgQueue* objectLoadQueue, s16 objectId);
 void GetItem_DrawDynamic(PlayState* play, void* objectSegment, s16 objectId);
-s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround);
+s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround, bool item_is_shuffled);
 
 u8 apItemGive(u32 gi);
 

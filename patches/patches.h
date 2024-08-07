@@ -95,6 +95,14 @@ bool camera_was_skipped();
 void room_load_hook(PlayState* play, Room* room);
 void draw_autosave_icon(PlayState* play);
 
+void dsot_determine_enabled(void);
+bool dsot_enabled(void);
+void dsot_init_hour_selection(PlayState* play);
+void dsot_handle_hour_selection(PlayState* play);
+void dsot_cancel_hour_selection(PlayState* play);
+void dsot_advance_hour(PlayState* play);
+void dsot_draw_clock(PlayState* play);
+
 void recomp_crash(const char* err);
 
 #endif

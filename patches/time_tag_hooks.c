@@ -154,6 +154,6 @@ void EnTimeTag_SoaringEngraving_Wait(EnTimeTag* this, PlayState* play) {
     if (Actor_HasParent(&this->actor, play)) {
         this->actionFunc = EnTimeTag_SoaringEngraving_SubsequentInteraction;
     } else {
-        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(0x04006A), 0x04006A, 50.0f, 10.0f, true);
+        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(0x04006A), 0x04006A, 50.0f, 10.0f, true, true);
     }
 }

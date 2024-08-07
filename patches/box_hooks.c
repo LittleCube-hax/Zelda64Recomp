@@ -154,9 +154,10 @@ void EnBox_Init(Actor* thisx, PlayState* play) {
     thisx->shape.rot.x = this->dyna.actor.world.rot.x;
     //this->getItemId = ENBOX_GET_ITEM(thisx);
     this->getItemId = apGetItemId(LOCATION_ENBOX);
+    recomp_printf("chest gi is 0x%04X\n", this->getItemId);
 
     if (recomp_location_is_checked(LOCATION_ENBOX)) {
-        Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
+        //Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
     }
 
     if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor)) || this->getItemId == GI_NONE) {
@@ -325,7 +326,7 @@ void EnBox_WaitOpen(EnBox* this, PlayState* play) {
                 this->getItemId = GI_RECOVERY_HEART;
             }
             //Actor_OfferGetItemNearby(&this->dyna.actor, play, -this->getItemId);
-            Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, LOCATION_ENBOX, 50.0f, 10.0f, false);
+            Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, LOCATION_ENBOX, 50.0f, 10.0f, false, true);
         }
         if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor))) {
             EnBox_SetupAction(this, EnBox_Open);

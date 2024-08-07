@@ -990,6 +990,11 @@ void Message_DrawTextBox(PlayState* play, Gfx** gfxP) {
         gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
     }
 
+    // @recomp Replace DSoT functionality if the option for it is enabled.
+    if (dsot_enabled() && (play->msgCtx.ocarinaMode == OCARINA_MODE_PROCESS_DOUBLE_TIME)) {
+        dsot_draw_clock(play);
+    }
+
     // Draw treble clef
     if (msgCtx->textBoxType == TEXTBOX_TYPE_3) {
         gDPPipeSync(gfx++);

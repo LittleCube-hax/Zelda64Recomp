@@ -581,6 +581,7 @@ u8 getTextId(s16 gi) {
 
 static s16 trueGI;
 static bool itemWorkaround = false;
+static bool itemShuffled = false;
 static bool drawIdChosen = false;
 bool bossWorkaround = false;
 
@@ -600,7 +601,7 @@ void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 
     f32 sp34;
     void* segment;
 
-    if (itemWorkaround && !drawIdChosen) {
+    if (itemShuffled && !drawIdChosen) {
         return;
     }
 
@@ -681,7 +682,7 @@ void func_80838830(Player* this, s16 objectId) {
     if (objectId != OBJECT_UNSET_0) {
         this->giObjectLoading = true;
         if (itemWorkaround) {
-            objectId = sGetItemTable_ap[trueGI - 1].objectId;
+            objectId = sGetItemTable_ap[ABS_ALT(trueGI) - 1].objectId;
         }
         if (!bossWorkaround) {
             osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
@@ -702,30 +703,20 @@ s32 func_808482E0(PlayState* play, Player* this) {
     if (this->av1.actionVar1 == 0) {
         GetItemEntry* giEntry;
         if (itemWorkaround) {
-            gi = trueGI;
+            gi = ABS_ALT(trueGI);
             if (recomp_has_item(GI_OCARINA_OF_TIME)) {
                 INV_CONTENT(ITEM_OCARINA_OF_TIME) = ITEM_OCARINA_OF_TIME;
             }
         }
+        
         giEntry = &sGetItemTable_ap[gi - 1];
 
-        /*switch (giEntry->itemId) {
-            case ITEM_DEKU_NUT:
-            case ITEM_DEKU_STICK:
-                Item_Give(play, giEntry->itemId);
-                break;
-            default:
-                if (giEntry->itemId >= ITEM_DEKU_STICKS_5 && giEntry->itemId <= ITEM_DEKU_NUTS_10) {
-                    Item_Give(play, giEntry->itemId);
-                }
-                break;
-        }*/
-
-        if (!itemWorkaround) {
+        if (!itemShuffled) {
             Item_Give(play, giEntry->itemId);
         }
 
         itemWorkaround = false;
+        itemShuffled = false;
 
         this->av1.actionVar1 = 1;
         Message_StartTextbox(play, giEntry->textId, &this->actor);
@@ -952,6 +943,8 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
     }
 
     if ((item >= ITEM_SONG_SONATA) && (item <= ITEM_SONG_LULLABY_INTRO)) {
+        return ITEM_NONE;
+    } else if (item >= ITEM_ARROW_FIRE && item <= ITEM_ARROW_LIGHT) {
         return ITEM_NONE;
     } else if (item == ITEM_SKULL_TOKEN) {
         return ITEM_NONE;
@@ -1237,7 +1230,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                             GetItemEntry* giEntry = &sGetItemTable_ap[-this->getItemId - 1];
                             EnBox* chest = (EnBox*)interactRangeActor;
 
-                            if ((giEntry->itemId != ITEM_NONE) &&
+                            /*if ((giEntry->itemId != ITEM_NONE) &&
                                 (((Item_CheckObtainability(giEntry->itemId) == ITEM_NONE) &&
                                   (giEntry->field & GIFIELD_40)) ||
                                  (((Item_CheckObtainability(giEntry->itemId) != ITEM_NONE)) &&
@@ -1245,7 +1238,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                                 this->getItemId =
                                     (giEntry->itemId == ITEM_MASK_CAPTAIN) ? -GI_RECOVERY_HEART : -GI_RUPEE_BLUE;
                                 giEntry = &sGetItemTable_ap[-this->getItemId - 1];
-                            }
+                            }*/
 
                             func_80832558(play, this, func_80837C78);
                             this->stateFlags1 |= (PLAYER_STATE1_400 | PLAYER_STATE1_800 | PLAYER_STATE1_20000000);
@@ -1330,6 +1323,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
 
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
                     itemWorkaround = false;
+                    itemShuffled = false;
                     trueGI = getItemId;
                     item = getItem(getItemId);
                     drawIdChosen = false;
@@ -1352,11 +1346,13 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                                 (item == ITEM_SEAHORSE_CAUGHT))) {
                     } else {
                         itemWorkaround = true;
+                        itemShuffled = true;
                         trueGI = apGetItemId(getItemId);
                     }
                     if (getItemId == GI_HEART_PIECE) {
                         recomp_printf("Actor HP: 0x%06X\n", LOCATION_QUEST_HEART_PIECE);
                         itemWorkaround = true;
+                        itemShuffled = true;
                         trueGI = apGetItemId(LOCATION_QUEST_HEART_PIECE);
                         if (LOCATION_QUEST_HEART_PIECE == LOCATION_GRANNY_STORY_1 && recomp_location_is_checked(LOCATION_GRANNY_STORY_1)) {
                             // stupid gramma double heart piece
@@ -1369,10 +1365,10 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                         // Deku Playground Any Day
                         recomp_send_location(LOCATION_PLAYGROUND_ANY_DAY);
                         trueGI = apGetItemId(LOCATION_PLAYGROUND_ANY_DAY);
-                    } else if (itemWorkaround) {
+                    } else if (itemShuffled) {
                         recomp_send_location(getItemId);
                     }
-                    if (itemWorkaround) {
+                    if (itemShuffled) {
                         player->getItemId = GI_DEED_LAND;
                         if (trueGI >= GI_REMAINS_ODOLWA && trueGI <= GI_REMAINS_TWINMOLD) {
                             bossWorkaround = true;
@@ -1399,7 +1395,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
     return false;
 }
 
-s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround) {
+s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround, bool item_is_shuffled) {
     Player* player = GET_PLAYER(play);
 
     if (!(player->stateFlags1 &
@@ -1418,6 +1414,7 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
                 if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
                     trueGI = getItemId;
                     itemWorkaround = use_workaround;
+                    itemShuffled = item_is_shuffled;
                     drawIdChosen = false;
                     if (itemWorkaround) {
                         recomp_send_location(location);
@@ -1472,7 +1469,6 @@ u8 Item_Give(PlayState* play, u8 item) {
         recomp_send_location(GI_MASK_GIBDO);
         return ITEM_NONE;
     } else if (item == ITEM_MASK_GREAT_FAIRY) {
-        recomp_printf("sending great fairy human\n");
         recomp_send_location(GI_MASK_GREAT_FAIRY);
         return ITEM_NONE;
     }
@@ -2012,29 +2008,31 @@ u8 apItemGive(u32 gi) {
         return ITEM_NONE;
 
     } else if (item == ITEM_BOMBCHU) {
+        u8 max_bombchus = MAX(CUR_CAPACITY(UPG_BOMB_BAG), 10);
         if (INV_CONTENT(ITEM_BOMBCHU) != ITEM_BOMBCHU) {
             INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
             AMMO(ITEM_BOMBCHU) = 10;
             return ITEM_NONE;
         }
-        if ((AMMO(ITEM_BOMBCHU) += 10) > CUR_CAPACITY(UPG_BOMB_BAG)) {
-            AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        if ((AMMO(ITEM_BOMBCHU) += 10) > max_bombchus) {
+            AMMO(ITEM_BOMBCHU) = max_bombchus;
         }
         return ITEM_NONE;
 
     } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
+        u8 max_bombchus = MAX(CUR_CAPACITY(UPG_BOMB_BAG), 10);
         if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOMBCHU] != ITEM_BOMBCHU) {
             INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
             AMMO(ITEM_BOMBCHU) += sBombchuRefillCounts[item - ITEM_BOMBCHUS_20];
 
-            if (AMMO(ITEM_BOMBCHU) > CUR_CAPACITY(UPG_BOMB_BAG)) {
-                AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+            if (AMMO(ITEM_BOMBCHU) > max_bombchus) {
+                AMMO(ITEM_BOMBCHU) = max_bombchus;
             }
             return ITEM_NONE;
         }
 
-        if ((AMMO(ITEM_BOMBCHU) += sBombchuRefillCounts[item - ITEM_BOMBCHUS_20]) > CUR_CAPACITY(UPG_BOMB_BAG)) {
-            AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        if ((AMMO(ITEM_BOMBCHU) += sBombchuRefillCounts[item - ITEM_BOMBCHUS_20]) > max_bombchus) {
+            AMMO(ITEM_BOMBCHU) = max_bombchus;
         }
         return ITEM_NONE;
 
@@ -2206,4 +2204,65 @@ u8 apItemGive(u32 gi) {
     }
 
     return temp;
+}
+
+// @ap Make sure we can use Bombchus without a bomb bag.
+void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
+    if (item == ITEM_DEKU_STICK) {
+        AMMO(ITEM_DEKU_STICK) += ammoChange;
+
+        if (AMMO(ITEM_DEKU_STICK) >= CUR_CAPACITY(UPG_DEKU_STICKS)) {
+            AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
+        } else if (AMMO(ITEM_DEKU_STICK) < 0) {
+            AMMO(ITEM_DEKU_STICK) = 0;
+        }
+
+    } else if (item == ITEM_DEKU_NUT) {
+        AMMO(ITEM_DEKU_NUT) += ammoChange;
+
+        if (AMMO(ITEM_DEKU_NUT) >= CUR_CAPACITY(UPG_DEKU_NUTS)) {
+            AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
+        } else if (AMMO(ITEM_DEKU_NUT) < 0) {
+            AMMO(ITEM_DEKU_NUT) = 0;
+        }
+
+    } else if (item == ITEM_BOMBCHU) {
+        u8 max_bombchus = MAX(CUR_CAPACITY(UPG_BOMB_BAG), 10);
+        AMMO(ITEM_BOMBCHU) += ammoChange;
+
+        if (AMMO(ITEM_BOMBCHU) >= max_bombchus) {
+            AMMO(ITEM_BOMBCHU) = max_bombchus;
+        } else if (AMMO(ITEM_BOMBCHU) < 0) {
+            AMMO(ITEM_BOMBCHU) = 0;
+        }
+
+    } else if (item == ITEM_BOW) {
+        AMMO(ITEM_BOW) += ammoChange;
+
+        if (AMMO(ITEM_BOW) >= CUR_CAPACITY(UPG_QUIVER)) {
+            AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+        } else if (AMMO(ITEM_BOW) < 0) {
+            AMMO(ITEM_BOW) = 0;
+        }
+
+    } else if (item == ITEM_BOMB) {
+        AMMO(ITEM_BOMB) += ammoChange;
+
+        if (AMMO(ITEM_BOMB) >= CUR_CAPACITY(UPG_BOMB_BAG)) {
+            AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
+        } else if (AMMO(ITEM_BOMB) < 0) {
+            AMMO(ITEM_BOMB) = 0;
+        }
+
+    } else if (item == ITEM_MAGIC_BEANS) {
+        AMMO(ITEM_MAGIC_BEANS) += ammoChange;
+
+    } else if (item == ITEM_POWDER_KEG) {
+        AMMO(ITEM_POWDER_KEG) += ammoChange;
+        if (AMMO(ITEM_POWDER_KEG) >= 1) {
+            AMMO(ITEM_POWDER_KEG) = 1;
+        } else if (AMMO(ITEM_POWDER_KEG) < 0) {
+            AMMO(ITEM_POWDER_KEG) = 0;
+        }
+    }
 }

@@ -83,7 +83,7 @@ void ItemBHeart_Update(Actor* thisx, PlayState* play) {
             Actor_Kill(&this->actor);
             return;
         }
-        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(LOCATION_HEART_CONTAINER), LOCATION_HEART_CONTAINER, 30.0f, 80.0f, true);
+        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(LOCATION_HEART_CONTAINER), LOCATION_HEART_CONTAINER, 30.0f, 80.0f, false, true);
     }
 }
 

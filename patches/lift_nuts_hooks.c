@@ -84,7 +84,7 @@ void EnLiftNuts_GiveReward(EnLiftNuts* this, PlayState* play) {
     } else if (!recomp_location_is_checked(LOCATION_PLAYGROUND_ANY_DAY)) {
         Actor_OfferGetItem(&this->actor, play, GI_RUPEE_PURPLE, 500.0f, 100.0f);
     } else {
-        Actor_OfferGetItemHook(&this->actor, play, GI_RUPEE_PURPLE, 0, 500.0f, 100.0f, false);
+        Actor_OfferGetItemHook(&this->actor, play, GI_RUPEE_PURPLE, 0, 500.0f, 100.0f, false, true);
     }
 }
 
