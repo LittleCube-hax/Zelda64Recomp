@@ -157,7 +157,7 @@ void EnBox_Init(Actor* thisx, PlayState* play) {
     recomp_printf("chest gi is 0x%04X\n", this->getItemId);
 
     if (recomp_location_is_checked(LOCATION_ENBOX)) {
-        //Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
+        Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
     }
 
     if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor)) || this->getItemId == GI_NONE) {
