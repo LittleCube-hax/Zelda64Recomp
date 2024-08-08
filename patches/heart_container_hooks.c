@@ -79,11 +79,12 @@ void ItemBHeart_Update(Actor* thisx, PlayState* play) {
     if (!(this->baseScale < BHEART_SCALE_MIN_COLLECTIBLE)) {
         if (Actor_HasParent(&this->actor, play)) {
             recomp_printf("Heart Container location: 0x%06X\n", LOCATION_HEART_CONTAINER);
+            recomp_send_location(LOCATION_HEART_CONTAINER);
             Flags_SetCollectible(play, 0x1F);
             Actor_Kill(&this->actor);
             return;
         }
-        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(LOCATION_HEART_CONTAINER), LOCATION_HEART_CONTAINER, 30.0f, 80.0f, false, true);
+        Actor_OfferGetItemHook(&this->actor, play, apGetItemId(LOCATION_HEART_CONTAINER), 0, 30.0f, 80.0f, false, true);
     }
 }
 
