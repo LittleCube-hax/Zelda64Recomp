@@ -230,10 +230,9 @@ void EnElfgrp_Init(Actor* thisx, PlayState* play) {
                 if ((ENELFGRP_GET_SWITCHFLAG_ROT(&this->actor) != 0) &&
                     Flags_GetSwitch(play, ENELFGRP_GET_SWITCHFLAG_ROT(&this->actor))) {
                     this->actionFunc = EnElfgrp_DoNothing;
-                //} else if (INV_CONTENT(ITEM_MASK_GREAT_FAIRY) == ITEM_MASK_GREAT_FAIRY) {
                 } else if (recomp_location_is_checked(LOCATION_GREAT_FAIRY_HUMAN)) {
                     EnElfgrp_SetCutscene(this, 4);
-                } else if (INV_CONTENT(ITEM_MASK_DEKU) != ITEM_MASK_DEKU) {
+                } else if (INV_CONTENT(ITEM_MASK_DEKU) != ITEM_MASK_DEKU && INV_CONTENT(ITEM_MASK_GORON) != ITEM_MASK_GORON && INV_CONTENT(ITEM_MASK_ZORA) != ITEM_MASK_ZORA && INV_CONTENT(ITEM_MASK_FIERCE_DEITY) != ITEM_MASK_FIERCE_DEITY) {
                     EnElfgrp_SetCutscene(this, 5);
                 } else {
                     this->stateFlags |= ELFGRP_STATE_1;
@@ -243,15 +242,13 @@ void EnElfgrp_Init(Actor* thisx, PlayState* play) {
                 EnElfgrp_SpawnStrayFairies(this, play, STRAY_FAIRY_TOTAL - 1, SPAWNED_STRAY_FAIRY_TYPE_PRESENT);
                 this->actionFunc = func_80A3A398;
 
-                if (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU) {
-                    //if (INV_CONTENT(ITEM_MASK_GREAT_FAIRY) == ITEM_MASK_GREAT_FAIRY) {
+                if (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON || INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA || INV_CONTENT(ITEM_MASK_FIERCE_DEITY) == ITEM_MASK_FIERCE_DEITY) {
                     if (recomp_location_is_checked(LOCATION_GREAT_FAIRY_HUMAN)) {
                         EnElfgrp_SetCutscene(this, 2);
                     } else {
                         EnElfgrp_SetCutscene(this, 3);
                         this->stateFlags |= ELFGRP_STATE_1;
                     }
-                //} else if (gSaveContext.save.saveInfo.playerData.isMagicAcquired == true) {
                 } else if (recomp_location_is_checked(LOCATION_GREAT_FAIRY)) {
                     EnElfgrp_SetCutscene(this, 1);
                 }
@@ -278,10 +275,6 @@ void func_80A0B35C(BgDyYoseizo* this, PlayState* play) {
             recomp_send_location(LOCATION_GREAT_FAIRY);
             switch (GREAT_FAIRY_GET_TYPE(&this->actor)) {
                 case GREAT_FAIRY_TYPE_MAGIC:
-                    /*if (gSaveContext.save.saveInfo.playerData.isMagicAcquired != true) {
-                        gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
-                        gSaveContext.magicFillTarget = MAGIC_NORMAL_METER;
-                    }*/
                     break;
 
                 case GREAT_FAIRY_TYPE_WISDOM:
