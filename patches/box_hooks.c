@@ -154,7 +154,6 @@ void EnBox_Init(Actor* thisx, PlayState* play) {
     thisx->shape.rot.x = this->dyna.actor.world.rot.x;
     //this->getItemId = ENBOX_GET_ITEM(thisx);
     this->getItemId = apGetItemId(LOCATION_ENBOX);
-    recomp_printf("chest gi is 0x%04X\n", this->getItemId);
 
     if (recomp_location_is_checked(LOCATION_ENBOX)) {
         Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
