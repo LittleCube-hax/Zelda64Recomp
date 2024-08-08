@@ -47,7 +47,6 @@ void func_80953098(EnHs* this, PlayState* play) {
         Actor_OfferTalkExchange(&this->actor, play, 1000.0f, 1000.0f, PLAYER_IA_MINUS1);
     } else {
         this->stateFlags |= 8;
-        //if (INV_CONTENT(ITEM_MASK_BUNNY) == ITEM_MASK_BUNNY) {
         if (recomp_location_is_checked(GI_MASK_BUNNY)) {
             Actor_OfferGetItem(&this->actor, play, GI_RUPEE_RED, 10000.0f, 50.0f);
         } else {
