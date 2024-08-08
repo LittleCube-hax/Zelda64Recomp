@@ -1302,6 +1302,7 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
 
 #define LOCATION_QUEST_HEART_PIECE (0x070000 | (actor->id))
 #define ACTOR_ID_DEKU_PLAYGROUND_WORKER 0x1C9
+#define ACTOR_ID_HONEY_AND_DARLING 0x0B5
 
 s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 xzRange, f32 yRange) {
     Player* player = GET_PLAYER(play);
@@ -1338,7 +1339,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                      ((item >= ITEM_ARROWS_10) && (item <= ITEM_ARROWS_50)) ||
                      (item == ITEM_MAGIC_JAR_SMALL) ||
                      (item == ITEM_MAGIC_JAR_BIG) ||
-                     ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != ACTOR_ID_DEKU_PLAYGROUND_WORKER)) ||
+                     ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != ACTOR_ID_DEKU_PLAYGROUND_WORKER) && (actor->id != ACTOR_ID_HONEY_AND_DARLING)) ||
                      ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) ||
                                (item == ITEM_HYLIAN_LOACH)) ||
                      (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK) && (item != ITEM_CHATEAU) && (item != ITEM_CHATEAU_2)) ||
@@ -1365,6 +1366,10 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                         // Deku Playground Any Day
                         recomp_send_location(LOCATION_PLAYGROUND_ANY_DAY);
                         trueGI = apGetItemId(LOCATION_PLAYGROUND_ANY_DAY);
+                    } else if (getItemId == GI_RUPEE_PURPLE && actor->id == ACTOR_ID_HONEY_AND_DARLING && !recomp_location_is_checked(LOCATION_HONEY_AND_DARLING_ANY_DAY)) {
+                        // Honey and Darling Any Day
+                        recomp_send_location(LOCATION_HONEY_AND_DARLING_ANY_DAY);
+                        trueGI = apGetItemId(LOCATION_HONEY_AND_DARLING_ANY_DAY);
                     } else if (itemShuffled) {
                         recomp_send_location(getItemId);
                     }
