@@ -1711,6 +1711,25 @@ u8 Item_Give(PlayState* play, u8 item) {
     return ITEM_NONE;
 }
 
+// handles razor sword health and breaking
+bool func_8083FFEC(PlayState* play, Player* this) {
+    if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
+        /*if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
+            gSaveContext.save.saveInfo.playerData.swordHealth--;
+            if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
+                Item_Give(play, ITEM_SWORD_KOKIRI);
+                Player_UseItem(play, this, ITEM_SWORD_KOKIRI);
+                Player_PlaySfx(this, NA_SE_IT_MAJIN_SWORD_BROKEN);
+                if (Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) {
+                    Message_StartTextbox(play, 0xF9, NULL);
+                }
+            }
+        }*/
+        return true;
+    }
+    return false;
+}
+
 u8 apItemGive(u32 gi) {
     PlayState* play = gPlay;
     Player* player = GET_PLAYER(play);

@@ -152,11 +152,21 @@ void EnBox_Init(Actor* thisx, PlayState* play) {
         this->dyna.actor.world.rot.x = 0;
     }
     thisx->shape.rot.x = this->dyna.actor.world.rot.x;
-    //this->getItemId = ENBOX_GET_ITEM(thisx);
-    this->getItemId = apGetItemId(LOCATION_ENBOX);
 
-    if (recomp_location_is_checked(LOCATION_ENBOX)) {
+    if (LOCATION_ENBOX == 0x061700) {
+        if (CUR_FORM == PLAYER_FORM_GORON) {
+            if (recomp_location_is_checked(LOCATION_ENBOX)) {
+                this->getItemId = GI_RUPEE_PURPLE;
+            } else {
+                this->getItemId = apGetItemId(LOCATION_ENBOX);
+            }
+        } else {
+            this->getItemId = ENBOX_GET_ITEM(thisx);
+        }
+    } else if (recomp_location_is_checked(LOCATION_ENBOX)) {
         Flags_SetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor));
+    } else {
+        this->getItemId = apGetItemId(LOCATION_ENBOX);
     }
 
     if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor)) || this->getItemId == GI_NONE) {
@@ -324,8 +334,14 @@ void EnBox_WaitOpen(EnBox* this, PlayState* play) {
             if ((this->getItemId == GI_MASK_GIANT) && (INV_CONTENT(ITEM_MASK_GIANT) == ITEM_MASK_GIANT)) {
                 this->getItemId = GI_RECOVERY_HEART;
             }
-            //Actor_OfferGetItemNearby(&this->dyna.actor, play, -this->getItemId);
-            Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, LOCATION_ENBOX, 50.0f, 10.0f, false, true);
+
+            if (LOCATION_ENBOX == 0x061700 && ENBOX_GET_ITEM((Actor*) this) == 0x0C && recomp_location_is_checked(LOCATION_ENBOX)) {
+                Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, 0, 50.0f, 10.0f, false, false);
+            } else if (LOCATION_ENBOX == 0x061700) {
+                Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, 0, 50.0f, 10.0f, false, false);
+            } else {
+                Actor_OfferGetItemHook(&this->dyna.actor, play, -this->getItemId, LOCATION_ENBOX, 50.0f, 10.0f, false, true);
+            }
         }
         if (Flags_GetTreasure(play, ENBOX_GET_CHEST_FLAG(&this->dyna.actor))) {
             EnBox_SetupAction(this, EnBox_Open);
