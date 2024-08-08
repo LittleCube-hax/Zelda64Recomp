@@ -299,6 +299,7 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
                 recomp_printf("stray fairy location: 0x%06X\n", LOCATION_STRAY_FAIRY);
                 recomp_send_location(LOCATION_STRAY_FAIRY);
                 player->actor.freezeTimer = 10;
+                player->stateFlags1 |= PLAYER_STATE1_20000000;
                 // You found a Stray Fairy!
                 Message_StartTextbox(play, apGetItemId(LOCATION_STRAY_FAIRY), NULL);
                 if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=
@@ -336,6 +337,7 @@ void EnElforg_FairyCollected(EnElforg* this, PlayState* play) {
         return;
     } else {
         player->actor.freezeTimer = 10;
+        player->stateFlags1 |= PLAYER_STATE1_20000000;
     }
 
     Actor_PlaySfx_Flagged(&this->actor, NA_SE_PL_CHIBI_FAIRY_HEAL - SFX_FLAG);
