@@ -79,7 +79,7 @@ void EnTrt_GiveRedPotionForKoume(EnTrt* this, PlayState* play) {
         SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_RED_POTION_FOR_KOUME);
         player->stateFlags2 &= ~PLAYER_STATE2_20000000;
         this->actionFunc = EnTrt_GivenRedPotionForKoume;
-    } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_KOTAKE_BOTTLE)) {
+    } else if (recomp_location_is_checked(GI_POTION_RED_BOTTLE)) {
         Actor_OfferGetItem(&this->actor, play, GI_POTION_RED, 300.0f, 300.0f);
     } else {
         Actor_OfferGetItem(&this->actor, play, GI_POTION_RED_BOTTLE, 300.0f, 300.0f);
