@@ -23,6 +23,8 @@ extern GetItemId noShuffleList[];
 extern PlayState* gPlay;
 extern bool playing;
 
+extern bool justDied;
+
 extern bool bossWorkaround;
 extern void* giObjectSegment;
 

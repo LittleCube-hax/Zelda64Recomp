@@ -5,6 +5,34 @@
 #include "apcommon.h"
 #include "misc_funcs.h"
 
+#define OSN_STATE_SPECIAL_CONVERSTATION (1 << 0)
+#define OSN_STATE_MET_HUMAN (1 << 1)
+#define OSN_STATE_MET_DEKU (1 << 2)
+#define OSN_STATE_MET_GORON (1 << 3)
+#define OSN_STATE_MET_ZORA (1 << 4)
+#define OSN_STATE_END_CONVERSATION (1 << 5)
+
+#define OSN_MASK_TEXT_GREAT_FAIRY (1 << 0)
+#define OSN_MASK_TEXT_GIBDO (1 << 1)
+#define OSN_MASK_TEXT_TRUTH (1 << 2)
+#define OSN_MASK_TEXT_GIANT (1 << 3)
+#define OSN_MASK_TEXT_KAFEIS (1 << 4)
+#define OSN_MASK_TEXT_DON_GERO (1 << 5)
+#define OSN_MASK_TEXT_BLAST (1 << 6)
+#define OSN_MASK_TEXT_COUPLE (1 << 7)
+#define OSN_MASK_TEXT_SCENTS (1 << 8)
+#define OSN_MASK_TEXT_KAMARO (1 << 9)
+#define OSN_MASK_TEXT_STONE (1 << 10)
+#define OSN_MASK_TEXT_POSTMAN (1 << 11)
+#define OSN_MASK_TEXT_BUNNY (1 << 12)
+#define OSN_MASK_TEXT_CAPTAIN (1 << 13)
+#define OSN_MASK_TEXT_BREMEN (1 << 14)
+#define OSN_MASK_TEXT_CIRCUS_LEADER (1 << 15)
+#define OSN_MASK_TEXT_KEATON (1 << 16)
+#define OSN_MASK_TEXT_GARO (1 << 17)
+#define OSN_MASK_TEXT_ALL_NIGHT (1 << 18)
+#define OSN_MASK_TEXT_ROMANI (1 << 19)
+
 struct EnOsn;
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
@@ -148,7 +176,9 @@ void EnOsn_ChooseAction(EnOsn* this, PlayState* play);
 
 static bool shouldSetForm = false;
 static u32 prevForm;
-/*
+
+void EnOsn_Idle(EnOsn* this, PlayState* play);
+
 void EnOsn_Init(Actor* thisx, PlayState* play) {
     s32 pad;
     EnOsn* this = THIS;
@@ -178,8 +208,16 @@ void EnOsn_Init(Actor* thisx, PlayState* play) {
                     (gSaveContext.save.entrance == ENTRANCE(CLOCK_TOWER_INTERIOR, 6))) {
                     this->actionFunc = EnOsn_HandleCsAction;
                 } else if (gSaveContext.save.entrance == ENTRANCE(CLOCK_TOWER_INTERIOR, 3)) {
-                    EnOsn_InitCutscene(this);
-                    this->actionFunc = EnOsn_StartCutscene;
+                    //EnOsn_InitCutscene(this);
+                    //this->actionFunc = EnOsn_StartCutscene;
+                    if (justDied) {
+                        justDied = false;
+                        // warp to south clock town
+                        recomp_set_pending_warp(0, 0x12, 0);
+                        gSaveContext.save.day = 0;
+                        gSaveContext.save.time = CLOCK_TIME(6, 0);
+                    }
+                    this->actionFunc = EnOsn_Idle;
                 } else {
                     EnOsn_ChooseAction(this, play);
                 }
@@ -209,7 +247,7 @@ void EnOsn_Init(Actor* thisx, PlayState* play) {
             Actor_Kill(&this->actor);
             break;
     }
-}*/
+}
 
 void EnOsn_Idle(EnOsn* this, PlayState* play) {
     s16 yaw = this->actor.yawTowardsPlayer - this->actor.shape.rot.y;
@@ -237,6 +275,100 @@ void EnOsn_Idle(EnOsn* this, PlayState* play) {
     } else if (((this->actor.xzDistToPlayer < 100.0f) || this->actor.isLockedOn) && (yaw < 0x4000) && (yaw > -0x4000)) {
         Actor_OfferTalkNearColChkInfoCylinder(&this->actor, play);
     }*/
+}
+
+s32 EnOsn_GetInitialMaskText(EnOsn* this, PlayState* play);
+
+s32 EnOsn_GetInitialText(EnOsn* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    if ((gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] != ITEM_NONE) &&
+        CHECK_QUEST_ITEM(QUEST_SONG_HEALING)) {
+        if (this->stateFlags & OSN_STATE_SPECIAL_CONVERSTATION) {
+            this->stateFlags |= OSN_STATE_END_CONVERSATION;
+            if ((gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] != ITEM_NONE) &&
+                (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU)) {
+                if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) &&
+                    (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+                    return 0x2006;
+                }
+                return 0x1FCD;
+            }
+            return 0x1FAF;
+        }
+
+        if (player->transformation == PLAYER_FORM_DEKU) {
+            if (this->stateFlags & OSN_STATE_MET_DEKU) {
+                this->stateFlags |= OSN_STATE_END_CONVERSATION;
+                if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) &&
+                    (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+                    return 0x2006;
+                }
+                return 0x1FCD;
+            }
+            this->stateFlags |= OSN_STATE_MET_DEKU;
+            return 0x1FC8;
+        }
+
+        if (player->transformation == PLAYER_FORM_GORON) {
+            if (this->stateFlags & OSN_STATE_MET_GORON) {
+                this->stateFlags |= OSN_STATE_END_CONVERSATION;
+                if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) &&
+                    (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+                    return 0x2006;
+                } else {
+                    return 0x1FCD;
+                }
+            }
+            this->stateFlags |= OSN_STATE_MET_GORON;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_76_20)) {
+                return 0x1FC8;
+            } else {
+                SET_WEEKEVENTREG(WEEKEVENTREG_76_20);
+                return 0x1FCE;
+            }
+        }
+
+        if (player->transformation == PLAYER_FORM_ZORA) {
+            if (this->stateFlags & OSN_STATE_MET_ZORA) {
+                this->stateFlags |= OSN_STATE_END_CONVERSATION;
+                if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) &&
+                    (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+                    return 0x2006;
+                }
+                return 0x1FCD;
+            }
+
+            this->stateFlags |= OSN_STATE_MET_ZORA;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_76_40)) {
+                return 0x1FC8;
+            }
+            SET_WEEKEVENTREG(WEEKEVENTREG_76_40);
+            return 0x1FD0;
+        }
+
+        if (Player_GetMask(play) == PLAYER_MASK_NONE) {
+            if (this->stateFlags & OSN_STATE_MET_HUMAN) {
+                this->stateFlags |= OSN_STATE_END_CONVERSATION;
+                if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) &&
+                    (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+                    return 0x2006;
+                }
+                return 0x1FCD;
+            }
+            this->stateFlags |= OSN_STATE_MET_HUMAN;
+            return 0x1FC8;
+        }
+
+        return EnOsn_GetInitialMaskText(this, play);
+    }
+
+    this->stateFlags |= OSN_STATE_END_CONVERSATION;
+    if ((gSaveContext.save.day == 3) && (CURRENT_TIME >= CLOCK_TIME(5, 0)) && (CURRENT_TIME < CLOCK_TIME(6, 0))) {
+        return 0x2004;
+    }
+
+    return 0x1FAE;
 }
 /*
 void EnOsn_Destroy(Actor* thisx, PlayState* play) {

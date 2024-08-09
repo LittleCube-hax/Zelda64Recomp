@@ -946,13 +946,12 @@ void Sram_SaveEndOfCycle(PlayState* play) {
 
 extern s32 Actor_ProcessTalkRequest(Actor* actor, GameState* gameState);
 
+bool justDied = false;
+
 // @recomp Reset the autosave timer when the moon crashes.
 void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     s32 i;
     s32 cutsceneIndex = gSaveContext.save.cutsceneIndex;
-
-    Sram_SaveEndOfCycle(gPlay);
-    return;
 /*
     bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
 
@@ -976,14 +975,14 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     for (i = 0; i < ARRAY_COUNT(gSaveContext.eventInf); i++) {
         gSaveContext.eventInf[i] = 0;
     }
-/*
+
     for (i = 0; i < ARRAY_COUNT(gSaveContext.cycleSceneFlags); i++) {
         gSaveContext.cycleSceneFlags[i].chest = gSaveContext.save.saveInfo.permanentSceneFlags[i].chest;
         gSaveContext.cycleSceneFlags[i].switch0 = gSaveContext.save.saveInfo.permanentSceneFlags[i].switch0;
         gSaveContext.cycleSceneFlags[i].switch1 = gSaveContext.save.saveInfo.permanentSceneFlags[i].switch1;
         gSaveContext.cycleSceneFlags[i].clearedRoom = gSaveContext.save.saveInfo.permanentSceneFlags[i].clearedRoom;
         gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.save.saveInfo.permanentSceneFlags[i].collectible;
-    }*/
+    }
 
     for (i = 0; i < TIMER_ID_MAX; i++) {
         gSaveContext.timerStates[i] = TIMER_STATE_OFF;
@@ -1002,6 +1001,8 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
 
     // @recomp Use the slow autosave timer to give the player extra time to respond to the moon crashing to decide if they want to reload their autosave.
     autosave_reset_timer_slow();
+
+    justDied = true;
 }
 
 void Owl_Save(PlayState* play) {

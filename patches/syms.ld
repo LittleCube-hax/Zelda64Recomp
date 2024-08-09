@@ -57,3 +57,5 @@ recomp_get_item_foreign = 0x8F0000D8;
 recomp_get_items_index = 0x8F0000DC;
 recomp_save_items_index = 0x8F0000E0;
 recomp_complete_goal = 0x8F0000E4;
+recomp_set_pending_warp = 0x8F0000E8;
+recomp_set_pending_set_time = 0x8F0000EC;
