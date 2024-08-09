@@ -931,6 +931,17 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     }
 
     recomp_save_items_index(gSaveContext.fileNum, old_items_size);
+
+    if (recomp_has_item(GI_SWORD_KOKIRI) == 2) {
+        if (CUR_FORM == PLAYER_FORM_HUMAN) {
+            CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
+        } else {
+            BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
+        }
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
+    }
+
+    DUNGEON_KEY_COUNT(0) = recomp_has_item(0x090078);
 }
 
 extern s32 Actor_ProcessTalkRequest(Actor* actor, GameState* gameState);
