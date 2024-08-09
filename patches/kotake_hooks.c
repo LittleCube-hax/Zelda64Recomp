@@ -112,7 +112,7 @@ void EnTrt_StartRedPotionConversation(EnTrt* this, PlayState* play) {
             }
         } else {
             //if (CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_INJURED)) {
-            if (!recomp_location_is_checked(GI_POTION_RED_BOTTLE)) {
+            if (!recomp_location_is_checked(GI_POTION_RED_BOTTLE) || CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_INJURED)) {
                 this->timer = 30;
                 this->textId = 0x838;
                 this->cutsceneState = ENTRT_CUTSCENESTATE_PLAYING_SPECIAL;
