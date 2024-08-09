@@ -285,7 +285,6 @@ void ObjTokeiStep_DrawOpen(Actor* thisx, PlayState* play);
 
 void dsot_ObjTokeiStep_fix(ObjTokeiStep* this, PlayState* play) {
     if (PAST_MIDNIGHT) {
-        // @recomp Manual relocation, TODO remove when the recompiler handles this automatically.
         this->dyna.actor.draw = ObjTokeiStep_DrawOpen;
         ObjTokeiStep_InitStepsOpen(this);
         ObjTokeiStep_SetupDoNothingOpen(this);
@@ -317,7 +316,6 @@ s32 dsot_ObjTokeidai_get_target_sun_moon_panel_rotation(void) {
 }
 
 void dsot_ObjTokeidai_update_clock(ObjTokeidai* this, u16 currentHour, u16 currentMinute) {
-    // @recomp Manual relocation, TODO remove when the recompiler handles this automatically.
     this->clockTime = CURRENT_TIME;
 
     // Instantly switch to desired hour.
@@ -370,7 +368,6 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
         case OBJ_TOKEIDAI_TYPE_EXTERIOR_GEAR_CLOCK_TOWN:
             if (PAST_MIDNIGHT && (this->actionFunc == ObjTokeidai_ExteriorGear_Idle)) {
                 dsot_ObjTokeidai_update_clock(this, 0, 0);
-                // @recomp Manual relocation, TODO remove when the recompiler handles this automatically.
                 this->actor.draw = ObjTokeidai_ExteriorGear_Draw;
                 ObjTokeidai_Init(&this->actor, play);
             } else {
@@ -382,7 +379,6 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
         case OBJ_TOKEIDAI_TYPE_TOWER_CLOCK_CLOCK_TOWN:
             if (PAST_MIDNIGHT && (this->actionFunc == ObjTokeidai_TowerClock_Idle)) {
                 dsot_ObjTokeidai_update_clock(this, 0, 0);
-                // @recomp Manual relocation, TODO remove when the recompiler handles this automatically.
                 this->actor.draw = ObjTokeidai_Clock_Draw;
                 ObjTokeidai_Init(&this->actor, play);
             } else {
@@ -391,7 +387,6 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
             break;
         case OBJ_TOKEIDAI_TYPE_STAIRCASE_TO_ROOFTOP:
             if (PAST_MIDNIGHT) {
-                // @recomp Manual relocation, TODO remove when the recompiler handles this automatically.
                 this->actor.draw = ObjTokeidai_Draw;
             }
             break;
