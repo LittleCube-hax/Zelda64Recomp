@@ -262,13 +262,11 @@ void EnTest6_DoubleSoTCutscene(EnTest6* this, PlayState* play) {
     }
 
     if ((this->timer <= 115) && (this->timer >= 16)) {
-        CutsceneData* sDoubleSoTCsCamData_reloc = sDoubleSoTCsCamData;
-        CutsceneCamera_UpdateSplines((u8*)sDoubleSoTCsCamData_reloc, &this->csCamInfo);
+        CutsceneCamera_UpdateSplines((u8*) sDoubleSoTCsCamData, &this->csCamInfo);
     } else if (this->timer < 16) {
         subCamId = CutsceneManager_GetCurrentSubCamId(play->playerCsIds[PLAYER_CS_ID_SONG_WARP]);
 
-        Vec3f* sSubCamUp_ptr = KaleidoManager_GetRamAddr(&sSubCamUp);
-        Play_SetCameraAtEyeUp(play, subCamId, &this->subCamAt, &this->subCamEye, sSubCamUp_ptr);
+        Play_SetCameraAtEyeUp(play, subCamId, &this->subCamAt, &this->subCamEye, &sSubCamUp);
         Play_SetCameraFov(play, subCamId, this->subCamFov);
         Play_SetCameraRoll(play, subCamId, 0);
     }
