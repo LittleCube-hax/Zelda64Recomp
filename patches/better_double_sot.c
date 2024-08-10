@@ -67,9 +67,9 @@ void dsot_handle_hour_selection(PlayState* play) {
             choiceHour = 23;
         }
 
-        if (((CLOCK_TIME(choiceHour, 0) <= CURRENT_TIME) && (CLOCK_TIME(prevHour, 0) > CURRENT_TIME))
+        if (((CLOCK_TIME(choiceHour, 0) <= CURRENT_TIME) && (CLOCK_TIME(prevHour, 0) > CURRENT_TIME)
         || ((choiceHour > prevHour) && (CURRENT_TIME >= CLOCK_TIME(23, 0)))
-        || ((choiceHour > prevHour) && (CURRENT_TIME < CLOCK_TIME(1, 0)))) {
+        || ((choiceHour > prevHour) && (CURRENT_TIME < CLOCK_TIME(1, 0))))) {
             choiceHour = prevHour;
         }
         else {
@@ -208,7 +208,7 @@ void dsot_draw_clock(PlayState* play) {
         play->actorCtx.flags ^= ACTORCTX_FLAG_TELESCOPE_ON;
     }
 
-    play->pauseCtx.debugEditor = prev_pauseCtx_debugEditor;
+    play->pauseCtx.debugEditor == prev_pauseCtx_debugEditor;
     play->pauseCtx.state = prev_pauseCtx_state;
     state->frameAdvCtx.enabled = prev_frameAdvanceCtx;
     msgCtx->msgMode = prev_msgMode;
@@ -228,25 +228,25 @@ void dsot_actor_fixes(PlayState* play) {
     s32 category;
     Actor* actor;
     Player* player = GET_PLAYER(play);
-    //u32* categoryFreezeMaskP;
+    u32* categoryFreezeMaskP;
     ActorListEntry* entry;
 
     ActorContext* actorCtx = &play->actorCtx;
 
     for (category = 0, entry = actorCtx->actorLists; category < ACTORCAT_MAX;
-         entry++, /*categoryFreezeMaskP++, */category++) {
+         entry++, categoryFreezeMaskP++, category++) {
         actor = entry->first;
 
         for (actor = entry->first; actor != NULL; actor = actor->next) {
             switch(actor->id) {
                 case ACTOR_EN_TEST4:
-                    dsot_ObjEnTest4_fix((EnTest4*) actor, play);
+                    dsot_ObjEnTest4_fix(actor, play);
                     break;
                 case ACTOR_OBJ_TOKEI_STEP:
-                    dsot_ObjTokeiStep_fix((ObjTokeiStep*) actor, play);
+                    dsot_ObjTokeiStep_fix(actor, play);
                     break;
                 case ACTOR_OBJ_TOKEIDAI:
-                    dsot_ObjTokeidai_fix((ObjTokeidai*) actor, play);
+                    dsot_ObjTokeidai_fix(actor, play);
                     break;
             }
         }
@@ -263,7 +263,7 @@ void dsot_ObjEnTest4_fix(EnTest4* this, PlayState* play) {
     this->prevBellTime = CURRENT_TIME;
 
     // Change daytime to night manually if necessary.
-    if (((this->daytimeIndex == THREEDAY_DAYTIME_DAY) && (CURRENT_TIME > CLOCK_TIME(18, 0))) || (CURRENT_TIME <= CLOCK_TIME(6, 0))) {
+    if ((this->daytimeIndex = THREEDAY_DAYTIME_DAY) && (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME <= CLOCK_TIME(6, 0))) {
         this->daytimeIndex = THREEDAY_DAYTIME_NIGHT;
         // Re-spawn the setup actors.
         play->numSetupActors = -play->numSetupActors;
@@ -360,7 +360,7 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
         case OBJ_TOKEIDAI_TYPE_COUNTERWEIGHT_CLOCK_TOWN:
             if (PAST_MIDNIGHT && (this->actionFunc == ObjTokeidai_Counterweight_Idle)) {
                 this->actor.shape.rot.y = 0;
-                ObjTokeidai_Init(&this->actor, play);
+                ObjTokeidai_Init(this, play);
             }
             break;
 
@@ -369,7 +369,7 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
             if (PAST_MIDNIGHT && (this->actionFunc == ObjTokeidai_ExteriorGear_Idle)) {
                 dsot_ObjTokeidai_update_clock(this, 0, 0);
                 this->actor.draw = ObjTokeidai_ExteriorGear_Draw;
-                ObjTokeidai_Init(&this->actor, play);
+                ObjTokeidai_Init(this, play);
             } else {
                 dsot_ObjTokeidai_update_clock(this, currentHour, currentMinute);
             }
@@ -380,7 +380,7 @@ void dsot_ObjTokeidai_fix(ObjTokeidai* this, PlayState* play) {
             if (PAST_MIDNIGHT && (this->actionFunc == ObjTokeidai_TowerClock_Idle)) {
                 dsot_ObjTokeidai_update_clock(this, 0, 0);
                 this->actor.draw = ObjTokeidai_Clock_Draw;
-                ObjTokeidai_Init(&this->actor, play);
+                ObjTokeidai_Init(this, play);
             } else {
                 dsot_ObjTokeidai_update_clock(this, currentHour, currentMinute);
             }

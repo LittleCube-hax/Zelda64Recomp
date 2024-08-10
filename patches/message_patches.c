@@ -461,7 +461,10 @@ void Message_Update(PlayState* play) {
                             if (msgCtx->choiceIndex == 0) {
                                 Audio_PlaySfx_MessageDecide();
 
-                                play->msgCtx.ocarinaMode = OCARINA_MODE_APPLY_DOUBLE_SOT;
+                                // @recomp skip double sot cutscene
+                                //play->msgCtx.ocarinaMode = OCARINA_MODE_APPLY_DOUBLE_SOT;
+                                play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                                dsot_advance_hour(play);
                                 gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
                             } else {
                                 Audio_PlaySfx_MessageCancel();
