@@ -71,7 +71,6 @@ typedef struct EnTimeTag {
 
 void EnTimeTag_RooftopOath_DoNothing(EnTimeTag* this, PlayState* play);
 void EnTimeTag_RooftopOath_Cutscene(EnTimeTag* this, PlayState* play);
-void EnTimeTag_RooftopOath_Wait(EnTimeTag* this, PlayState* play);
 
 void EnTimeTag_SoaringEngraving_GetSong(EnTimeTag* this, PlayState* play);
 void EnTimeTag_SoaringEngraving_StartCutscene(EnTimeTag* this, PlayState* play);
@@ -86,6 +85,49 @@ void EnTimeTag_KickOut_DoNothing(EnTimeTag* this, PlayState* play);
 void EnTimeTag_KickOut_Transition(EnTimeTag* this, PlayState* play);
 void EnTimeTag_KickOut_WaitForTrigger(EnTimeTag* this, PlayState* play);
 void EnTimeTag_KickOut_WaitForTime(EnTimeTag* this, PlayState* play);
+
+void EnTimeTag_RooftopOath_Wait(EnTimeTag* this, PlayState* play) {
+    Actor* thisx = &this->actor;
+
+    if ((play->msgCtx.ocarinaMode == OCARINA_MODE_EVENT) && (play->msgCtx.lastPlayedSong == OCARINA_SONG_OATH)) {
+        if (this->actor.csId != CS_ID_NONE) {
+            this->actionFunc = EnTimeTag_RooftopOath_Cutscene;
+        }
+        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+    }
+}
+
+void EnTimeTag_RooftopOath_Cutscene(EnTimeTag* this, PlayState* play) {
+    //~ if (CutsceneManager_IsNext(this->actor.csId)) {
+        //~ CutsceneManager_StartWithPlayerCs(this->actor.csId, &this->actor);
+
+        //~ this->actionFunc = EnTimeTag_RooftopOath_DoNothing;
+        //~ gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
+
+        //~ if (CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
+            //~ CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD)) {
+            //~ SET_WEEKEVENTREG(WEEKEVENTREG_25_02);
+        //~ }
+    //~ } else {
+        //~ CutsceneManager_Queue(this->actor.csId);
+    //~ }
+    if (play->msgCtx.ocarinaMode == OCARINA_MODE_END) {
+        this->actionFunc = EnTimeTag_RooftopOath_Wait;
+    }
+    if (CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
+        CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD)) {
+        gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
+        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+        play->nextEntrance = ENTRANCE(THE_MOON, 0);
+        play->transitionType = TRANS_TYPE_FADE_WHITE_FAST;
+        gSaveContext.nextTransitionType = TRANS_TYPE_FADE_WHITE_FAST;
+        play->transitionTrigger = TRANS_TRIGGER_START;
+        Audio_StopSubBgm();
+        Audio_StopSequenceAtDefaultPos();
+        Audio_StopFanfare(0);
+        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+    }
+}
 
 void EnTimeTag_Init(Actor* thisx, PlayState* play) {
     EnTimeTag* this = THIS;

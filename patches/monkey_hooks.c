@@ -177,6 +177,166 @@ void func_80AB92CC(EnMnk* this, PlayState* play);
 s32 EnMnk_ValidatePictograph(PlayState* play, Actor* thisx);
 s32 EnMnk_AlreadyExists(EnMnk* this, PlayState* play);
 
+bool monkeySongChecked = false;
+
+void EnMnk_MonkeyTiedUp_OfferAPItem(EnMnk* this, PlayState* play) {
+    if (monkeySongChecked || Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
+        play->nextEntrance = ENTRANCE(DEKU_PALACE, 1);
+        play->transitionType = TRANS_TYPE_FADE_WHITE_FAST;
+        gSaveContext.nextTransitionType = TRANS_TYPE_FADE_WHITE_FAST;
+        play->transitionTrigger = TRANS_TRIGGER_START;
+    } else if (Actor_HasParent(&this->picto.actor, play)) {
+        play->msgCtx.ocarinaMode = OCARINA_MODE_NONE;
+        SET_WEEKEVENTREG(WEEKEVENTREG_09_80);
+    } else if (play->msgCtx.ocarinaMode == OCARINA_MODE_END) {
+        Actor_OfferGetItemHook(&this->picto.actor, play, apGetItemId(0x040061), 0x040061, 500.0f, 500.0f, true, true);
+    } else {
+        this->picto.actor.textId = 0;
+        CutsceneManager_Stop(this->csId);
+        this->picto.actor.csId = this->csIdList[0];
+        this->csId = CS_ID_NONE;
+        AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+        Message_CloseTextbox(play);
+        monkeySongChecked = recomp_location_is_checked(0x040061);
+    }
+}
+
+extern FlexSkeletonHeader gMonkeyTiedUpPoleSkel;
+extern AnimationHeader object_mnk_Anim_003584;
+
+void EnMnk_MonkeyTiedUp_ChangeAnim(EnMnk* this, s32 animIndex, u8 animMode, f32 morphFrames);
+void EnMnk_MonkeyTiedUp_Draw(Actor* thisx, PlayState* play);
+
+void EnMnk_MonkeyTiedUp_SetAnim(EnMnk* this, s32 animIndex);
+s32 EnMnk_PlayerIsInTalkRange(EnMnk* this, PlayState* play);
+
+void EnMnk_MonkeyTiedUp_TransitionAfterTalk(EnMnk* this, PlayState* play);
+void EnMnk_MonkeyTiedUp_ReactToWrongInstrument(EnMnk* this, PlayState* play);
+
+s32 Actor_ProcessTalkRequest(Actor* this, GameState* play);
+
+void EnMnk_MonkeyTiedUp_Wait(EnMnk* this, PlayState* play) {
+    s32 pad;
+
+    SkelAnime_Update(&this->skelAnime);
+    if (SkelAnime_Update(&this->propSkelAnime)) {
+        this->cueId--;
+        if (this->cueId < 0) {
+            this->cueId = 4;
+            EnMnk_MonkeyTiedUp_ChangeAnim(this, MONKEY_TIEDUP_ANIM_KICKAROUND, ANIMMODE_ONCE, -5.0f);
+        } else if (this->cueId == 0) {
+            EnMnk_MonkeyTiedUp_ChangeAnim(this, MONKEY_TIEDUP_ANIM_SHAKEHEAD, ANIMMODE_ONCE, -5.0f);
+        } else {
+            EnMnk_MonkeyTiedUp_ChangeAnim(this, MONKEY_TIEDUP_ANIM_KICKAROUND, ANIMMODE_ONCE, 0.0f);
+            SkelAnime_Update(&this->skelAnime);
+            SkelAnime_Update(&this->propSkelAnime);
+        }
+    }
+}
+
+void EnMnk_MonkeyTiedUp_WaitForInstrument(EnMnk* this, PlayState* play) {
+    SkelAnime_Update(&this->skelAnime);
+    SkelAnime_Update(&this->propSkelAnime);
+
+    if (func_800B8718(&this->picto.actor, &play->state)) {
+        switch (gSaveContext.save.playerForm) {
+            case PLAYER_FORM_HUMAN:
+            case PLAYER_FORM_FIERCE_DEITY:
+                this->picto.actor.textId = 0x8D4;
+                EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_SHAKEHEAD);
+                break;
+
+            case PLAYER_FORM_GORON:
+                this->picto.actor.textId = 0x8D5;
+                EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_SHAKEHEAD);
+                break;
+
+            case PLAYER_FORM_ZORA:
+                this->picto.actor.textId = 0x8D6;
+                EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_SHAKEHEAD);
+                break;
+
+            case PLAYER_FORM_DEKU:
+                //this->picto.actor.textId = 0x8D8;
+                //EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_KICKUPANDDOWN);
+                //this->actionFunc = EnMnk_MonkeyTiedUp_TeachSong;
+                //this->csId = 2;
+                //SET_EVENTINF(EVENTINF_24);
+                //this->picto.actor.csId = this->csIdList[2];
+                //play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                //CutsceneManager_Queue(this->csIdList[2]);
+                this->actionFunc = EnMnk_MonkeyTiedUp_OfferAPItem;
+                return;
+
+            default:
+                this->picto.actor.textId = 0x8D4;
+                EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_SHAKEHEAD);
+                break;
+        }
+        this->actionFunc = EnMnk_MonkeyTiedUp_ReactToWrongInstrument;
+        this->picto.actor.csId = this->csIdList[0];
+        Message_StartTextbox(play, this->picto.actor.textId, NULL);
+        CutsceneManager_Queue(this->picto.actor.csId);
+    } else if (Actor_ProcessTalkRequest(&this->picto.actor, &play->state)) {
+        this->actionFunc = EnMnk_MonkeyTiedUp_TransitionAfterTalk;
+        EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_KICKAROUND);
+    } else if (EnMnk_PlayerIsInTalkRange(this, play)) {
+        this->picto.actor.textId = 0x8D3;
+        Actor_OfferTalk(&this->picto.actor, play, 100.0f);
+        func_800B874C(&this->picto.actor, play, 100.0f, 100.0f);
+    }
+}
+
+void EnMnk_MonkeyTiedUp_TransitionAfterTalk(EnMnk* this, PlayState* play) {
+    s32 pad;
+
+    SkelAnime_Update(&this->skelAnime);
+    SkelAnime_Update(&this->propSkelAnime);
+    if (play->msgCtx.currentTextId == 0x8CD) {
+        if (this->skelAnime.curFrame <= 17.0f) {
+            this->unk_3E0 = 0;
+        } else {
+            this->unk_3E0 = 2;
+        }
+    } else if (play->msgCtx.msgBufPos == 0 && play->msgCtx.currentTextId == 0x8D3) {
+        play->msgCtx.font.msgBuf.schar[0x90] = 0xBF;
+    } else if (play->msgCtx.msgBufPos == 0x90 && play->msgCtx.currentTextId == 0x8D3 && Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
+        Message_CloseTextbox(play);
+        this->actionFunc = EnMnk_MonkeyTiedUp_WaitForInstrument;
+        EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_WAIT);
+    }
+}
+
+void EnMnk_MonkeyTiedUp_Init(Actor* thisx, PlayState* play) {
+    EnMnk* this = THIS;
+    s16 csId;
+    s32 i;
+
+    this->actionFunc = EnMnk_MonkeyTiedUp_WaitForInstrument;
+    this->picto.actor.flags |= ACTOR_FLAG_2000000;
+    SkelAnime_InitFlex(play, &this->propSkelAnime, &gMonkeyTiedUpPoleSkel, &object_mnk_Anim_003584,
+                       this->propJointTable, this->propMorphTable, OBJECT_MNK_1_LIMB_MAX);
+    this->cueId = 4;
+    this->animIndex = MONKEY_TIEDUP_ANIM_NONE;
+    EnMnk_MonkeyTiedUp_ChangeAnim(this, MONKEY_TIEDUP_ANIM_WAIT, ANIMMODE_LOOP, -5.0f);
+    this->picto.actor.draw = EnMnk_MonkeyTiedUp_Draw;
+    this->picto.actor.shape.shadowDraw = NULL;
+    this->flags |= MONKEY_FLAGS_1 | MONKEY_FLAGS_2 | MONKEY_FLAGS_20 | MONKEY_FLAGS_200;
+    csId = this->picto.actor.csId;
+
+    for (i = 0; i < ARRAY_COUNT(this->csIdList); i++) {
+        this->csIdList[i] = csId;
+        if (csId != CS_ID_NONE) {
+            this->picto.actor.csId = csId;
+            csId = CutsceneManager_GetAdditionalCsId(this->picto.actor.csId);
+        }
+    }
+
+    this->csId = CS_ID_NONE;
+    this->picto.actor.csId = this->csIdList[0];
+}
+
 void EnMnk_Init(Actor* thisx, PlayState* play) {
     EnMnk* this = THIS;
     s32 pad;
@@ -386,7 +546,7 @@ void EnMnk_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyCylinder(play, &this->collider);
     if ((MONKEY_GET_TYPE(&this->picto.actor) == MONKEY_TIED_UP) && (this->flags & MONKEY_FLAGS_2000)) {
         //Item_Give(play, ITEM_SONG_SONATA);
-        recomp_send_location(0x040061);
+        //recomp_send_location(0x040061);
         CLEAR_EVENTINF(EVENTINF_24);
     }
 }

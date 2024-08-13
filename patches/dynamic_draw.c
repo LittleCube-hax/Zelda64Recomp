@@ -4,6 +4,10 @@
 #include "misc_funcs.h"
 #include "apcommon.h"
 
+#include "aplogo_filler.h"
+#include "aplogo_prog.h"
+#include "aplogo.h"
+
 void GetItem_DrawBombchu(PlayState* play, s16 drawId);
 void GetItem_DrawPoes(PlayState* play, s16 drawId);
 void GetItem_DrawFairyBottle(PlayState* play, s16 drawId);
@@ -27,6 +31,8 @@ void GetItem_DrawRupee(PlayState* play, s16 drawId);
 void GetItem_DrawSmallRupee(PlayState* play, s16 drawId);
 void GetItem_DrawWallet(PlayState* play, s16 drawId);
 void GetItem_DrawRemains(PlayState* play, s16 drawId);
+
+void GetItem_DrawRecompImport(PlayState* play, s16 drawId);
 
 extern Gfx gGiEmptyBottleCorkDL[];
 extern Gfx gGiEmptyBottleGlassDL[];
@@ -260,6 +266,10 @@ extern Gfx gGiFierceDeityMaskHairAndHatDL[];
 extern Gfx gGiMinuetColorDL[];
 extern Gfx gGiBoleroColorDL[];
 
+extern Gfx archilogo_grayscale_archilogo_bw_mesh[];
+extern Gfx archilogo_arrow_archilogo_mesh[];
+extern Gfx archilogo_archilogo_mesh[];
+
 Gfx gGiTimeColorDL[] = {
     gsDPSetEnvColor(50, 64, 168, 255),
     gsSPEndDisplayList(),
@@ -412,7 +422,7 @@ static DrawItemTableEntry sDrawItemTable_new[] = {
     // GID_LETTER_MAMA, OBJECT_GI_RESERVE_B_01
     { GetItem_DrawOpa0Xlu1, { gGiLetterToMamaEnvelopeLetterDL, gGiLetterToMamaInscriptionsDL } },
     // GID_37
-    { GetItem_DrawOpa0, { NULL } },
+    { GetItem_DrawRecompImport, { archilogo_grayscale_archilogo_bw_mesh } },
     // GID_SWORD_BGS, OBJECT_GI_LONGSWORD
     { GetItem_DrawGoronSword, { gGiBiggoronSwordDL } },
     // GID_MASK_SUN, OBJECT_GI_MSSA
@@ -443,7 +453,7 @@ static DrawItemTableEntry sDrawItemTable_new[] = {
     // GID_MASK_ZORA, OBJECT_GI_ZORAMASK
     { GetItem_DrawOpa01, { gGiZoraMaskEmptyDL, gGiZoraMaskDL } },
     // GID_46
-    { GetItem_DrawBombchu, { NULL } },
+    { GetItem_DrawRecompImport, { archilogo_arrow_archilogo_mesh } },
     // GID_ARROW_FIRE, OBJECT_GI_M_ARROW
     { GetItem_DrawMagicArrow, { gGiMagicArrowAmmoDL, gGiMagicArrowFireColorDL, gGiMagicArrowGlowDL } },
     // GID_ARROW_ICE, OBJECT_GI_M_ARROW
@@ -455,7 +465,7 @@ static DrawItemTableEntry sDrawItemTable_new[] = {
     // GID_BUG, OBJECT_GI_INSECT
     { GetItem_DrawOpa0Xlu1, { gGiBugContainerContentsDL, gGiBugContainerGlassDL } },
     // GID_4C
-    { GetItem_DrawOpa0Xlu1, { NULL } },
+    { GetItem_DrawRecompImport, { archilogo_archilogo_mesh } },
     // GID_POE, OBJECT_GI_GHOST
     { GetItem_DrawPoes,
       { gGiPoeContainerLidDL, gGiPoeContainerGlassDL, gGiPoeContainerContentsDL, gGiPoeContainerPoeColorDL } },
@@ -861,6 +871,18 @@ void GetItem_DrawRemains(PlayState* play, s16 drawId) {
     gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
 
     POLY_OPA_DISP = Play_SetFog(play, POLY_OPA_DISP);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void GetItem_DrawRecompImport(PlayState* play, s16 drawId) {
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+    Matrix_Scale(0.0375f, 0.0375f, 0.0375f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

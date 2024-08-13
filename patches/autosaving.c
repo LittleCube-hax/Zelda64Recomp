@@ -11,8 +11,6 @@
 
 #define SAVE_TYPE_AUTOSAVE 2 
 
-extern u32 old_items_size;
-
 u8 gCanPause;
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void);
 void ShrinkWindow_Letterbox_SetSizeTarget(s32 target);
@@ -431,7 +429,7 @@ void autosave_post_play_update(PlayState* play) {
             time_now - last_autosave_time > (OS_USEC_TO_CYCLES(1000 * (recomp_autosave_interval() + extra_autosave_delay_milliseconds)))
         ) {
             do_autosave(play);
-            recomp_save_items_index(gSaveContext.fileNum, old_items_size);
+            //recomp_save_items_index(gSaveContext.fileNum, old_items_size);
             show_autosave_icon();
             autosave_reset_timer();
         }
@@ -666,7 +664,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
 
     CLEAR_EVENTINF(EVENTINF_41);
 
-    old_items_size = recomp_get_items_index(gSaveContext.fileNum);
+    //old_items_size = recomp_get_items_index(gSaveContext.fileNum);
     playing = true;
 }
 
@@ -695,6 +693,82 @@ PersistentCycleSceneFlags sPersistentCycleSceneFlags[SCENE_MAX] = {
 #include "tables/scene_table.h"
 };
 
+void Sram_ResetSaveCycle(PlayState* play) {
+    u8 slot;
+    s32 j;
+    s32 i;
+
+    if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
+        gSaveContext.save.saveInfo.playerData.health = 0x30;
+    }
+
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
+        //SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+
+        u8 sword_level = recomp_has_item(GI_SWORD_KOKIRI);
+        if (CUR_FORM == 0) {
+            if ((STOLEN_ITEM_1 <= ITEM_SWORD_GILDED && STOLEN_ITEM_1 >= ITEM_SWORD_KOKIRI) || (STOLEN_ITEM_2 <= ITEM_SWORD_GILDED && STOLEN_ITEM_2 >= ITEM_SWORD_KOKIRI)) {
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + sword_level - 1;
+            }
+        } else {
+            if ((STOLEN_ITEM_1 <= ITEM_SWORD_GILDED && STOLEN_ITEM_1 >= ITEM_SWORD_KOKIRI) || (STOLEN_ITEM_2 <= ITEM_SWORD_GILDED && STOLEN_ITEM_2 >= ITEM_SWORD_KOKIRI)) {
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + sword_level - 1;
+            }
+        }
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI + sword_level);
+    }
+
+    if ((STOLEN_ITEM_1 == ITEM_SWORD_GREAT_FAIRY) || (STOLEN_ITEM_2 == ITEM_SWORD_GREAT_FAIRY)) {
+        INV_CONTENT(ITEM_SWORD_GREAT_FAIRY) = ITEM_SWORD_GREAT_FAIRY;
+    }
+
+    if (STOLEN_ITEM_1 == ITEM_BOTTLE) {
+        slot = SLOT(ITEM_BOTTLE);
+        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+            if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.saveInfo.inventory.items[slot + i] = ITEM_BOTTLE;
+                break;
+            }
+        }
+    }
+
+    if (STOLEN_ITEM_2 == ITEM_BOTTLE) {
+        slot = SLOT(ITEM_BOTTLE);
+        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+            if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.saveInfo.inventory.items[slot + i] = ITEM_BOTTLE;
+                break;
+            }
+        }
+    }
+
+    SET_STOLEN_ITEM_1(STOLEN_ITEM_NONE);
+    SET_STOLEN_ITEM_2(STOLEN_ITEM_NONE);
+
+    for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
+        // Check for Deku Princess
+        if (gSaveContext.save.saveInfo.inventory.items[i] == ITEM_DEKU_PRINCESS) {
+            for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+                if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
+                    SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
+                    Interface_LoadItemIconImpl(play, j);
+                }
+            }
+            gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
+        }
+    }
+
+    Horse_ResetHorseData(play);
+
+    if (recomp_has_item(0x01007F)) {
+        apItemGive(0x01007F);
+    }
+
+    //recomp_save_items_index(gSaveContext.fileNum, old_items_size);
+
+    DUNGEON_KEY_COUNT(0) = recomp_has_item(0x090078);
+}
+
 /**
  * Used by Song of Time (when clicking "Yes") and (indirectly) by the "Dawn of the New Day" cutscene
  */
@@ -702,7 +776,6 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     s16 sceneId;
     s32 j;
     s32 i;
-    u8 slot;
     u8 item;
 
     gSaveContext.save.timeSpeedOffset = 0;
@@ -779,10 +852,10 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
 
     if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
-        SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
+        //SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
     }
 
-    if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
+    /*if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
         item = INV_CONTENT(ITEM_BOMB);
         if (AMMO(item) != 0) {
             SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
@@ -814,77 +887,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
                 AMMO(item) = 0;
             }
         }
-    }
-
-    for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
-        // Check for all bottled items
-        /*if (gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED) {
-            if (gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) {
-                for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
-                    if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
-                        SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
-                        Interface_LoadItemIconImpl(play, j);
-                    }
-                }
-                gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
-            }
-        }*/
-    }
-
-    REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
-
-    if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
-        gSaveContext.save.saveInfo.playerData.health = 0x30;
-    }
-
-    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
-        //SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
-
-        if (CUR_FORM == 0) {
-            if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
-                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-            } else if ((STOLEN_ITEM_1 >= ITEM_SWORD_RAZOR) || (STOLEN_ITEM_2 >= ITEM_SWORD_RAZOR)) {
-                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
-            }
-        } else {
-            if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-            } else if ((STOLEN_ITEM_1 >= ITEM_SWORD_RAZOR) || (STOLEN_ITEM_2 >= ITEM_SWORD_RAZOR)) {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
-            }
-        }
-    }
-
-    if ((STOLEN_ITEM_1 == ITEM_SWORD_GREAT_FAIRY) || (STOLEN_ITEM_2 == ITEM_SWORD_GREAT_FAIRY)) {
-        INV_CONTENT(ITEM_SWORD_GREAT_FAIRY) = ITEM_SWORD_GREAT_FAIRY;
-    }
-
-    if (STOLEN_ITEM_1 == ITEM_BOTTLE) {
-        slot = SLOT(ITEM_BOTTLE);
-        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
-            if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
-                gSaveContext.save.saveInfo.inventory.items[slot + i] = ITEM_BOTTLE;
-                break;
-            }
-        }
-    }
-
-    if (STOLEN_ITEM_2 == ITEM_BOTTLE) {
-        slot = SLOT(ITEM_BOTTLE);
-        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
-            if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
-                gSaveContext.save.saveInfo.inventory.items[slot + i] = ITEM_BOTTLE;
-                break;
-            }
-        }
-    }
-
-    SET_STOLEN_ITEM_1(STOLEN_ITEM_NONE);
-    SET_STOLEN_ITEM_2(STOLEN_ITEM_NONE);
+    }*/
 
     //Inventory_DeleteItem(ITEM_OCARINA_FAIRY, SLOT_TRADE_DEED);
     //Inventory_DeleteItem(ITEM_SLINGSHOT, SLOT_TRADE_KEY_MAMA);
@@ -924,24 +927,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     gSaveContext.jinxTimer = 0;
     gSaveContext.rupeeAccumulator = 0;
 
-    Horse_ResetHorseData(play);
-
-    if (recomp_has_item(0x01007F)) {
-        apItemGive(0x01007F);
-    }
-
-    recomp_save_items_index(gSaveContext.fileNum, old_items_size);
-
-    if (recomp_has_item(GI_SWORD_KOKIRI) == 2) {
-        if (CUR_FORM == PLAYER_FORM_HUMAN) {
-            CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
-        } else {
-            BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
-        }
-        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
-    }
-
-    DUNGEON_KEY_COUNT(0) = recomp_has_item(0x090078);
+    Sram_ResetSaveCycle(play);
 }
 
 extern s32 Actor_ProcessTalkRequest(Actor* actor, GameState* gameState);
@@ -967,10 +953,6 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
         Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
     }
     gSaveContext.save.cutsceneIndex = cutsceneIndex;*/
-
-    if (recomp_has_item(0x01007F)) {
-        apItemGive(0x01007F);
-    }
 
     for (i = 0; i < ARRAY_COUNT(gSaveContext.eventInf); i++) {
         gSaveContext.eventInf[i] = 0;
@@ -1003,6 +985,8 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     autosave_reset_timer_slow();
 
     justDied = true;
+
+    Sram_ResetSaveCycle(gPlay);
 }
 
 void Owl_Save(PlayState* play) {
@@ -1035,7 +1019,7 @@ void ObjWarpstone_Update(Actor* thisx, PlayState* play) {
                 play->msgCtx.unk120D4 = 0;
                 gSaveContext.save.owlWarpId = OBJ_WARPSTONE_GET_OWL_WARP_ID(&this->dyna.actor);
                 Owl_Save(play);
-                recomp_save_items_index(gSaveContext.fileNum, old_items_size);
+                //recomp_save_items_index(gSaveContext.fileNum, old_items_size);
             }
             Message_CloseTextbox(play);
         }

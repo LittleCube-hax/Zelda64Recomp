@@ -401,6 +401,7 @@ void DmStk_ClockTower_WaitForIntroCutsceneVersion1ToEnd(DmStk* this, PlayState* 
 void DmStk_ClockTower_StartIntroCutsceneVersion2(DmStk* this, PlayState* play);
 void DmStk_ClockTower_WaitForIntroCutsceneVersion2ToEnd(DmStk* this, PlayState* play);
 void DmStk_ClockTower_WaitForDropOcarinaCutsceneToEnd(DmStk* this, PlayState* play);
+void DmStk_ClockTower_IdleWithOcarina(DmStk* this, PlayState* play);
 void DmStk_ClockTower_Idle(DmStk* this, PlayState* play);
 
 void DmStk_Init(Actor* thisx, PlayState* play) {
@@ -449,13 +450,21 @@ void DmStk_Init(Actor* thisx, PlayState* play) {
                         R_MOON_CRASH_TIMER_X = 115;
                     }
 
+                    this->actor.world.pos.y = 120.0f;
+                    Audio_PlaySubBgm(NA_BGM_MINI_BOSS);
+
                     //if (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) {
                     if (!recomp_location_is_checked(GI_OCARINA_OF_TIME) || !recomp_location_is_checked(0x040067)) {
                         sCylinderInit.base.colType = COLTYPE_WOOD;
-                        this->actionFunc = DmStk_ClockTower_StartIntroCutsceneVersion1;
+                        this->animIndex = SK_ANIM_CALL_DOWN_MOON_LOOP;
+                        this->handType = SK_HAND_TYPE_HOLDING_OCARINA;
+                        DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
+                        this->actionFunc = DmStk_ClockTower_IdleWithOcarina;
                     } else {
                         sCylinderInit.base.colType = COLTYPE_WOOD;
-                        this->actionFunc = DmStk_ClockTower_StartIntroCutsceneVersion2;
+                        this->animIndex = SK_ANIM_FLOATING_ARMS_CROSSED;
+                        DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
+                        this->actionFunc = DmStk_ClockTower_Idle;
                     }
 
                 } else if (gSaveContext.sceneLayer == 3) {

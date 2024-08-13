@@ -70,6 +70,10 @@ void func_8082DB90(PlayState* play, Player* this, PlayerAnimationHeader* anim);
 #define GID_SONG_SOARING (GID_MASK_FIERCE_DEITY + 9)
 #define GID_SONG_STORMS (GID_MASK_FIERCE_DEITY + 10)
 
+#define GID_APLOGO_FILLER GID_37
+#define GID_APLOGO_PROG GID_46
+#define GID_APLOGO_USEFUL GID_4C
+
 GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     // GI_RUPEE_GREEN
     GET_ITEM(ITEM_RUPEE_GREEN, OBJECT_GI_RUPY, GID_RUPEE_GREEN, 0xC4, GIFIELD(0, ITEM00_RUPEE_GREEN), CHEST_ANIM_SHORT),
@@ -541,7 +545,7 @@ GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_BOTTLE_04, GID_FAIRY, 0xB2, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_B3
     //GET_ITEM(ITEM_NONE, OBJECT_GI_MSSA, GID_MASK_SUN, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
-    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_RESERVE_C_00, GID_LETTER_TO_KAFEI, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_UNSET_0, GID_APLOGO_USEFUL, 0xB3, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_LONG),
     // GI_TINGLE_MAP_CLOCK_TOWN
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB4, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
@@ -1827,24 +1831,30 @@ u8 apItemGive(u32 gi) {
         return ITEM_NONE;
 
     } else if (item == ITEM_SWORD_KOKIRI) {
-        switch (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD)) {
-            case EQUIP_VALUE_SWORD_NONE:
-                break;
-            case EQUIP_VALUE_SWORD_KOKIRI:
-                item = ITEM_SWORD_RAZOR;
-                break;
-            case EQUIP_VALUE_SWORD_RAZOR:
-                item = ITEM_SWORD_GILDED;
-                break;
-            default:
-                // ...come on man, you have enough swords...
-                return ITEM_NONE;
-        }
-        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
-        CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
-        Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-        if (item == ITEM_SWORD_RAZOR) {
-            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+        if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED || STOLEN_ITEM_1 <= ITEM_SWORD_KOKIRI) && (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED || STOLEN_ITEM_2 <= ITEM_SWORD_KOKIRI)) {
+            switch (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD)) {
+                case 0:
+                    break;
+                case 1:
+                    item = ITEM_SWORD_RAZOR;
+                    break;
+                case 2:
+                    item = ITEM_SWORD_GILDED;
+                    break;
+                default:
+                    // ...come on man, you have enough swords...
+                    return ITEM_NONE;
+            }
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
+            if (CUR_FORM == 0) {
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
+            } else {
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = item;
+            }
+            Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
+            if (item == ITEM_SWORD_RAZOR) {
+                gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+            }
         }
         return ITEM_NONE;
 

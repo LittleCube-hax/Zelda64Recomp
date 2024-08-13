@@ -101,7 +101,7 @@ public:
 					getline(apconnect, playerName);
 					getline(apconnect, password);
 
-					AP_Init(address.c_str(), "The Majora's Mask Recompilation", playerName.c_str(), password.c_str());
+					AP_Init(address.c_str(), "Majora's Mask Recompiled", playerName.c_str(), password.c_str());
 
 					AP_SetItemClearCallback(apClearItems);
 					AP_SetItemRecvCallback(apRecvItem);

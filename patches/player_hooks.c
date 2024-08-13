@@ -31,76 +31,81 @@ s32 func_8083A4A4(Player* this, f32* arg1, s16* arg2, f32 arg3);
 void func_8083C8E8(Player* this, PlayState* play);
 void func_8083CB04(Player* this, f32 arg1, s16 arg2, f32 arg3, f32 arg4, s16 arg5);
 
-s32 func_80847880(PlayState* play, Player* this) {
-    if (play->unk_1887C != 0) {
-        if (play->sceneId == SCENE_20SICHITAI) {
-            Player_SetAction(play, this, Player_Action_80, 0);
-            play->unk_1887C = 0;
-            this->csAction = PLAYER_CSACTION_NONE;
-            return true;
-        }
+//~ s32 func_80847880(PlayState* play, Player* this) {
+    //~ if (play->unk_1887C != 0) {
+        //~ if (play->sceneId == SCENE_20SICHITAI) {
+            //~ Player_SetAction(play, this, Player_Action_80, 0);
+            //~ play->unk_1887C = 0;
+            //~ this->csAction = PLAYER_CSACTION_NONE;
+            //~ return true;
+        //~ }
 
-        func_8082DE50(play, this);
-        Player_SetAction(play, this, Player_Action_81, 0);
-        if (!func_800B7118(this) || Player_IsHoldingHookshot(this)) {
-            Player_UseItem(play, this, ITEM_BOW);
-        }
-        Player_AnimationPlayOnce(play, this, func_8082ED20(this));
-        this->csAction = PLAYER_CSACTION_NONE;
-        this->stateFlags1 |= PLAYER_STATE1_100000;
-        Player_StopHorizontalMovement(this);
-        func_80836D8C(this);
+        //~ func_8082DE50(play, this);
+        //~ Player_SetAction(play, this, Player_Action_81, 0);
+        //~ if (!func_800B7118(this) || Player_IsHoldingHookshot(this)) {
+            //~ Player_UseItem(play, this, ITEM_BOW);
+        //~ }
+        //~ Player_AnimationPlayOnce(play, this, func_8082ED20(this));
+        //~ this->csAction = PLAYER_CSACTION_NONE;
+        //~ this->stateFlags1 |= PLAYER_STATE1_100000;
+        //~ Player_StopHorizontalMovement(this);
+        //~ func_80836D8C(this);
 
-        return true;
-    }
-    return false;
-}
+        //~ return true;
+    //~ }
+    //~ return false;
+//~ }
 
-void Player_Action_11(Player* this, PlayState* play) {
-    recomp_printf("action 11\n");
-    this->stateFlags2 |= PLAYER_STATE2_20;
+//~ void Player_Action_11(Player* this, PlayState* play) {
+    //~ this->stateFlags2 |= PLAYER_STATE2_20;
 
-    if (this->linearVelocity < 1.0f) {
-        this->skelAnime.animation = &gPlayerAnim_clink_normal_okarina_walk;
-    } else {
-        this->skelAnime.animation = &gPlayerAnim_clink_normal_okarina_walkB;
-    }
-    PlayerAnimation_Update(play, &this->skelAnime);
+    //~ if (this->linearVelocity < 1.0f) {
+        //~ this->skelAnime.animation = &gPlayerAnim_clink_normal_okarina_walk;
+    //~ } else {
+        //~ this->skelAnime.animation = &gPlayerAnim_clink_normal_okarina_walkB;
+    //~ }
+    //~ PlayerAnimation_Update(play, &this->skelAnime);
 
-    if (!func_80847880(play, this)/* && (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, true) ||
-                                       (Player_Action_11 == this->actionFunc))*/) {
-        f32 speedTarget;
-        f32 temp_fv0;
-        f32 temp_fv1;
-        s16 yawTarget;
-        s16 sp30;
+    //~ if (!func_80847880(play, this)/* && (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, true) ||
+                                       //~ (Player_Action_11 == this->actionFunc))*/) {
+        //~ f32 speedTarget;
+        //~ f32 temp_fv0;
+        //~ f32 temp_fv1;
+        //~ s16 yawTarget;
+        //~ s16 sp30;
 
-        if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
-            func_80839E74(this, play);
-            return;
-        }
+        //~ recomp_printf("");
+        //~ speedTarget = 0.0f;
+        //~ asm("add.s $f2, $0, %0" :: "f"(this->actor.velocity.y));
+        //~ speedTarget += 75.0f;
+        //~ recomp_printf("");
 
-        this->linearVelocity = this->unk_B48;
-        Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
-        sp30 = yawTarget;
+        //~ if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+            //~ func_80839E74(this, play);
+            //~ return;
+        //~ }
 
-        speedTarget += 8.0f;
+        //~ this->linearVelocity = this->unk_B48;
+        //~ Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
+        //~ sp30 = yawTarget;
 
-        if (!func_8083A4A4(this, &speedTarget, &yawTarget, REG(43) / 100.0f)) {
-            func_8083CB04(this, speedTarget, yawTarget, REG(19) / 100.0f, 1.5f, 0x3E8);
-            func_8083C8E8(this, play);
-            if ((this->linearVelocity == 0.0f) && (speedTarget == 0.0f)) {
-                this->currentYaw = sp30;
-                this->actor.shape.rot.y = this->currentYaw;
-            }
-        }
+        //~ speedTarget += 8.0f;
 
-        this->unk_B48 = this->linearVelocity;
-        temp_fv0 = this->skelAnime.curFrame + 5.0f;
-        temp_fv1 = this->skelAnime.animLength / 2.0f;
+        //~ if (!func_8083A4A4(this, &speedTarget, &yawTarget, REG(43) / 100.0f)) {
+            //~ func_8083CB04(this, speedTarget, yawTarget, REG(19) / 100.0f, 1.5f, 0x3E8);
+            //~ func_8083C8E8(this, play);
+            //~ if ((this->linearVelocity == 0.0f) && (speedTarget == 0.0f)) {
+                //~ this->currentYaw = sp30;
+                //~ this->actor.shape.rot.y = this->currentYaw;
+            //~ }
+        //~ }
 
-        // effectively an fmodf
-        temp_fv0 -= temp_fv1 * (s32)(temp_fv0 / temp_fv1);
-        this->linearVelocity *= Math_CosS(temp_fv0 * 1000.0f) * 0.4f;
-    }
-}
+        //~ this->unk_B48 = this->linearVelocity;
+        //~ temp_fv0 = this->skelAnime.curFrame + 5.0f;
+        //~ temp_fv1 = this->skelAnime.animLength / 2.0f;
+
+        //~ // effectively an fmodf
+        //~ temp_fv0 -= temp_fv1 * (s32)(temp_fv0 / temp_fv1);
+        //~ this->linearVelocity *= Math_CosS(temp_fv0 * 1000.0f) * 0.4f;
+    //~ }
+//~ }

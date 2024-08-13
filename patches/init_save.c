@@ -110,10 +110,6 @@ void Sram_InitDebugSave(void) {
     gSaveContext.save.saveInfo.playerData.healthCapacity = 0x60;
     gSaveContext.save.saveInfo.playerData.health = 0x60;
 
-    SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
-    CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
-    Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-
     Sram_GenerateRandomSaveFields();
 
     gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;

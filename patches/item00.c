@@ -563,11 +563,15 @@ void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
     u16 objectId = getObjectId(this->getItemId);
     s16 objectSlot = Object_GetSlot(&play->objectCtx, objectId);
 
-    if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
+    if (this->getItemId == ITEM_AP) {
+        this->actionFunc = func_800A640C;
+        objectStatic = true;
+        objectLoaded = true;
+    } else if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
         this->actor.objectSlot = objectSlot;
         Actor_SetObjectDependency(play, &this->actor);
-        objectStatic = true;
         this->actionFunc = func_800A640C;
+        objectStatic = true;
         objectLoaded = true;
     } else if (!objectLoading && !objectLoaded) {
         loadObject(play, &objectSegment, &objectLoadQueue, objectId);

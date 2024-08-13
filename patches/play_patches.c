@@ -206,18 +206,13 @@ s8 giToItemId[GI_MAX] = {
 PlayState* gPlay;
 u32 old_items_size = 0;
 bool playing = false;
+bool initItems = false;
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId);
 
 void controls_play_update(PlayState* play) {
     gSaveContext.options.zTargetSetting = recomp_get_targeting_mode();
 }
-
-static bool initSave = false;
-static u8* prevWeekEventRegs;
-static u8* prevEventInf;
-
-void* ZeldaArena_Malloc(size_t size);
 
 // @recomp Patched to add hooks for various added functionality.
 void Play_Main(GameState* thisx) {
@@ -232,8 +227,80 @@ void Play_Main(GameState* thisx) {
     if (playing) {
         new_items_size = recomp_get_items_size();
 
+        if (!initItems) {
+            u8 new_bow_level = recomp_has_item(GI_QUIVER_30);
+            u8 new_bomb_level = recomp_has_item(GI_BOMB_BAG_20);
+            u8 new_wallet_level = recomp_has_item(GI_WALLET_ADULT);
+            u8 new_sword_level = recomp_has_item(GI_SWORD_KOKIRI);
+
+            u8 bottle_count_new = recomp_has_item(GI_BOTTLE) + recomp_has_item(GI_POTION_RED_BOTTLE) + recomp_has_item(GI_CHATEAU_BOTTLE);
+            u8 bottle_count = 0;
+
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
+            if (CUR_FORM == 0) {
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
+            } else {
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_NONE;
+            }
+            Interface_LoadItemIconImpl(this, EQUIP_SLOT_B);
+
+            new_bow_level -= CUR_UPG_VALUE(UPG_QUIVER);
+            for (i = 0; i < new_bow_level; ++i) {
+                apItemGive(GI_QUIVER_30);
+            }
+
+            new_bomb_level -= CUR_UPG_VALUE(UPG_BOMB_BAG);
+            for (i = 0; i < new_bomb_level; ++i) {
+                apItemGive(GI_BOMB_BAG_20);
+            }
+
+            new_wallet_level -= CUR_UPG_VALUE(UPG_WALLET);
+            for (i = 0; i < new_wallet_level; ++i) {
+                apItemGive(GI_WALLET_ADULT);
+            }
+
+            new_sword_level -= GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+            for (i = 0; i < new_sword_level; ++i) {
+                apItemGive(GI_SWORD_KOKIRI);
+            }
+
+            for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; ++i) {
+                if ((gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED && gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) || gSaveContext.save.saveInfo.inventory.items[i] == ITEM_BOTTLE) {
+                    bottle_count += 1;
+                }
+            }
+            for (i = bottle_count; i < bottle_count_new; ++i) {
+                apItemGive(GI_BOTTLE);
+            }
+
+            for (i = old_items_size; i < new_items_size; ++i) {
+                u32 item_id = recomp_get_item(i);
+                u8 gi = item_id & 0xFF;
+                bool is_gi = (item_id & 0xFF0000) == 0;
+                if (is_gi) {
+                    if ((gi == GI_BOMBCHUS_1 || gi == GI_BOMBCHUS_5 || gi == GI_BOMBCHUS_10 || gi == GI_BOMBCHUS_20) && INV_HAS(ITEM_BOMBCHU)) {
+                        continue;
+                    }
+                    switch (gi) {
+                        case GI_QUIVER_30:
+                        case GI_BOMB_BAG_20:
+                        case GI_WALLET_ADULT:
+                        case GI_SWORD_KOKIRI:
+                        case GI_POTION_RED_BOTTLE:
+                        case GI_CHATEAU_BOTTLE:
+                            continue;
+                    }
+                }
+                apItemGive(item_id);
+            }
+
+            old_items_size = new_items_size;
+            initItems = true;
+        }
+
         if (new_items_size > old_items_size) {
             u32 i;
+
             for (i = old_items_size; i < new_items_size; ++i) {
                 apItemGive(recomp_get_item(i));
             }
