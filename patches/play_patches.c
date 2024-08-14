@@ -273,6 +273,10 @@ void Play_Main(GameState* thisx) {
                 apItemGive(GI_BOTTLE);
             }
 
+            if (recomp_has_item(GI_BOMBCHUS_1) || recomp_has_item(GI_BOMBCHUS_5) || recomp_has_item(GI_BOMBCHUS_10) || recomp_has_item(GI_BOMBCHUS_20)) {
+                apItemGive(GI_BOMBCHUS_10);
+            }
+
             for (i = old_items_size; i < new_items_size; ++i) {
                 u32 item_id = recomp_get_item(i);
                 u8 gi = item_id & 0xFF;

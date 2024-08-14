@@ -73,3 +73,110 @@ void func_80963560(EnFu* this, PlayState* play) {
     }
     this->actor.child->freezeTimer = 10;
 }
+
+void func_80963EAC(EnFu* this, PlayState* play);
+
+void func_809639D0(EnFu* this, PlayState* play) {
+    switch (CURRENT_DAY) {
+        case 1:
+            if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
+                if (!INV_HAS(ITEM_BOMBCHU)) {
+                    Message_StartTextbox(play, 0x2853, &this->actor);
+                    this->unk_552 = 0x2853;
+                } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_10)) {
+                    Message_StartTextbox(play, 0x284D, &this->actor);
+                    this->unk_552 = 0x284D;
+                } else if (this->unk_53E == 1) {
+                    Message_StartTextbox(play, 0x284F, &this->actor);
+                    this->unk_552 = 0x284F;
+                } else {
+                    this->unk_53E = 1;
+                    Message_StartTextbox(play, 0x2851, &this->actor);
+                    this->unk_552 = 0x2851;
+                }
+            } else {
+                Message_StartTextbox(play, 0x286F, &this->actor);
+                this->unk_552 = 0x286F;
+            }
+            break;
+
+        case 2:
+            if (GET_PLAYER_FORM != PLAYER_FORM_HUMAN) {
+                Message_StartTextbox(play, 0x286F, &this->actor);
+                this->unk_552 = 0x286F;
+            } else if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+                Message_StartTextbox(play, 0x2853, &this->actor);
+                this->unk_552 = 0x2853;
+            } else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_22_10)) {
+                if (this->unk_53E == 1) {
+                    Message_StartTextbox(play, 0x285B, &this->actor);
+                    this->unk_552 = 0x285B;
+                } else {
+                    this->unk_53E = 1;
+                    Message_StartTextbox(play, 0x285D, &this->actor);
+                    this->unk_552 = 0x285D;
+                }
+            } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_20)) {
+                Message_StartTextbox(play, 0x2855, &this->actor);
+                this->unk_552 = 0x2855;
+            } else if (this->unk_53E == 1) {
+                Message_StartTextbox(play, 0x2857, &this->actor);
+                this->unk_552 = 0x2857;
+            } else {
+                this->unk_53E = 1;
+                Message_StartTextbox(play, 0x2859, &this->actor);
+                this->unk_552 = 0x2859;
+            }
+            break;
+
+        case 3:
+            if (GET_PLAYER_FORM != PLAYER_FORM_HUMAN) {
+                if (GET_PLAYER_FORM == PLAYER_FORM_DEKU) {
+                    func_80963EAC(this, play);
+                } else {
+                    Message_StartTextbox(play, 0x2841, &this->actor);
+                    this->unk_552 = 0x2841;
+                }
+            } else if (CUR_UPG_VALUE(UPG_QUIVER) == 0) {
+                Message_StartTextbox(play, 0x284B, &this->actor);
+                this->unk_552 = 0x284B;
+            } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_40)) {
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_10) && CHECK_WEEKEVENTREG(WEEKEVENTREG_22_20)) {
+                    Message_StartTextbox(play, 0x285F, &this->actor);
+                    this->unk_552 = 0x285F;
+                } else {
+                    Message_StartTextbox(play, 0x2861, &this->actor);
+                    this->unk_552 = 0x2861;
+                }
+            } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_10) && CHECK_WEEKEVENTREG(WEEKEVENTREG_22_20)) {
+                if (this->unk_53E == 1) {
+                    Message_StartTextbox(play, 0x2863, &this->actor);
+                    this->unk_552 = 0x2863;
+                } else {
+                    this->unk_53E = 1;
+                    Message_StartTextbox(play, 0x2865, &this->actor);
+                    this->unk_552 = 0x2865;
+                }
+            } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_22_10) || CHECK_WEEKEVENTREG(WEEKEVENTREG_22_20)) {
+                if (this->unk_53E == 1) {
+                    Message_StartTextbox(play, 0x2867, &this->actor);
+                    this->unk_552 = 0x2867;
+                } else {
+                    this->unk_53E = 1;
+                    Message_StartTextbox(play, 0x2869, &this->actor);
+                    this->unk_552 = 0x2869;
+                }
+            } else if (this->unk_53E == 1) {
+                Message_StartTextbox(play, 0x286B, &this->actor);
+                this->unk_552 = 0x286B;
+            } else {
+                this->unk_53E = 1;
+                Message_StartTextbox(play, 0x286D, &this->actor);
+                this->unk_552 = 0x286D;
+            }
+            break;
+
+        default:
+            break;
+    }
+}

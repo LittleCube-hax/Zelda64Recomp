@@ -71,7 +71,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
     }
 
     if ((textId == 0xC) && (GET_QUEST_HEART_PIECE_COUNT != 0)) {
-        textId = GET_QUEST_HEART_PIECE_COUNT;
+        textId = GET_QUEST_HEART_PIECE_COUNT - 1;
         textId += 0xC4;
     }
 
