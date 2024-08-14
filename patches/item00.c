@@ -11,7 +11,7 @@
 
 #define THIS ((EnItem00*)thisx)
 
-#define LOCATION_HEART_PIECE ((0x050000) | (play->sceneId << 8) | this->collectibleFlag)
+#define LOCATION_HEART_PIECE ((0x050000) | (sceneId << 8) | this->collectibleFlag)
 
 #define ENITEM00_GET_8000(thisx) ((thisx)->params & 0x8000)
 #define ENITEM00_GET_7F00(thisx) (((thisx)->params & 0x7F00) >> 8)
@@ -77,6 +77,7 @@ void EnItem00_Init(Actor* thisx, PlayState* play) {
     s32 sp30 = ENITEM00_GET_8000(thisx) ? 1 : 0;
     GetItemId i;
     bool shuffled = false;
+    u8 sceneId = (play->sceneId == 0x00) ? 0x45 : play->sceneId;
 
     //objectSegment = ZeldaArena_Malloc(0x9000);
     this->collectibleFlag = ENITEM00_GET_7F00(thisx);
@@ -335,6 +336,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
     s32 sp38 = player->stateFlags3 & PLAYER_STATE3_1000;
     s32 getItemId = GI_NONE;
     s32 params;
+    u8 sceneId = (play->sceneId == 0x00) ? 0x45 : play->sceneId;
 
     if (this->unk152 > 0) {
         this->unk152--;
