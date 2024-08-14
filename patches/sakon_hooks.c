@@ -146,6 +146,7 @@ void EnSuttari_UpdateCollider(EnSuttari* this, PlayState* play) {
             if (this->actor.colChkInfo.damageEffect == 0xF) {
                 this->flags1 |= 0x100;
                 this->flags1 &= ~0x40;
+                SET_WEEKEVENTREG(WEEKEVENTREG_RECOVERED_STOLEN_BOMB_BAG);
                 Enemy_StartFinishingBlow(play, &this->actor);
                 EnSuttari_TriggerTransition(play, ENTRANCE(NORTH_CLOCK_TOWN, 7));
             } else if (this->actor.colChkInfo.damageEffect == 0xE) {
