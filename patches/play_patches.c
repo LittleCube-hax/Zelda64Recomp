@@ -274,7 +274,7 @@ void Play_Main(GameState* thisx) {
             }
 
             if (recomp_has_item(GI_BOMBCHUS_1) || recomp_has_item(GI_BOMBCHUS_5) || recomp_has_item(GI_BOMBCHUS_10) || recomp_has_item(GI_BOMBCHUS_20)) {
-                apItemGive(GI_BOMBCHUS_10);
+                apItemGive(GI_BOMBCHUS_20);
             }
 
             for (i = old_items_size; i < new_items_size; ++i) {

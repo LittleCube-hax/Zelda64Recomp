@@ -453,19 +453,11 @@ void DmStk_Init(Actor* thisx, PlayState* play) {
                     this->actor.world.pos.y = 120.0f;
                     Audio_PlaySubBgm(NA_BGM_MINI_BOSS);
 
-                    //if (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) {
-                    if (!recomp_location_is_checked(GI_OCARINA_OF_TIME) || !recomp_location_is_checked(0x040067)) {
-                        sCylinderInit.base.colType = COLTYPE_WOOD;
-                        this->animIndex = SK_ANIM_CALL_DOWN_MOON_LOOP;
-                        this->handType = SK_HAND_TYPE_HOLDING_OCARINA;
-                        DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
-                        this->actionFunc = DmStk_ClockTower_IdleWithOcarina;
-                    } else {
-                        sCylinderInit.base.colType = COLTYPE_WOOD;
-                        this->animIndex = SK_ANIM_FLOATING_ARMS_CROSSED;
-                        DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
-                        this->actionFunc = DmStk_ClockTower_Idle;
-                    }
+                    sCylinderInit.base.colType = COLTYPE_WOOD;
+                    this->animIndex = SK_ANIM_CALL_DOWN_MOON_LOOP;
+                    this->handType = SK_HAND_TYPE_HOLDING_OCARINA;
+                    DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
+                    this->actionFunc = DmStk_ClockTower_IdleWithOcarina;
 
                 } else if (gSaveContext.sceneLayer == 3) {
                     this->animIndex = SK_ANIM_FLOATING_ARMS_CROSSED;
@@ -538,25 +530,67 @@ void DmStk_Init(Actor* thisx, PlayState* play) {
         play->envCtx.skyboxConfig = 15;
         play->envCtx.changeSkyboxNextConfig = 15;
     }
+    recomp_printf("end of init\n");
 }
 
+void DmStk_ClockTower_AdjustHeightAndRotation(DmStk* this, PlayState* play);
+void DmStk_ClockTower_StartDropOcarinaCutscene(DmStk* this, PlayState* play);
+
+/**
+ * Handles Skull Kid when he is at the top of the Clock Tower with the Ocarina of Time.
+ * If he is hit in this state, he will drop the Ocarina.
+ *
+ * If the player waits a while while Skull Kid is in this state, they will see a message
+ * from Tatl telling them to hurry up and do something.
+ */
+void DmStk_ClockTower_IdleWithOcarina(DmStk* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    if (play->csCtx.state == CS_STATE_IDLE) {
+        if (recomp_location_is_checked(GI_OCARINA_OF_TIME) && recomp_location_is_checked(0x040067)) {
+            sCylinderInit.base.colType = COLTYPE_WOOD;
+            this->animIndex = SK_ANIM_FLOATING_ARMS_CROSSED;
+            this->handType = SK_HAND_TYPE_DEFAULT;
+            DmStk_ChangeAnim(this, play, &this->skelAnime, &sAnimationInfo[this->animIndex], 0);
+            this->hasBeenHit = true;
+            this->actionFunc = DmStk_ClockTower_Idle;
+            return;
+        }
+        DmStk_ClockTower_AdjustHeightAndRotation(this, play);
+        this->actor.flags |= ACTOR_FLAG_TARGETABLE;
+        this->tatlMessageTimer++;
+        if (this->tatlMessageTimer > 800) {
+            this->tatlMessageTimer = 0;
+            if (!(player->stateFlags2 & PLAYER_STATE2_8000000)) {
+                // Why are you just standing around?
+                Message_StartTextbox(play, 0x2014, &this->actor);
+            }
+        }
+
+        if ((this->collider.base.acFlags & AC_HIT) && (this->actor.colChkInfo.damageEffect == 0xF)) {
+            this->hasBeenHit = true;
+            this->actionFunc = DmStk_ClockTower_StartDropOcarinaCutscene;
+        }
+    }
+}
+/*
 void DmStk_UpdateCollision(DmStk* this, PlayState* play) {
     s32 pad;
 
     Collider_UpdateCylinder(&this->actor, &this->collider);
     CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
-/*
+
     if (play->sceneId == SCENE_OKUJOU && !recomp_location_is_checked(GI_OCARINA_OF_TIME)) {
         this->handType = SK_HAND_TYPE_HOLDING_OCARINA;
-    }*/
-}
+    }
+}*/
 
 /**
  * Updates a variety of states based on Skull Kid's current cutscene, including his current
  * animation, his hand/mask type, his fade in/fade out state, and his current cutscene action.
  */
-void DmStk_HandleCutscene(DmStk* this, PlayState* play) {
+/*void DmStk_HandleCutscene(DmStk* this, PlayState* play) {
     s32 pad;
     s32 cueChannel;
 
@@ -951,6 +985,55 @@ void DmStk_HandleCutscene(DmStk* this, PlayState* play) {
 
     if (this->animIndex == SK_ANIM_DROPPED_FROM_MASK) {
         this->maskType = SK_MASK_TYPE_NO_MASK;
+    }
+}*/
+
+extern Gfx gSkullKidMajorasMask1DL[];
+
+s32 DmStk_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
+void DmStk_PostLimbDraw2(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx, Gfx** gfx);
+void DmStk_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
+
+void DmStk_Draw(Actor* thisx, PlayState* play) {
+    DmStk* this = THIS;
+
+    if (this->shouldDraw) {
+        if (DM_STK_GET_TYPE(&this->actor) == DM_STK_TYPE_MAJORAS_MASK) {
+            Gfx_DrawDListOpa(play, gSkullKidMajorasMask1DL);
+            return;
+        }
+
+        gSegments[0x06] = OS_K0_TO_PHYSICAL(play->objectCtx.slots[this->objectStkObjectSlot].segment);
+
+        OPEN_DISPS(play->state.gfxCtx);
+
+        this->alpha = this->alpha; // Set to itself
+        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
+        if (this->alpha < 255) {
+            Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+            Scene_SetRenderModeXlu(play, 1, 2);
+
+            gDPPipeSync(POLY_XLU_DISP++);
+            gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, this->alpha);
+
+            POLY_XLU_DISP =
+                SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
+                                   this->skelAnime.dListCount, NULL, DmStk_PostLimbDraw2, &this->actor, POLY_XLU_DISP);
+        } else {
+            Scene_SetRenderModeXlu(play, 0, 1);
+
+            gDPPipeSync(POLY_OPA_DISP++);
+            gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+
+            if (this->skelAnime.skeleton) {
+                SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
+                                      this->skelAnime.dListCount, DmStk_OverrideLimbDraw, DmStk_PostLimbDraw,
+                                      &this->actor);
+            }
+        }
+
+        CLOSE_DISPS(play->state.gfxCtx);
     }
 }
 
