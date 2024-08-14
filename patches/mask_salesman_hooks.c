@@ -263,10 +263,6 @@ void EnOsn_Idle(EnOsn* this, PlayState* play) {
             Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
             recomp_send_location(0x040068);
             recomp_send_location(GI_MASK_DEKU);
-        } else if (((this->actor.xzDistToPlayer < 100.0f) || this->actor.isLockedOn) && (yaw < 0x4000) &&
-                   (yaw > -0x4000)) {
-            Actor_OfferTalkNearColChkInfoCylinder(&this->actor, play);
-            this->actor.textId = 0xFFFF;
         }
     }/* else if (Actor_ProcessTalkRequest(&this->actor, &play->state)) {
         this->textId = EnOsn_GetInitialText(this, play);
