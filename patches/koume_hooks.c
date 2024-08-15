@@ -5,6 +5,8 @@
 #include "apcommon.h"
 #include "misc_funcs.h"
 
+#define LOCATION_KOUME_GIFT 0x000043
+
 #define KOUME_KIOSK_LIMB_MAX 0x02
 
 struct EnDnh;
@@ -58,14 +60,14 @@ MsgScript D_80A51250[] = {
     /* 0x0013 0x01 */ MSCRIPT_CMD_AWAIT_TEXT(),
     /* 0x0014 0x01 */ MSCRIPT_CMD_DONE(),
 
-    /* 0x0015 0x05 */ //MSCRIPT_CMD_CHECK_WEEK_EVENT_REG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE, 0x0094 - 0x001A),
-    /* 0x0015 0x05 */ MSCRIPT_CMD_JUMP(0x0),
-    /* 0x001A 0x05 */ //MSCRIPT_CMD_CHECK_WEEK_EVENT_REG(WEEKEVENTREG_25_10, 0x004F - 0x001F),
-    /* 0x001A 0x05 */ MSCRIPT_CMD_JUMP(0x0),
+    /* 0x0015 0x05 */ MSCRIPT_CMD_CHECK_WEEK_EVENT_REG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE, 0x0094 - 0x001A),
+    /* 0x001A 0x05 */ MSCRIPT_CMD_CHECK_WEEK_EVENT_REG(WEEKEVENTREG_25_10, 0x004F - 0x001F),
     /* 0x001F 0x03 */ MSCRIPT_CMD_BEGIN_TEXT(0x0859),
     /* 0x0022 0x01 */ MSCRIPT_CMD_AWAIT_TEXT(),
     /* 0x0023 0x05 */ //MSCRIPT_CMD_CHECK_ITEM(ITEM_PICTOGRAPH_BOX, 0x0040 - 0x0028),
-    /* 0x0023 0x05 */ MSCRIPT_CMD_JUMP(0x0),
+    /* 0x0023 0x03 */ MSCRIPT_CMD_JUMP(0x2),
+    /* 0x0024 0x01 */ 0x00,
+    /* 0x0025 0x01 */ 0x00,
     /* 0x0028 0x03 */ MSCRIPT_CMD_CONTINUE_TEXT(0x0863),
     /* 0x002B 0x01 */ MSCRIPT_CMD_AWAIT_TEXT(),
     /* 0x002C 0x01 */ MSCRIPT_CMD_CLOSE_TEXT(),
@@ -255,6 +257,11 @@ void EnDnh_DoNothing(EnDnh* this, PlayState* play);
 s32 func_80A50D40(Actor* actor, PlayState* play);
 
 void* func_80A50DF8(EnDnh* this, PlayState* play) {
+    if (recomp_location_is_checked(LOCATION_KOUME_GIFT)) {
+        SET_WEEKEVENTREG(WEEKEVENTREG_25_10);
+    } else {
+        CLEAR_WEEKEVENTREG(WEEKEVENTREG_25_10);
+    }
     switch (this->unk198) {
         case 1:
             return D_80A51384;
