@@ -4,7 +4,9 @@
 #include "patches.h"
 #include "global.h"
 
-#define ITEM_AP 0xB3
+#define GI_AP_PROG GI_77
+#define GI_AP_FILLER GI_90
+#define GI_AP_USEFUL GI_B3
 
 #define INV_HAS(x) (INV_CONTENT(x) == x)
 
@@ -43,6 +45,8 @@ typedef struct GetItemEntry {
     /* 0x3 */ u8 textId;
     /* 0x4 */ u16 objectId;
 } GetItemEntry; // size = 0x6
+
+bool isAP(s16 gi);
 
 u16 getObjectId(s16 gi);
 

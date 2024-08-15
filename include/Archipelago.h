@@ -32,6 +32,13 @@ struct AP_NetworkItem {
     std::string playerName;
 };
 
+enum AP_ItemType {
+    ITEM_TYPE_FILLER,
+    ITEM_TYPE_PROGRESSION,
+    ITEM_TYPE_USEFUL,
+    ITEM_TYPE_TRAP
+};
+
 struct AP_NetworkPlayer {
     int team;
     int slot;
@@ -87,6 +94,7 @@ void AP_SendItem(std::set<int64_t> const& locations);
 // Gives all Items/Locations in current game
 int64_t getItemAtLocation(int64_t location_id);
 bool getLocationHasLocalItem(int64_t location_id);
+AP_ItemType getLocationItemType(int64_t location_id);
 std::string getItemName(std::string game, int64_t id);
 std::string getLocationName(std::string game, int64_t id);
 int64_t getItemId(size_t item_i);

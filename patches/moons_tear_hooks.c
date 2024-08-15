@@ -64,7 +64,7 @@ void ObjMoonStone_Update(Actor* thisx, PlayState* play) {
 
     s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(moonsTearTrueGI));
 
-    if (moonsTearTrueGI == ITEM_AP) {
+    if (isAP(moonsTearTrueGI)) {
         objectStatic = true;
         objectLoaded = true;
     } else if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {

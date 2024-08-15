@@ -565,7 +565,7 @@ void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
     u16 objectId = getObjectId(this->getItemId);
     s16 objectSlot = Object_GetSlot(&play->objectCtx, objectId);
 
-    if (this->getItemId == ITEM_AP) {
+    if (isAP(this->getItemId)) {
         this->actionFunc = func_800A640C;
         objectStatic = true;
         objectLoaded = true;

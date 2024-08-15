@@ -1,5 +1,7 @@
 #include "patches.h"
-#include "play_patches.h"
+
+#include "apcommon.h"
+#include "misc_funcs.h"
 
 void Message_OpenText(PlayState* play, u16 textId);
 
@@ -177,7 +179,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
         case 0xB2:
             msg = sf_msg;
             break;
-        case 0xB3:
+        case GI_AP_FILLER:
+        case GI_AP_PROG:
+        case GI_AP_USEFUL:
             msg = ap_msg;
             break;
     }

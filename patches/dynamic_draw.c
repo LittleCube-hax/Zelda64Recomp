@@ -33,6 +33,7 @@ void GetItem_DrawWallet(PlayState* play, s16 drawId);
 void GetItem_DrawRemains(PlayState* play, s16 drawId);
 
 void GetItem_DrawRecompImport(PlayState* play, s16 drawId);
+void GetItem_DrawAPFiller(PlayState* play, s16 drawId);
 
 extern Gfx gGiEmptyBottleCorkDL[];
 extern Gfx gGiEmptyBottleGlassDL[];
@@ -422,7 +423,7 @@ static DrawItemTableEntry sDrawItemTable_new[] = {
     // GID_LETTER_MAMA, OBJECT_GI_RESERVE_B_01
     { GetItem_DrawOpa0Xlu1, { gGiLetterToMamaEnvelopeLetterDL, gGiLetterToMamaInscriptionsDL } },
     // GID_37
-    { GetItem_DrawRecompImport, { archilogo_grayscale_archilogo_bw_mesh } },
+    { GetItem_DrawAPFiller, { archilogo_grayscale_archilogo_bw_mesh } },
     // GID_SWORD_BGS, OBJECT_GI_LONGSWORD
     { GetItem_DrawGoronSword, { gGiBiggoronSwordDL } },
     // GID_MASK_SUN, OBJECT_GI_MSSA
@@ -880,6 +881,18 @@ void GetItem_DrawRecompImport(PlayState* play, s16 drawId) {
 
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     Matrix_Scale(0.0375f, 0.0375f, 0.0375f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void GetItem_DrawAPFiller(PlayState* play, s16 drawId) {
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+    Matrix_Scale(0.15f, 0.15f, 0.15f, MTXMODE_APPLY);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, sDrawItemTable_new[drawId].drawResources[0]);

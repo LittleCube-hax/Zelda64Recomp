@@ -22,6 +22,10 @@
 
 #include "Archipelago.h"
 
+#define GI_AP_PROG GI_77
+#define GI_AP_FILLER GI_90
+#define GI_AP_USEFUL GI_B3
+
 std::vector<u32> items;
 std::vector<u32> locations;
 
@@ -73,69 +77,78 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
         if ((item & 0xFF0000) == 0x000000) {
             _return(ctx, (u32) (item & 0xFF));
             return;
-        } else {
-            switch (item & 0xFF0000) {
-                case 0x010000:
-                    _return(ctx, (u32) GI_B2);
-                    return;
-                case 0x020000:
-                    _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
-                    return;
-                case 0x040000:
-                    switch (item & 0xFF) {
-                        case ITEM_SONG_TIME:
-                            _return(ctx, (u32) GI_A6);
-                            break;
-                        case ITEM_SONG_HEALING:
-                            _return(ctx, (u32) GI_AF);
-                            break;
-                        case ITEM_SONG_EPONA:
-                            _return(ctx, (u32) GI_A5);
-                            break;
-                        case ITEM_SONG_SOARING:
-                            _return(ctx, (u32) GI_A3);
-                            break;
-                        case ITEM_SONG_STORMS:
-                            _return(ctx, (u32) GI_A2);
-                            break;
-                        case ITEM_SONG_SONATA:
-                            _return(ctx, (u32) GI_AE);
-                            break;
-                        case ITEM_SONG_LULLABY:
-                            _return(ctx, (u32) GI_AD);
-                            break;
-                        case ITEM_SONG_NOVA:
-                            _return(ctx, (u32) GI_AC);
-                            break;
-                        case ITEM_SONG_ELEGY:
-                            _return(ctx, (u32) GI_A8);
-                            break;
-                        case ITEM_SONG_OATH:
-                            _return(ctx, (u32) GI_A7);
-                            break;
-                    }
-                    return;
-                case 0x090000:
-                    switch (item & 0xFF) {
-                        case ITEM_DUNGEON_MAP:
-                            _return(ctx, (u32) GI_MAP);
-                            break;
-                        case ITEM_COMPASS:
-                            _return(ctx, (u32) GI_COMPASS);
-                            break;
-                        case ITEM_KEY_BOSS:
-                            _return(ctx, (u32) GI_KEY_BOSS);
-                            break;
-                        case ITEM_KEY_SMALL:
-                            _return(ctx, (u32) GI_KEY_SMALL);
-                            break;
-                    }
-                    return;
-            }
+        }
+        switch (item & 0xFF0000) {
+            case 0x010000:
+                _return(ctx, (u32) GI_B2);
+                return;
+            case 0x020000:
+                _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
+                return;
+            case 0x040000:
+                switch (item & 0xFF) {
+                    case ITEM_SONG_TIME:
+                        _return(ctx, (u32) GI_A6);
+                        break;
+                    case ITEM_SONG_HEALING:
+                        _return(ctx, (u32) GI_AF);
+                        break;
+                    case ITEM_SONG_EPONA:
+                        _return(ctx, (u32) GI_A5);
+                        break;
+                    case ITEM_SONG_SOARING:
+                        _return(ctx, (u32) GI_A3);
+                        break;
+                    case ITEM_SONG_STORMS:
+                        _return(ctx, (u32) GI_A2);
+                        break;
+                    case ITEM_SONG_SONATA:
+                        _return(ctx, (u32) GI_AE);
+                        break;
+                    case ITEM_SONG_LULLABY:
+                        _return(ctx, (u32) GI_AD);
+                        break;
+                    case ITEM_SONG_NOVA:
+                        _return(ctx, (u32) GI_AC);
+                        break;
+                    case ITEM_SONG_ELEGY:
+                        _return(ctx, (u32) GI_A8);
+                        break;
+                    case ITEM_SONG_OATH:
+                        _return(ctx, (u32) GI_A7);
+                        break;
+                }
+                return;
+            case 0x090000:
+                switch (item & 0xFF) {
+                    case ITEM_DUNGEON_MAP:
+                        _return(ctx, (u32) GI_MAP);
+                        break;
+                    case ITEM_COMPASS:
+                        _return(ctx, (u32) GI_COMPASS);
+                        break;
+                    case ITEM_KEY_BOSS:
+                        _return(ctx, (u32) GI_KEY_BOSS);
+                        break;
+                    case ITEM_KEY_SMALL:
+                        _return(ctx, (u32) GI_KEY_SMALL);
+                        break;
+                }
+                return;
         }
     }
 
-    _return(ctx, 0x0000B3);
+    switch (getLocationItemType(location)) {
+        case ITEM_TYPE_FILLER:
+            _return(ctx, (u32) GI_AP_FILLER);
+            return;
+        case ITEM_TYPE_USEFUL:
+            _return(ctx, (u32) GI_AP_USEFUL);
+            return;
+        default:
+            _return(ctx, (u32) GI_AP_PROG);
+            return;
+    }
 }
 
 extern "C" void apSay(uint8_t* rdram, recomp_context* ctx) {
