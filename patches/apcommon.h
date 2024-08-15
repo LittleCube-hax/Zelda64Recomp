@@ -8,6 +8,22 @@
 #define GI_AP_FILLER GI_90
 #define GI_AP_USEFUL GI_B3
 
+#define GID_SONG_SONATA (GID_MASK_FIERCE_DEITY + 1)
+#define GID_SONG_LULLABY (GID_MASK_FIERCE_DEITY + 2)
+#define GID_SONG_NOVA (GID_MASK_FIERCE_DEITY + 3)
+#define GID_SONG_ELEGY (GID_MASK_FIERCE_DEITY + 4)
+#define GID_SONG_OATH (GID_MASK_FIERCE_DEITY + 5)
+
+#define GID_SONG_TIME (GID_MASK_FIERCE_DEITY + 6)
+#define GID_SONG_HEALING (GID_MASK_FIERCE_DEITY + 7)
+#define GID_SONG_EPONA (GID_MASK_FIERCE_DEITY + 8)
+#define GID_SONG_SOARING (GID_MASK_FIERCE_DEITY + 9)
+#define GID_SONG_STORMS (GID_MASK_FIERCE_DEITY + 10)
+
+#define GID_APLOGO_FILLER GID_37
+#define GID_APLOGO_PROG GID_46
+#define GID_APLOGO_USEFUL GID_4C
+
 #define INV_HAS(x) (INV_CONTENT(x) == x)
 
 #define LOCATION_GRANNY_STORY_1 0x070243
@@ -29,9 +45,6 @@ extern bool playing;
 
 extern bool justDied;
 
-extern bool bossWorkaround;
-extern void* giObjectSegment;
-
 bool loadObject(PlayState* play, void** objectSegment, OSMesgQueue* objectLoadQueue, s16 objectId);
 void GetItem_DrawDynamic(PlayState* play, void* objectSegment, s16 objectId);
 s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u32 location, f32 xzRange, f32 yRange, bool use_workaround, bool item_is_shuffled);
@@ -51,6 +64,8 @@ bool isAP(s16 gi);
 u16 getObjectId(s16 gi);
 
 s8 getGid(s16 gi);
+
+u8 getTextId(s16 gi);
 
 extern s8 giToItemId[];
 

@@ -501,9 +501,6 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
                 case ITEM00_HEART_PIECE:
                     location = LOCATION_HEART_PIECE;
                     shuffled = true;
-                    if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
-                        giObjectSegment = objectSegment;
-                    }
                     break;
                 default:
                     break;
@@ -673,7 +670,7 @@ void EnItem00_Destroy(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
 
     Collider_DestroyCylinder(play, &this->collider);
-    if (!bossWorkaround && objectSegment != NULL && this->actor.params == ITEM00_HEART_PIECE) {
+    if (objectSegment != NULL && this->actor.params == ITEM00_HEART_PIECE) {
         ZeldaArena_Free(objectSegment);
         objectSegment = NULL;
     }

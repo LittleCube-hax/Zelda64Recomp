@@ -58,22 +58,6 @@ void func_8082DB90(PlayState* play, Player* this, PlayerAnimationHeader* anim);
  */
 #define GIFIELD(flags, dropType) ((flags) | (dropType))
 
-#define GID_SONG_SONATA (GID_MASK_FIERCE_DEITY + 1)
-#define GID_SONG_LULLABY (GID_MASK_FIERCE_DEITY + 2)
-#define GID_SONG_NOVA (GID_MASK_FIERCE_DEITY + 3)
-#define GID_SONG_ELEGY (GID_MASK_FIERCE_DEITY + 4)
-#define GID_SONG_OATH (GID_MASK_FIERCE_DEITY + 5)
-
-#define GID_SONG_TIME (GID_MASK_FIERCE_DEITY + 6)
-#define GID_SONG_HEALING (GID_MASK_FIERCE_DEITY + 7)
-#define GID_SONG_EPONA (GID_MASK_FIERCE_DEITY + 8)
-#define GID_SONG_SOARING (GID_MASK_FIERCE_DEITY + 9)
-#define GID_SONG_STORMS (GID_MASK_FIERCE_DEITY + 10)
-
-#define GID_APLOGO_FILLER GID_37
-#define GID_APLOGO_PROG GID_46
-#define GID_APLOGO_USEFUL GID_4C
-
 GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     // GI_RUPEE_GREEN
     GET_ITEM(ITEM_RUPEE_GREEN, OBJECT_GI_RUPY, GID_RUPEE_GREEN, 0xC4, GIFIELD(0, ITEM00_RUPEE_GREEN), CHEST_ANIM_SHORT),
@@ -591,10 +575,8 @@ static s16 trueGI;
 static bool itemWorkaround = false;
 static bool itemShuffled = false;
 static bool drawIdChosen = false;
-bool bossWorkaround = false;
 
 OSMesgQueue objectQueue;
-void* giObjectSegment = NULL;
 
 void func_8082F164(Player* this, u16 button);
 s32 func_80850734(PlayState* play, Player* this);
@@ -607,7 +589,7 @@ void func_8084748C(Player* this, f32* speed, f32 speedTarget, s16 yawTarget);
 
 void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 drawIdPlusOne) {
     f32 sp34;
-    void* segment;
+    void* segment = player->giObjectSegment;
 
     if (itemShuffled && !drawIdChosen) {
         return;
@@ -620,12 +602,6 @@ void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 
     }
 
     OPEN_DISPS(play->state.gfxCtx);
-
-    if (bossWorkaround) {
-        segment = giObjectSegment;
-    } else {
-        segment = player->giObjectSegment;
-    }
 
     gSegments[6] = OS_K0_TO_PHYSICAL(segment);
 
@@ -644,7 +620,7 @@ void Player_DrawGetItemImpl(PlayState* play, Player* player, Vec3f* refPos, s32 
 extern Vec3f sPlayerGetItemRefPos;
 
 void Player_DrawGetItem(PlayState* play, Player* player) {
-    if ((bossWorkaround && osRecvMesg(&objectQueue, NULL, OS_MESG_NOBLOCK) == 0) || !player->giObjectLoading || (osRecvMesg(&player->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0)) {
+    if (!player->giObjectLoading || (osRecvMesg(&player->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0)) {
         Vec3f refPos;
         s32 drawIdPlusOne;
 
@@ -686,18 +662,25 @@ void func_8082ECE0(Player* this) {
     drawIdChosen = true;
 }
 
+void ZeldaArena_Free(void* ptr);
+void* ZeldaArena_Malloc(size_t size);
+
 void func_80838830(Player* this, s16 objectId) {
     if (objectId != OBJECT_UNSET_0) {
+        size_t objectSize;
         this->giObjectLoading = true;
         if (itemWorkaround) {
             objectId = sGetItemTable_ap[ABS_ALT(trueGI) - 1].objectId;
         }
-        if (!bossWorkaround) {
-            osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
-            DmaMgr_SendRequestImpl(&this->giObjectDmaRequest, this->giObjectSegment, gObjectTable[objectId].vromStart,
-                                   gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                                   &this->giObjectLoadQueue, NULL);
+        if (this->giObjectSegment != NULL) {
+            ZeldaArena_Free(this->giObjectSegment);
         }
+        objectSize = gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart;
+        this->giObjectSegment = ZeldaArena_Malloc(objectSize);
+        osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
+        DmaMgr_SendRequestImpl(&this->giObjectDmaRequest, this->giObjectSegment, gObjectTable[objectId].vromStart,
+                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
+                               &this->giObjectLoadQueue, NULL);
     }
 }
 
@@ -1348,7 +1331,7 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                      (item == ITEM_MAGIC_JAR_SMALL) ||
                      (item == ITEM_MAGIC_JAR_BIG) ||
                      ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE) && (actor->id != ACTOR_ID_DEKU_PLAYGROUND_WORKER) && (actor->id != ACTOR_ID_HONEY_AND_DARLING)) ||
-                     ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) ||
+                     ((item == ITEM_POE) || (item == ITEM_GOLD_DUST) ||
                                (item == ITEM_HYLIAN_LOACH)) ||
                      (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK) && (item != ITEM_CHATEAU) && (item != ITEM_CHATEAU_2)) ||
                                 (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
@@ -1383,12 +1366,6 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                     }
                     if (itemShuffled) {
                         player->getItemId = GI_DEED_LAND;
-                        if (trueGI >= GI_REMAINS_ODOLWA && trueGI <= GI_REMAINS_TWINMOLD) {
-                            bossWorkaround = true;
-                            loadObject(play, &giObjectSegment, &objectQueue, getObjectId(trueGI));
-                        } else {
-                            bossWorkaround = false;
-                        }
                     } else {
                         player->getItemId = getItemId;
                     }
@@ -1437,12 +1414,6 @@ s32 Actor_OfferGetItemHook(Actor* actor, PlayState* play, GetItemId getItemId, u
                     }
                     if (((s16) getItemId) < 0) {
                         getItemId *= -1;
-                    }
-                    if (getItemId >= GI_REMAINS_ODOLWA && getItemId <= GI_REMAINS_TWINMOLD) {
-                        bossWorkaround = true;
-                        loadObject(play, &giObjectSegment, &objectQueue, getObjectId(getItemId));
-                    } else {
-                        bossWorkaround = false;
                     }
                     player->interactRangeActor = actor;
                     player->getItemDirection = absYawDiff;
