@@ -177,10 +177,11 @@ void func_80AB92CC(EnMnk* this, PlayState* play);
 s32 EnMnk_ValidatePictograph(PlayState* play, Actor* thisx);
 s32 EnMnk_AlreadyExists(EnMnk* this, PlayState* play);
 
-bool monkeySongChecked = false;
+bool monkeySongChecked;
+bool monkeyOffered;
 
 void EnMnk_MonkeyTiedUp_OfferAPItem(EnMnk* this, PlayState* play) {
-    if (monkeySongChecked || Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
+    if (monkeySongChecked || (monkeyOffered && Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING)) {
         play->nextEntrance = ENTRANCE(DEKU_PALACE, 1);
         play->transitionType = TRANS_TYPE_FADE_WHITE_FAST;
         gSaveContext.nextTransitionType = TRANS_TYPE_FADE_WHITE_FAST;
@@ -189,7 +190,8 @@ void EnMnk_MonkeyTiedUp_OfferAPItem(EnMnk* this, PlayState* play) {
         play->msgCtx.ocarinaMode = OCARINA_MODE_NONE;
         SET_WEEKEVENTREG(WEEKEVENTREG_09_80);
     } else if (play->msgCtx.ocarinaMode == OCARINA_MODE_END) {
-        Actor_OfferGetItemHook(&this->picto.actor, play, apGetItemId(0x040061), 0x040061, 500.0f, 500.0f, true, true);
+        Actor_OfferGetItemHook(&this->picto.actor, play, apGetItemId(0x040061), 0x040061, 1000.0f, 1000.0f, true, true);
+        monkeyOffered = true;
     } else {
         this->picto.actor.textId = 0;
         CutsceneManager_Stop(this->csId);
@@ -258,14 +260,8 @@ void EnMnk_MonkeyTiedUp_WaitForInstrument(EnMnk* this, PlayState* play) {
                 break;
 
             case PLAYER_FORM_DEKU:
-                //this->picto.actor.textId = 0x8D8;
-                //EnMnk_MonkeyTiedUp_SetAnim(this, MONKEY_TIEDUP_ANIM_KICKUPANDDOWN);
-                //this->actionFunc = EnMnk_MonkeyTiedUp_TeachSong;
-                //this->csId = 2;
-                //SET_EVENTINF(EVENTINF_24);
-                //this->picto.actor.csId = this->csIdList[2];
-                //play->msgCtx.ocarinaMode = OCARINA_MODE_END;
-                //CutsceneManager_Queue(this->csIdList[2]);
+                monkeySongChecked = false;
+                monkeyOffered = false;
                 this->actionFunc = EnMnk_MonkeyTiedUp_OfferAPItem;
                 return;
 
