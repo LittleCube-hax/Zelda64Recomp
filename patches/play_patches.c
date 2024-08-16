@@ -236,6 +236,12 @@ void Play_Main(GameState* thisx) {
             u8 bottle_count_new = recomp_has_item(GI_BOTTLE) + recomp_has_item(GI_POTION_RED_BOTTLE) + recomp_has_item(GI_CHATEAU_BOTTLE);
             u8 bottle_count = 0;
 
+            u8 heart_count_new = recomp_has_item(GI_HEART_CONTAINER) + (recomp_has_item(GI_HEART_PIECE) >> 2);
+
+            recomp_printf("new hearts: %d, health becomes: 0x%04X\n", heart_count_new, (heart_count_new << 4) + 0x60);
+            gSaveContext.save.saveInfo.playerData.healthCapacity = (heart_count_new << 4) + 0x60;
+            gSaveContext.save.saveInfo.playerData.health = (heart_count_new << 4) + 0x60;
+
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
             if (CUR_FORM == 0) {
                 CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
@@ -277,6 +283,9 @@ void Play_Main(GameState* thisx) {
                 apItemGive(GI_BOMBCHUS_20);
             }
 
+            gSaveContext.save.saveInfo.skullTokenCount &= 0xFFFF;
+            gSaveContext.save.saveInfo.skullTokenCount |= recomp_has_item(GI_SKULL_TOKEN) << 0x10;
+
             for (i = old_items_size; i < new_items_size; ++i) {
                 u32 item_id = recomp_get_item(i);
                 u8 gi = item_id & 0xFF;
@@ -292,6 +301,9 @@ void Play_Main(GameState* thisx) {
                         case GI_SWORD_KOKIRI:
                         case GI_POTION_RED_BOTTLE:
                         case GI_CHATEAU_BOTTLE:
+                        case GI_SKULL_TOKEN:
+                        case GI_HEART_CONTAINER:
+                        case GI_HEART_PIECE:
                             continue;
                     }
                 }

@@ -48,7 +48,11 @@ void Message_OpenText(PlayState* play, u16 textId) {
     u32 ffcount = 0;
     unsigned char* msg = NULL;
 
-    if (textId == 0x52 && Inventory_GetSkullTokenCount(play->sceneId) >= 30) {
+    if (textId == 0x52) {
+        textId = 0x75;
+    }
+
+    if (textId == 0x75 && Inventory_GetSkullTokenCount(play->sceneId) >= 30) {
         textId = 0xFC;
     }
 

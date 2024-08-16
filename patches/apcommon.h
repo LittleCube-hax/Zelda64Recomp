@@ -4,6 +4,8 @@
 #include "patches.h"
 #include "global.h"
 
+#define GI_TRUE_SKULL_TOKEN GI_75
+
 #define GI_AP_PROG GI_77
 #define GI_AP_FILLER GI_90
 #define GI_AP_USEFUL GI_B3

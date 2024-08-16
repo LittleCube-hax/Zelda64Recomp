@@ -276,7 +276,7 @@ GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     GET_ITEM(ITEM_NONE, OBJECT_GI_MAP, GID_STONE_OF_AGONY, 0x51, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
     // GI_SKULL_TOKEN
-    GET_ITEM(ITEM_SKULL_TOKEN, OBJECT_GI_SUTARU, GID_SKULL_TOKEN, 0x52, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_SUTARU, GID_SKULL_TOKEN, 0x52, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_SHORT),
     // GI_53
     GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x53, 0, 0),
@@ -359,7 +359,7 @@ GetItemEntry sGetItemTable_ap[GI_MAX - 1] = {
     // GI_74
     GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x74, 0, 0),
     // GI_75
-    GET_ITEM(ITEM_NONE, OBJECT_UNSET_0, GID_NONE, 0x75, 0, 0),
+    GET_ITEM(ITEM_DEED_LAND, OBJECT_GI_SUTARU, GID_SKULL_TOKEN, 0x75, GIFIELD(GIFIELD_NO_COLLECTIBLE, 0), CHEST_ANIM_SHORT),
     // GI_ICE_TRAP
     GET_ITEM(ITEM_DEED_LAND, OBJECT_UNSET_0, GID_NONE, 0x76, 0, 0),
     // GI_77
@@ -1759,6 +1759,10 @@ u8 apItemGive(u32 gi) {
         default:
             if (gi == 0) {
                 return ITEM_NONE;
+            }
+            if (gi == GI_TRUE_SKULL_TOKEN) {
+                item = ITEM_SKULL_TOKEN;
+                break;
             }
             item = giToItemId[gi & 0xFF];
             break;
