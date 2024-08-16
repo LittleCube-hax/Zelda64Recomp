@@ -1773,7 +1773,7 @@ u8 apItemGive(u32 gi) {
         //! @bug: Sets QUEST_QUIVER instead of QUEST_SKULL_TOKEN
         // Setting `QUEST_SKULL_TOKEN` will result in misplaced digits on the pause menu - Quest Status page.
         SET_QUEST_ITEM(item - ITEM_SKULL_TOKEN + QUEST_QUIVER);
-        Inventory_IncrementSkullTokenCount(play->sceneId);
+        Inventory_IncrementSkullTokenCount(0x27);
         return ITEM_NONE;
 
     } else if (item == ITEM_DEED_LAND) {

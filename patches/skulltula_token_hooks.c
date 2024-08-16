@@ -173,9 +173,13 @@ void EnSi_Init(Actor* thisx, PlayState* play) {
     EnSi* this = THIS;
 
     if (recomp_location_is_checked(LOCATION_SKULL_TOKEN)) {
-        //Actor_Kill(thisx);
-        //return;
+        Actor_Kill(thisx);
+        return;
     }
+
+    tokenObjectStatic[ENSI_GET_CHEST_FLAG(&this->actor)] = false;
+    tokenObjectLoading[ENSI_GET_CHEST_FLAG(&this->actor)] = false;
+    tokenObjectLoaded[ENSI_GET_CHEST_FLAG(&this->actor)] = false;
 
     Collider_InitSphere(play, &this->collider);
     Collider_SetSphere(play, &this->collider, &this->actor, &sSphereInit);
