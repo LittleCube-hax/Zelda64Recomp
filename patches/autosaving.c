@@ -218,7 +218,7 @@ void Sram_EraseSave(FileSelectState* fileSelect2, SramContext* sramCtx, s32 file
     gSaveContext.save.time = D_801F6AF0;
     gSaveContext.flashSaveAvailable = D_801F6AF2;
 
-    recomp_save_items_index(fileNum, 0);
+    //recomp_save_items_index(fileNum, 0);
 }
 
 SaveContext prev_save_ctx;
@@ -526,6 +526,8 @@ s32 spawn_entrance_from_autosave_entrance(s16 autosave_entrance) {
     }
 }
 
+bool saveOpened = false;
+
 // @recomp Patched to change the entrance for autosaves and initialize autosaves.
 void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     s32 i;
@@ -665,7 +667,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     CLEAR_EVENTINF(EVENTINF_41);
 
     //old_items_size = recomp_get_items_index(gSaveContext.fileNum);
-    playing = true;
+    saveOpened = true;
 }
 
 extern u16 sPersistentCycleWeekEventRegs[ARRAY_COUNT(gSaveContext.save.saveInfo.weekEventReg)];

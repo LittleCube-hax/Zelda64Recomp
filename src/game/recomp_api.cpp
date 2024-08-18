@@ -22,6 +22,8 @@
 
 #include "Archipelago.h"
 
+#define GI_TRUE_SKULL_TOKEN GI_75
+
 #define GI_AP_PROG GI_77
 #define GI_AP_FILLER GI_90
 #define GI_AP_USEFUL GI_B3
@@ -61,6 +63,16 @@ extern "C" void apCheckLocation(int64_t id) {
     locations.push_back(id & 0xFFFFFF);
 }
 
+u32 apHasItem(int64_t itemId) {
+    u32 count = 0;
+    for (u32 i = 0; i < items.size(); ++i) {
+        if (items[i] == itemId) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
     u32 arg = _arg<0, u32>(rdram, ctx);
 
@@ -75,7 +87,15 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
         int64_t item = getItemAtLocation(location) & 0xFFFFFF;
 
         if ((item & 0xFF0000) == 0x000000) {
-            _return(ctx, (u32) (item & 0xFF));
+            u8 gi = item & 0xFF;
+            if (gi == GI_SKULL_TOKEN) {
+                _return(ctx, (u32) GI_TRUE_SKULL_TOKEN);
+                return;
+            } else if (gi == GI_SWORD_KOKIRI) {
+                _return(ctx, (u32) (GI_SWORD_KOKIRI + apHasItem(GI_SWORD_KOKIRI)));
+                return;
+            }
+            _return(ctx, (u32) gi);
             return;
         }
         switch (item & 0xFF0000) {
@@ -180,13 +200,7 @@ extern "C" void recomp_get_location(uint8_t* rdram, recomp_context* ctx) {
 
 extern "C" void recomp_has_item(uint8_t* rdram, recomp_context* ctx) {
     u32 id = _arg<0, u32>(rdram, ctx);
-    u32 count = 0;
-    for (u32 i = 0; i < items.size(); ++i) {
-        if (items[i] == id) {
-            count += 1;
-        }
-    }
-    _return(ctx, count);
+    _return(ctx, apHasItem(id));
 }
 
 extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {

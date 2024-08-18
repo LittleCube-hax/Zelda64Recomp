@@ -36,6 +36,8 @@ static unsigned char gl_msg[128] = "You got the\x05 Goron's Lullaby\x00!\xbf";
 static unsigned char nwbn_msg[128] = "You got the\x05 New Wave Bossa Nova\x00!\xbf";
 static unsigned char eoe_msg[128] = "You got the\x05 Elegy of Emptiness\x00!\xbf";
 static unsigned char oto_msg[128] = "You got the\x05 Oath to Order\x00!\xbf";
+static unsigned char sht_msg[128] = "You got a\x02 Swamp Token\x00!\xbf";
+static unsigned char hp_msg[128] = "You got a\x06 Heart Piece\x00!\xbf";
 
 void Message_FindMessage(PlayState* play, u16 textId);
 
@@ -78,11 +80,6 @@ void Message_OpenText(PlayState* play, u16 textId) {
         }
     } else if ((textId == 0x92) && (play->sceneId == SCENE_KOEPONARACE)) {
         textId = 0xCD;
-    }
-
-    if ((textId == 0xC) && (GET_QUEST_HEART_PIECE_COUNT != 0)) {
-        textId = GET_QUEST_HEART_PIECE_COUNT - 1;
-        textId += 0xC4;
     }
 
     msgCtx->currentTextId = textId;
@@ -154,6 +151,12 @@ void Message_OpenText(PlayState* play, u16 textId) {
     msgCtx->decodedTextLen = 0;
 
     switch (textId) {
+        case 0xC:
+            msg = hp_msg;
+            break;
+        case 0x75:
+            msg = sht_msg;
+            break;
         case 0xA2:
             msg = sost_msg;
             break;
@@ -198,9 +201,44 @@ void Message_OpenText(PlayState* play, u16 textId) {
         font->msgBuf.schar[0] = 0x02;
         font->msgBuf.schar[1] = 0x00;
         font->msgBuf.schar[2] = 0xFE;
-        for (i = 0; i < 64; ++i) {
+        for (i = 0; i < 128; ++i) {
             font->msgBuf.schar[i + 11] = msg[i];
             if (msg[i] == 0xBF) {
+                break;
+            }
+        }
+    }
+
+    if (msg == sht_msg) {
+        u8 count_str[128] = "\x11This is your \xbf";
+        u8 end_i = i + 11;
+        for (i = 0; i < 128; ++i) {
+            font->msgBuf.schar[end_i + i] = count_str[i];
+            if (count_str[i] == 0xBF) {
+                u8 swamp_token_count = recomp_has_item(GI_SKULL_TOKEN);
+                u8 count_suffix[2] = "th";
+                if ((swamp_token_count % 10) == 1 && swamp_token_count != 11) {
+                    count_suffix[0] = 's';
+                    count_suffix[1] = 't';
+                } else if ((swamp_token_count % 10) == 2 && swamp_token_count != 12) {
+                    count_suffix[0] = 'n';
+                    count_suffix[1] = 'd';
+                } else if ((swamp_token_count % 10) == 3 && swamp_token_count != 13) {
+                    count_suffix[0] = 'r';
+                    count_suffix[1] = 'd';
+                }
+                font->msgBuf.schar[end_i + i] = 0x01;
+                i += 1;
+                if (swamp_token_count >= 10) {
+                    font->msgBuf.schar[end_i + i] = (swamp_token_count / 10) + 0x30;
+                    i += 1;
+                }
+                font->msgBuf.schar[end_i + i] = (swamp_token_count % 10) + 0x30;
+                font->msgBuf.schar[end_i + i + 1] = count_suffix[0];
+                font->msgBuf.schar[end_i + i + 2] = count_suffix[1];
+                font->msgBuf.schar[end_i + i + 3] = 0x00;
+                font->msgBuf.schar[end_i + i + 4] = '.';
+                font->msgBuf.schar[end_i + i + 5] = 0xBF;
                 break;
             }
         }

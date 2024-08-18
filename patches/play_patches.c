@@ -224,7 +224,7 @@ void Play_Main(GameState* thisx) {
 
     gPlay = this;
 
-    if (playing) {
+    if (saveOpened && playing) {
         new_items_size = recomp_get_items_size();
 
         if (!initItems) {
@@ -236,11 +236,14 @@ void Play_Main(GameState* thisx) {
             u8 bottle_count_new = recomp_has_item(GI_BOTTLE) + recomp_has_item(GI_POTION_RED_BOTTLE) + recomp_has_item(GI_CHATEAU_BOTTLE);
             u8 bottle_count = 0;
 
-            u8 heart_count_new = recomp_has_item(GI_HEART_CONTAINER) + (recomp_has_item(GI_HEART_PIECE) >> 2);
+            s16 old_health = gSaveContext.save.saveInfo.playerData.health;
 
-            recomp_printf("new hearts: %d, health becomes: 0x%04X\n", heart_count_new, (heart_count_new << 4) + 0x60);
-            gSaveContext.save.saveInfo.playerData.healthCapacity = (heart_count_new << 4) + 0x60;
-            gSaveContext.save.saveInfo.playerData.health = (heart_count_new << 4) + 0x60;
+            gSaveContext.save.saveInfo.playerData.healthCapacity = 0x60;
+            gSaveContext.save.saveInfo.playerData.health = 0x30;
+
+            if (GET_QUEST_HEART_PIECE_COUNT > 0) {
+                DECREMENT_QUEST_HEART_PIECE_COUNT;
+            }
 
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
             if (CUR_FORM == 0) {
@@ -302,13 +305,16 @@ void Play_Main(GameState* thisx) {
                         case GI_POTION_RED_BOTTLE:
                         case GI_CHATEAU_BOTTLE:
                         case GI_SKULL_TOKEN:
-                        case GI_HEART_CONTAINER:
-                        case GI_HEART_PIECE:
                             continue;
+                    }
+                    if (gi == GI_HEART_CONTAINER || gi == GI_HEART_PIECE) {
+                        old_health = 0x140;
                     }
                 }
                 apItemGive(item_id);
             }
+
+            gSaveContext.save.saveInfo.playerData.health = MIN(old_health, gSaveContext.save.saveInfo.playerData.healthCapacity);
 
             old_items_size = new_items_size;
             initItems = true;

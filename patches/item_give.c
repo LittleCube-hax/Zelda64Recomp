@@ -1717,9 +1717,11 @@ u8 apItemGive(u32 gi) {
     u8 slot;
     u8 item;
     u8 dungeonIndex;
+    s16 old_health;
 
     switch (gi & 0xFF0000) {
         case 0x010000:
+            Health_ChangeBy(play, 0x30);
             switch (gi & 0xFF) {
                 case 0x7F:
                     SET_WEEKEVENTREG(WEEKEVENTREG_08_80);
@@ -1793,6 +1795,7 @@ u8 apItemGive(u32 gi) {
 
     } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
         INCREMENT_QUEST_HEART_PIECE_COUNT;
+        Health_ChangeBy(play, gSaveContext.save.saveInfo.playerData.healthCapacity - gSaveContext.save.saveInfo.playerData.health);
         if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
             RESET_HEART_PIECE_COUNT;
             gSaveContext.save.saveInfo.playerData.healthCapacity += 0x10;
@@ -1801,6 +1804,7 @@ u8 apItemGive(u32 gi) {
         return ITEM_NONE;
 
     } else if (item == ITEM_HEART_CONTAINER) {
+        Health_ChangeBy(play, gSaveContext.save.saveInfo.playerData.healthCapacity - gSaveContext.save.saveInfo.playerData.health);
         gSaveContext.save.saveInfo.playerData.healthCapacity += 0x10;
         gSaveContext.save.saveInfo.playerData.health += 0x10;
         return ITEM_NONE;
