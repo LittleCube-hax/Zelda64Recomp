@@ -184,7 +184,9 @@ void Player_InitCommon(Player* this, PlayState* play, FlexSkeletonHeader* skelHe
     Collider_InitAndSetQuad(play, &this->meleeWeaponQuads[1], &this->actor, &D_8085C344);
     Collider_InitAndSetQuad(play, &this->shieldQuad, &this->actor, &D_8085C394);
 
-    playing = true;
+    if (saveOpened) {
+        playing = true;
+    }
 }
 
 void ZeldaArena_Free(void* ptr);
