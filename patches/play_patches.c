@@ -321,6 +321,12 @@ void Play_Main(GameState* thisx) {
 
             gSaveContext.save.saveInfo.playerData.health = MIN(old_health, gSaveContext.save.saveInfo.playerData.healthCapacity);
 
+            if (gSaveContext.save.playerForm == PLAYER_FORM_FIERCE_DEITY) {
+                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_DIETY);
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_DEITY;
+                Interface_LoadItemIconImpl(this, EQUIP_SLOT_B);
+            }
+
             old_items_size = new_items_size;
             initItems = true;
         }
