@@ -21,11 +21,11 @@ static Vec3f sEffectAccel = { 0.0f, 0.01f, 0.0f };
 static Color_RGBA8 sEffectPrimColor = { 255, 255, 127, 0 };
 static Color_RGBA8 sEffectEnvColor = { 255, 255, 255, 0 };
 
-bool objectStatic;
-bool objectLoading;
-bool objectLoaded;
-OSMesgQueue objectLoadQueue;
-void* objectSegment;
+static bool objectStatic;
+static bool objectLoading;
+static bool objectLoaded;
+static OSMesgQueue objectLoadQueue;
+static void* objectSegment;
 
 void func_800A640C(EnItem00* this, PlayState* play);
 void func_800A6A40(EnItem00* this, PlayState* play);
@@ -462,7 +462,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             break;
 
         case ITEM00_HEART_PIECE:
-            getItemId = this->getItemId;
+            getItemId = apGetItemId(LOCATION_HEART_PIECE);
             break;
 
         case ITEM00_HEART_CONTAINER:
@@ -505,7 +505,9 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
                 default:
                     break;
             }
-            Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, shuffled, shuffled);
+            if (objectLoaded) {
+                Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, shuffled, shuffled);
+            }
         }
     }
 
@@ -523,6 +525,9 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
             if (objectLoaded && Actor_HasParent(&this->actor, play)) {
                 Flags_SetCollectible(play, this->collectibleFlag);
                 recomp_printf("Heart Piece location: 0x%06X\n", LOCATION_HEART_PIECE);
+                objectLoading = false;
+                objectLoaded = false;
+                objectStatic = false;
                 Actor_Kill(thisx);
             }
             return;
@@ -561,15 +566,19 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
 void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
     u16 objectId = getObjectId(this->getItemId);
     s16 objectSlot = Object_GetSlot(&play->objectCtx, objectId);
+    u8 sceneId = (play->sceneId == 0x00) ? 0x45 : play->sceneId;
+    s16 getItemId = apGetItemId(LOCATION_HEART_PIECE);
 
-    if (isAP(this->getItemId)) {
+    if (isAP(getItemId)) {
         this->actionFunc = func_800A640C;
+        this->getItemId = getItemId;
         objectStatic = true;
         objectLoaded = true;
     } else if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
         this->actor.objectSlot = objectSlot;
         Actor_SetObjectDependency(play, &this->actor);
         this->actionFunc = func_800A640C;
+        this->getItemId = getItemId;
         objectStatic = true;
         objectLoaded = true;
     } else if (!objectLoading && !objectLoaded) {
@@ -578,6 +587,7 @@ void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
     } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         objectLoading = false;
         this->actionFunc = func_800A640C;
+        this->getItemId = getItemId;
         objectLoaded = true;
     }
 }
@@ -585,6 +595,7 @@ void EnItem00_WaitForObject(EnItem00* this, PlayState* play) {
 void EnItem00_Draw(Actor* thisx, PlayState* play) {
     s32 pad;
     EnItem00* this = THIS;
+    u8 sceneId = (play->sceneId == 0x00) ? 0x45 : play->sceneId;
 
     if (!(this->unk14E & this->unk150)) {
         switch (this->actor.params) {
@@ -599,6 +610,14 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
             case ITEM00_HEART_PIECE:
                 Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
                 if (objectLoaded) {
+                    if (((u32) this->getItemId) != apGetItemId(LOCATION_HEART_PIECE)) {
+                        objectLoading = false;
+                        objectLoaded = false;
+                        objectStatic = false;
+                        this->getItemId = apGetItemId(LOCATION_HEART_PIECE);
+                        this->actionFunc = EnItem00_WaitForObject;
+                        return;
+                    }
                     if (objectStatic) {
                         GetItem_Draw(play, getGid(this->getItemId));
                     } else {

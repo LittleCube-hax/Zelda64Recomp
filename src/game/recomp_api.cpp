@@ -92,7 +92,16 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
                 _return(ctx, (u32) GI_TRUE_SKULL_TOKEN);
                 return;
             } else if (gi == GI_SWORD_KOKIRI) {
-                _return(ctx, (u32) (GI_SWORD_KOKIRI + apHasItem(GI_SWORD_KOKIRI)));
+                _return(ctx, (u32) MIN(GI_SWORD_KOKIRI + apHasItem(GI_SWORD_KOKIRI), GI_SWORD_GILDED));
+                return;
+            } else if (gi == GI_QUIVER_30) {
+                _return(ctx, (u32) MIN(GI_QUIVER_30 + apHasItem(GI_QUIVER_30), GI_QUIVER_50));
+                return;
+            } else if (gi == GI_BOMB_BAG_20) {
+                _return(ctx, (u32) MIN(GI_BOMB_BAG_20 + apHasItem(GI_BOMB_BAG_20), GI_BOMB_BAG_40));
+                return;
+            } else if (gi == GI_WALLET_ADULT) {
+                _return(ctx, (u32) MIN(GI_WALLET_ADULT + apHasItem(GI_WALLET_ADULT), GI_WALLET_GIANT));
                 return;
             }
             _return(ctx, (u32) gi);

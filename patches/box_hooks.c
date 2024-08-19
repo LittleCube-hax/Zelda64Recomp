@@ -324,6 +324,7 @@ void EnBox_WaitOpen(EnBox* this, PlayState* play) {
         Actor_OffsetOfPointInActorCoords(&this->dyna.actor, &offset, &player->actor.world.pos);
         if ((offset.z > -50.0f) && (offset.z < 0.0f) && (fabsf(offset.y) < 10.0f) && (fabsf(offset.x) < 20.0f) &&
             Player_IsFacingActor(&this->dyna.actor, 0x3000, play)) {
+            this->getItemId = apGetItemId(LOCATION_ENBOX);
             if (((this->getItemId == GI_HEART_PIECE) || (this->getItemId == GI_BOTTLE)) &&
                 Flags_GetCollectible(play, this->collectableFlag)) {
                 this->getItemId = GI_RECOVERY_HEART;

@@ -11,13 +11,13 @@
 
 typedef void (*ActorFunc)(struct Actor* this, struct PlayState* play);
 
-s16 moonsTearTrueGI;
+s16 tearTrueGI;
 
-static bool objectStatic;
-static bool objectLoading;
-static bool objectLoaded;
-static OSMesgQueue objectLoadQueue;
-static void* objectSegment;
+static bool tearObjectStatic;
+static bool tearObjectLoading;
+static bool tearObjectLoaded;
+static OSMesgQueue tearObjectLoadQueue;
+static void* tearObjectSegment;
 
 extern AnimatedMaterial gGiMoonsTearTexAnim[];
 extern Gfx gGiMoonsTearItemDL[];
@@ -31,11 +31,11 @@ void func_80C0685C(ObjMoonStone* this);
 void ObjMoonStone_Init(Actor* thisx, PlayState* play) {
     ObjMoonStone* this = THIS;
 
-    moonsTearTrueGI = apGetItemId(GI_MOONS_TEAR);
-    objectSegment = ZeldaArena_Malloc(0x2000);
-    objectStatic = false;
-    objectLoading = false;
-    objectLoaded = false;
+    tearTrueGI = apGetItemId(GI_MOONS_TEAR);
+    tearObjectSegment = ZeldaArena_Malloc(0x2000);
+    tearObjectStatic = false;
+    tearObjectLoading = false;
+    tearObjectLoaded = false;
 
     Actor_SetScale(&this->actor, 0.3f);
     this->unk194 = (this->actor.params & 0xF000) >> 0xC;
@@ -58,26 +58,36 @@ void ObjMoonStone_Init(Actor* thisx, PlayState* play) {
     }
 }
 
+void ObjMoonStone_WaitForObject(ObjMoonStone* this, PlayState* play) {
+    s16 getItemId = apGetItemId(LOCATION_MOONS_TEAR);
+    s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(getItemId));
+
+    if (isAP(getItemId)) {
+        tearObjectStatic = true;
+        tearObjectLoaded = true;
+        tearTrueGI = getItemId;
+    } else if (!tearObjectLoaded && !tearObjectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
+        this->actor.objectSlot = objectSlot;
+        Actor_SetObjectDependency(play, &this->actor);
+        tearObjectStatic = true;
+        tearObjectLoaded = true;
+        tearTrueGI = getItemId;
+    } else if (!tearObjectLoading && !tearObjectLoaded) {
+        loadObject(play, &tearObjectSegment, &tearObjectLoadQueue, getObjectId(getItemId));
+        tearObjectLoading = true;
+    } else if (osRecvMesg(&tearObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+        tearObjectLoading = false;
+        tearObjectLoaded = true;
+        tearTrueGI = getItemId;
+    }
+}
+
 void ObjMoonStone_Update(Actor* thisx, PlayState* play) {
     ObjMoonStone* this = THIS;
     Player* player = GET_PLAYER(play);
 
-    s16 objectSlot = Object_GetSlot(&play->objectCtx, getObjectId(moonsTearTrueGI));
-
-    if (isAP(moonsTearTrueGI)) {
-        objectStatic = true;
-        objectLoaded = true;
-    } else if (!objectLoaded && !objectLoading && Object_IsLoaded(&play->objectCtx, objectSlot)) {
-        this->actor.objectSlot = objectSlot;
-        Actor_SetObjectDependency(play, &this->actor);
-        objectStatic = true;
-        objectLoaded = true;
-    } else if (!objectLoading && !objectLoaded) {
-        loadObject(play, &objectSegment, &objectLoadQueue, getObjectId(moonsTearTrueGI));
-        objectLoading = true;
-    } else if (osRecvMesg(&objectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
-        objectLoading = false;
-        objectLoaded = true;
+    if (!tearObjectLoaded) {
+        ObjMoonStone_WaitForObject(this, play);
     }
 
     if (!(player->stateFlags1 & (PLAYER_STATE1_2 | PLAYER_STATE1_80 | PLAYER_STATE1_200 | PLAYER_STATE1_10000000))) {
@@ -86,15 +96,23 @@ void ObjMoonStone_Update(Actor* thisx, PlayState* play) {
 }
 
 void ObjMoonStone_Draw(Actor* thisx, PlayState* play) {
+    s16 getItemId = apGetItemId(LOCATION_MOONS_TEAR);
     GraphicsContext* gfxCtx = play->state.gfxCtx;
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    if (objectLoaded) {
-        if (objectStatic) {
-            GetItem_Draw(play, getGid(moonsTearTrueGI));
+    if (tearObjectLoaded) {
+        if (((u32) tearTrueGI) != apGetItemId(LOCATION_MOONS_TEAR)) {
+            tearObjectLoading = false;
+            tearObjectLoaded = false;
+            tearObjectStatic = false;
+            tearTrueGI = apGetItemId(LOCATION_MOONS_TEAR);
+            return;
+        }
+        if (tearObjectStatic) {
+            GetItem_Draw(play, getGid(getItemId));
         } else {
-            GetItem_DrawDynamic(play, objectSegment, getGid(moonsTearTrueGI));
+            GetItem_DrawDynamic(play, tearObjectSegment, getGid(getItemId));
         }
     }
 
@@ -111,6 +129,9 @@ void func_80C06768(ObjMoonStone* this, PlayState* play) {
     }
     if (this->actor.draw) {
         if (Actor_HasParent(&this->actor, play)) {
+            tearObjectLoading = false;
+            tearObjectLoaded = false;
+            tearObjectStatic = false;
             this->actor.parent = NULL;
             this->actor.draw = NULL;
             func_80C0685C(this);
