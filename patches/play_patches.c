@@ -207,11 +207,16 @@ PlayState* gPlay;
 u32 old_items_size = 0;
 bool playing = false;
 bool initItems = false;
+bool waiting_death_link = false;
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId);
 
 void controls_play_update(PlayState* play) {
     gSaveContext.options.zTargetSetting = recomp_get_targeting_mode();
+}
+
+void Play_KillPlayer() {
+    gSaveContext.save.saveInfo.playerData.health = 0;
 }
 
 // @recomp Patched to add hooks for various added functionality.
@@ -328,6 +333,20 @@ void Play_Main(GameState* thisx) {
             }
 
             old_items_size = new_items_size;
+        }
+
+        if (recomp_get_death_link_enabled()) {
+            if (recomp_get_death_link_pending()) {
+                if (!waiting_death_link) {
+                    Play_KillPlayer();
+                    waiting_death_link = true;
+                } else if (gSaveContext.save.saveInfo.playerData.health > 0) {
+                    recomp_reset_death_link_pending();
+                    waiting_death_link = false;
+                }
+            } else if (!waiting_death_link && gSaveContext.save.saveInfo.playerData.health == 0) {
+                recomp_send_death_link();
+            }
         }
     }
 

@@ -26,5 +26,9 @@ DECLARE_FUNC(void, recomp_save_items_index, u8 file_no, u32 items_index);
 DECLARE_FUNC(void, recomp_complete_goal);
 DECLARE_FUNC(void, recomp_set_pending_warp, s32 area, s32 scene, s32 entrance);
 DECLARE_FUNC(void, recomp_set_pending_set_time, u8 day, u8 hour, u8 minute);
+DECLARE_FUNC(bool, recomp_get_death_link_pending);
+DECLARE_FUNC(void, recomp_reset_death_link_pending);
+DECLARE_FUNC(bool, recomp_get_death_link_enabled);
+DECLARE_FUNC(void, recomp_send_death_link);
 
 #endif

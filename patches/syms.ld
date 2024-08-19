@@ -59,3 +59,7 @@ recomp_save_items_index = 0x8F0000E0;
 recomp_complete_goal = 0x8F0000E4;
 recomp_set_pending_warp = 0x8F0000E8;
 recomp_set_pending_set_time = 0x8F0000EC;
+recomp_get_death_link_pending = 0x8F0000F0;
+recomp_reset_death_link_pending = 0x8F0000F4;
+recomp_get_death_link_enabled = 0x8F0000F8;
+recomp_send_death_link = 0x8F0000FC;

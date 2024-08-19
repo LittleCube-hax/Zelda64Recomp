@@ -33,6 +33,9 @@ std::vector<u32> locations;
 
 std::vector<int> item_i_to_player;
 
+bool death_link;
+bool pending_death_link;
+
 extern "C" void recompf(const char* zc_format, ...) {
     va_list va_args;
     va_start(va_args, zc_format);
@@ -61,6 +64,28 @@ extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify) {
 
 extern "C" void apCheckLocation(int64_t id) {
     locations.push_back(id & 0xFFFFFF);
+}
+
+extern "C" void apRecvDeathLink() {
+    pending_death_link = true;
+}
+
+extern "C" void recomp_get_death_link_pending(uint8_t* rdram, recomp_context* ctx) {
+    fprintf(stderr, "death link is %d\n", AP_GetSlotDataInt("death_link"));
+    _return(ctx, pending_death_link && AP_GetSlotDataInt("death_link") == 1);
+}
+
+extern "C" void recomp_reset_death_link_pending(uint8_t* rdram, recomp_context* ctx) {
+    pending_death_link = false;
+    AP_DeathLinkClear();
+}
+
+extern "C" void recomp_get_death_link_enabled(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, AP_GetSlotDataInt("death_link") == 1);
+}
+
+extern "C" void recomp_send_death_link(uint8_t* rdram, recomp_context* ctx) {
+    AP_DeathLinkSend();
 }
 
 u32 apHasItem(int64_t itemId) {

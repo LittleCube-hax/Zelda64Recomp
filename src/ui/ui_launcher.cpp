@@ -13,8 +13,9 @@ extern "C" void apClearItems();
 extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify);
 extern "C" void apCheckLocation(int64_t id);
 extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
+extern "C" void apRecvDeathLink();
 
-std::string version_number = "v1.1.1";
+std::string version_number = "v0.1.9";
 
 Rml::DataModelHandle model_handle;
 bool mm_rom_valid = false;
@@ -106,6 +107,8 @@ public:
 					AP_SetItemClearCallback(apClearItems);
 					AP_SetItemRecvCallback(apRecvItem);
 					AP_SetLocationCheckedCallback(apCheckLocation);
+					AP_SetDeathLinkRecvCallback(apRecvDeathLink);
+					AP_SetDeathLinkSupported(true);
 
 					AP_Start();
 

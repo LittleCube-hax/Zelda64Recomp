@@ -79,6 +79,9 @@ void AP_RegisterSlotDataIntCallback(std::string, void (*f_slotdata)(int));
 void AP_RegisterSlotDataMapIntIntCallback(std::string, void (*f_slotdata)(std::map<int,int>));
 void AP_RegisterSlotDataRawCallback(std::string, void (*f_slotdata)(std::string));
 
+int64_t AP_GetSlotDataInt(const char* key);
+std::string AP_GetSlotDataString(const char* key);
+
 // Send LocationScouts packet
 void AP_SendLocationScout(int64_t location, int create_as_hint);
 void AP_SendLocationScouts(std::vector<int64_t> locations, int create_as_hint);
