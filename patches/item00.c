@@ -505,7 +505,7 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
                 default:
                     break;
             }
-            if (objectLoaded) {
+            if (this->actor.params != ITEM00_HEART_PIECE || objectLoaded) {
                 Actor_OfferGetItemHook(&this->actor, play, getItemId, location, 50.0f, 20.0f, shuffled, shuffled);
             }
         }
