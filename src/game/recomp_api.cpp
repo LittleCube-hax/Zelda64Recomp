@@ -71,13 +71,22 @@ extern "C" void apRecvDeathLink() {
 }
 
 extern "C" void recomp_get_death_link_pending(uint8_t* rdram, recomp_context* ctx) {
-    fprintf(stderr, "death link is %d\n", AP_GetSlotDataInt("death_link"));
-    _return(ctx, pending_death_link && AP_GetSlotDataInt("death_link") == 1);
+    _return(ctx, pending_death_link);
 }
 
 extern "C" void recomp_reset_death_link_pending(uint8_t* rdram, recomp_context* ctx) {
     pending_death_link = false;
     AP_DeathLinkClear();
+}
+
+const char* getStr(uint8_t* rdram, PTR(char) str_ptr) {
+    u32 i = 0;
+    std::string str = "";
+    while (MEM_B(i, (gpr) str_ptr) != 0) {
+        str += MEM_B(i, (gpr) str_ptr);
+        i += 1;
+    }
+    return str.c_str();
 }
 
 extern "C" void recomp_get_death_link_enabled(uint8_t* rdram, recomp_context* ctx) {
