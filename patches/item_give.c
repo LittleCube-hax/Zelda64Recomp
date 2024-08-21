@@ -1829,7 +1829,7 @@ u8 apItemGive(u32 gi) {
                     return ITEM_NONE;
             }
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
-            if (CUR_FORM == 0) {
+            if (gSaveContext.save.playerForm == PLAYER_FORM_HUMAN) {
                 CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
             } else {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = item;

@@ -251,7 +251,7 @@ void Play_Main(GameState* thisx) {
             }
 
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
-            if (CUR_FORM == 0) {
+            if (gSaveContext.save.playerForm == PLAYER_FORM_HUMAN) {
                 CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
             } else {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_NONE;

@@ -708,7 +708,7 @@ void Sram_ResetSaveCycle(PlayState* play) {
         //SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
 
         u8 sword_level = recomp_has_item(GI_SWORD_KOKIRI);
-        if (CUR_FORM == 0) {
+        if (gSaveContext.save.playerForm == PLAYER_FORM_HUMAN) {
             if ((STOLEN_ITEM_1 <= ITEM_SWORD_GILDED && STOLEN_ITEM_1 >= ITEM_SWORD_KOKIRI) || (STOLEN_ITEM_2 <= ITEM_SWORD_GILDED && STOLEN_ITEM_2 >= ITEM_SWORD_KOKIRI)) {
                 CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + sword_level - 1;
             }
