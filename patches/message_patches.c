@@ -66,6 +66,24 @@ bool Message_ShouldAdvanceSilent(PlayState* play);
 void ShrinkWindow_Letterbox_SetSizeTarget(s32 target);
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void);
 
+typedef s32 (*MsgScriptCallback)(struct Actor* thisx, struct PlayState* play);
+
+/**
+ * Deletes the specified item
+ *
+ * Command structure:
+ *  0:(u8)  cmd
+ *  1:(s16) item
+ * Command size: 3
+ */
+s32 func_8010BC28(Actor* actor, PlayState* play, u8** script, MsgScriptCallback callback, s32* endScript) {
+    //MsgScriptCmdDeleteItem* cmd = (MsgScriptCmdDeleteItem*)*script;
+    //s16 item = SCRIPT_PACK_16(cmd->itemH, cmd->itemL);
+
+    //Inventory_DeleteItem(item, SLOT(item));
+    return false;
+}
+
 // @recomp Patched to change functionality of Double SoT.
 void Message_Update(PlayState* play) {
     static u8 D_801D0468 = 0;
