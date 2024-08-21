@@ -15,7 +15,7 @@ extern "C" void apCheckLocation(int64_t id);
 extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
 extern "C" void apRecvDeathLink();
 
-std::string version_number = "v0.1.9";
+std::string version_number = "v0.2.0";
 
 Rml::DataModelHandle model_handle;
 bool mm_rom_valid = false;
@@ -121,6 +121,14 @@ public:
 							return;
 						}
 					}
+
+					for (int i = 0; i < getNumLocalLocations(); ++i) {
+						uint64_t location_id = getLocationId(i);
+						if ((location_id & 0x0FFF00) != 0x062700 || AP_GetSlotDataInt("skullsanity") != 2) {
+							AP_QueueLocationScout(location_id);
+						}
+					}
+					AP_SendQueuedLocationScouts(0);
 				}
 				recomp::start_game(supported_games[0].game_id);
 				recompui::set_current_menu(recompui::Menu::None);

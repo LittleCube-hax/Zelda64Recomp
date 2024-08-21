@@ -83,7 +83,8 @@ int64_t AP_GetSlotDataInt(const char* key);
 std::string AP_GetSlotDataString(const char* key);
 
 // Send LocationScouts packet
-void AP_SendLocationScout(int64_t location, int create_as_hint);
+void AP_QueueLocationScout(int64_t location);
+void AP_SendQueuedLocationScouts(int create_as_hint);
 void AP_SendLocationScouts(std::vector<int64_t> locations, int create_as_hint);
 // Receive Function for LocationInfo
 void AP_SetLocationInfoCallback(void (*f_locrecv)(std::vector<AP_NetworkItem>));

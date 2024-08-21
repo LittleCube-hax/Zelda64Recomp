@@ -36,21 +36,8 @@ std::vector<int> item_i_to_player;
 bool death_link;
 bool pending_death_link;
 
-extern "C" void recompf(const char* zc_format, ...) {
-    va_list va_args;
-    va_start(va_args, zc_format);
-    
-    va_list va_args_copy;
-    va_copy(va_args_copy, va_args);
-    const int i_len = std::vsnprintf(NULL, 0, zc_format, va_args_copy);
-    va_end(va_args_copy);
-    
-    std::vector<char> zc(i_len + 1);
-    std::vsnprintf(zc.data(), zc.size(), zc_format, va_args);
-    va_end(va_args);
-    std::string str_text(zc.data(), i_len);
-    
-    OutputDebugStringA(str_text.c_str());
+extern "C" void recomp_skulltulas_enabled(uint8_t* rdram, recomp_context* ctx) {
+    _return(ctx, AP_GetSlotDataInt("skullsanity") != 2);
 }
 
 extern "C" void apClearItems() {

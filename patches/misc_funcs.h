@@ -30,5 +30,6 @@ DECLARE_FUNC(bool, recomp_get_death_link_pending);
 DECLARE_FUNC(void, recomp_reset_death_link_pending);
 DECLARE_FUNC(bool, recomp_get_death_link_enabled);
 DECLARE_FUNC(void, recomp_send_death_link);
+DECLARE_FUNC(bool, recomp_skulltulas_enabled);
 
 #endif

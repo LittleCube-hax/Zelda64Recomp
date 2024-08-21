@@ -7,7 +7,7 @@
 #define ENSI_GET_CHEST_FLAG(thisx) (((thisx)->params & 0xFC) >> 2)
 
 #define LOCATION_SKULL_TOKEN (0x060000 | (play->sceneId << 8) | ENSI_GET_CHEST_FLAG(&this->actor))
-#define GET_GI_TOKEN apGetItemId(LOCATION_SKULL_TOKEN)
+#define GET_GI_TOKEN ((recomp_skulltulas_enabled()) ? apGetItemId(LOCATION_SKULL_TOKEN) : GI_TRUE_SKULL_TOKEN)
 
 #define SPIDER_HOUSE_TOKENS_REQUIRED 30
 
@@ -126,13 +126,20 @@ void EnSi_GiveToken(EnSi* this, PlayState* play) {
 
     recomp_printf("token location: 0x%06X\n", LOCATION_SKULL_TOKEN);
     recomp_send_location(LOCATION_SKULL_TOKEN);
+    if (!recomp_skulltulas_enabled()) {
+        apItemGive(GI_TRUE_SKULL_TOKEN);
+    }
 
-    if (tokenPrevGI[chestFlag] == GI_TRUE_SKULL_TOKEN) {
+    if (recomp_skulltulas_enabled() && tokenPrevGI[chestFlag] == GI_TRUE_SKULL_TOKEN) {
         while (swamp_token_count == recomp_has_item(GI_SKULL_TOKEN));
     }
 
     Message_StartTextbox(play, getTextId(tokenPrevGI[chestFlag]), NULL);
-    Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
+    if (Inventory_GetSkullTokenCount(0x27) >= SPIDER_HOUSE_TOKENS_REQUIRED) {
+        Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+    } else {
+        Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);
+    }
 
     this->actionFunc = EnSi_TokenCollected;
 }
@@ -185,7 +192,7 @@ void EnSi_Init(Actor* thisx, PlayState* play) {
     EnSi* this = THIS;
     s32 chestFlag = ENSI_GET_CHEST_FLAG(&this->actor);
 
-    if (recomp_location_is_checked(LOCATION_SKULL_TOKEN)) {
+    if (recomp_skulltulas_enabled() && recomp_location_is_checked(LOCATION_SKULL_TOKEN)) {
         Actor_Kill(thisx);
         return;
     }

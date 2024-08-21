@@ -77,7 +77,7 @@ void EnSth_GetInitialSwampSpiderHouseText(EnSth* this, PlayState* play) {
             nextTextId = 0x918; // I've had enough of this, going home
         }
         EnSth_ChangeAnim(this, STH_ANIM_TALK);
-    } else if (Inventory_GetSkullTokenCount(play->sceneId) >= 30) {
+    } else if (Inventory_GetSkullTokenCount(0x27) >= 30) {
         if (recomp_location_is_checked(GI_MASK_TRUTH)) {
             this->sthFlags |= STH_FLAG_SWAMP_SPIDER_HOUSE_SAVED;
             nextTextId = 0x919; // I've been saved!

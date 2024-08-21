@@ -54,10 +54,6 @@ void Message_OpenText(PlayState* play, u16 textId) {
         textId = 0x75;
     }
 
-    if (textId == 0x75 && Inventory_GetSkullTokenCount(play->sceneId) >= 30) {
-        textId = 0xFC;
-    }
-
     if (play->msgCtx.msgMode == MSGMODE_NONE) {
         gSaveContext.prevHudVisibility = gSaveContext.hudVisibility;
     }
@@ -211,11 +207,19 @@ void Message_OpenText(PlayState* play, u16 textId) {
 
     if (msg == sht_msg) {
         u8 count_str[128] = "\x11This is your \xbf";
+        u8 count_done_str[128] = "\x11You've found all of them!\xbf";
+        u8* count_msg = count_str;
+        if (Inventory_GetSkullTokenCount(0x27) >= 30) {
+            count_msg = count_done_str;
+        }
         u8 end_i = i + 11;
         for (i = 0; i < 128; ++i) {
             font->msgBuf.schar[end_i + i] = count_str[i];
             if (count_str[i] == 0xBF) {
-                u8 swamp_token_count = recomp_has_item(GI_SKULL_TOKEN);
+                if (count_msg == count_done_str) {
+                    break;
+                }
+                u8 swamp_token_count = ((recomp_skulltulas_enabled()) ? recomp_has_item(GI_SKULL_TOKEN) : Inventory_GetSkullTokenCount(0x27));
                 u8 count_suffix[2] = "th";
                 if ((swamp_token_count % 10) == 1 && swamp_token_count != 11) {
                     count_suffix[0] = 's';
