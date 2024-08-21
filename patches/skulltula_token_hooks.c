@@ -116,7 +116,7 @@ void EnSi_TokenCollected(EnSi* this, PlayState* play) {
 void EnSi_GiveToken(EnSi* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     s32 chestFlag = ENSI_GET_CHEST_FLAG(&this->actor);
-    u8 swamp_token_count = recomp_has_item(GI_SKULL_TOKEN);
+    u8 swamp_token_count = (recomp_skulltulas_enabled() ? recomp_has_item(GI_SKULL_TOKEN) : Inventory_GetSkullTokenCount(0x27));
 
     if ((chestFlag < 0x20) && (chestFlag >= 0)) {
         Flags_SetTreasure(play, chestFlag);
@@ -130,8 +130,8 @@ void EnSi_GiveToken(EnSi* this, PlayState* play) {
         apItemGive(GI_TRUE_SKULL_TOKEN);
     }
 
-    if (recomp_skulltulas_enabled() && tokenPrevGI[chestFlag] == GI_TRUE_SKULL_TOKEN) {
-        while (swamp_token_count == recomp_has_item(GI_SKULL_TOKEN));
+    if (tokenPrevGI[chestFlag] == GI_TRUE_SKULL_TOKEN) {
+        while (swamp_token_count == (recomp_skulltulas_enabled() ? recomp_has_item(GI_SKULL_TOKEN) : Inventory_GetSkullTokenCount(0x27)));
     }
 
     Message_StartTextbox(play, getTextId(tokenPrevGI[chestFlag]), NULL);

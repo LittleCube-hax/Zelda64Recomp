@@ -214,8 +214,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
         }
         u8 end_i = i + 11;
         for (i = 0; i < 128; ++i) {
-            font->msgBuf.schar[end_i + i] = count_str[i];
-            if (count_str[i] == 0xBF) {
+            font->msgBuf.schar[end_i + i] = count_msg[i];
+            if (count_msg[i] == 0xBF) {
                 if (count_msg == count_done_str) {
                     break;
                 }
