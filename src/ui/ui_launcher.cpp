@@ -122,12 +122,15 @@ public:
 						}
 					}
 
+					while (!AP_GetDataPkgReceived());
+
 					for (int i = 0; i < getNumLocalLocations(); ++i) {
 						uint64_t location_id = getLocationId(i);
 						if ((location_id & 0x0FFF00) != 0x062700 || AP_GetSlotDataInt("skullsanity") != 2) {
 							AP_QueueLocationScout(location_id);
 						}
 					}
+
 					AP_SendQueuedLocationScouts(0);
 				}
 				recomp::start_game(supported_games[0].game_id);

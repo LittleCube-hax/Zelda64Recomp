@@ -82,6 +82,8 @@ void AP_RegisterSlotDataRawCallback(std::string, void (*f_slotdata)(std::string)
 int64_t AP_GetSlotDataInt(const char* key);
 std::string AP_GetSlotDataString(const char* key);
 
+bool AP_GetDataPkgReceived();
+
 // Send LocationScouts packet
 void AP_QueueLocationScout(int64_t location);
 void AP_SendQueuedLocationScouts(int create_as_hint);
