@@ -1733,8 +1733,15 @@ u8 apItemGive(u32 gi) {
             break;
 
         case 0x020000:
-            gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
-            gSaveContext.magicFillTarget = MAGIC_NORMAL_METER;
+            switch (gi & 0xFF) {
+                case 0x00:
+                    gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
+                    gSaveContext.magicFillTarget = MAGIC_NORMAL_METER;
+                    break;
+                case 0x01:
+                    SET_WEEKEVENTREG(PACK_WEEKEVENTREG_FLAG(23, 0x02));
+                    break;
+            }
             return ITEM_NONE;
         case 0x040000:
             item = gi & 0xFF;
