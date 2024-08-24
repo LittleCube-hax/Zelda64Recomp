@@ -15,7 +15,7 @@ extern "C" void apCheckLocation(int64_t id);
 extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
 extern "C" void apRecvDeathLink();
 
-std::string version_number = "v0.2.0";
+std::string version_number = "v0.2.1";
 
 Rml::DataModelHandle model_handle;
 bool mm_rom_valid = false;
