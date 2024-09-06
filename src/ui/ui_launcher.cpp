@@ -9,13 +9,9 @@
 
 #include "Archipelago.h"
 
-extern "C" void apClearItems();
-extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify);
-extern "C" void apCheckLocation(int64_t id);
-extern "C" void apSetItems(std::vector<AP_NetworkItem> items);
 extern "C" void apRecvDeathLink();
 
-std::string version_number = "v0.2.1";
+std::string version_number = "v0.2.2";
 
 Rml::DataModelHandle model_handle;
 bool mm_rom_valid = false;
@@ -103,10 +99,8 @@ public:
 					getline(apconnect, password);
 
 					AP_Init(address.c_str(), "Majora's Mask Recompiled", playerName.c_str(), password.c_str());
+					//AP_Init("apsolostartinventory.json");
 
-					AP_SetItemClearCallback(apClearItems);
-					AP_SetItemRecvCallback(apRecvItem);
-					AP_SetLocationCheckedCallback(apCheckLocation);
 					AP_SetDeathLinkRecvCallback(apRecvDeathLink);
 					AP_SetDeathLinkSupported(true);
 
@@ -122,15 +116,16 @@ public:
 						}
 					}
 
-					while (!AP_GetDataPkgReceived());
-
-					for (int i = 0; i < getNumLocalLocations(); ++i) {
-						uint64_t location_id = getLocationId(i);
-						if ((location_id & 0x0FFF00) != 0x062700 || AP_GetSlotDataInt("skullsanity") != 2) {
-							AP_QueueLocationScout(location_id);
+					AP_QueueLocationScoutsAll();
+					if (AP_GetSlotDataInt("skullsanity") == 2) {
+						for (int i = 0x062700; i <= 0x06271E; ++i) {
+							if (i == 0x062703) {
+								continue;
+							}
+							uint64_t location_id = 0x34769420000000 | i;
+							AP_RemoveQueuedLocationScout(location_id);
 						}
 					}
-
 					AP_SendQueuedLocationScouts(0);
 				}
 				recomp::start_game(supported_games[0].game_id);

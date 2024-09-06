@@ -28,29 +28,15 @@
 #define GI_AP_FILLER GI_90
 #define GI_AP_USEFUL GI_B3
 
-std::vector<u32> items;
-std::vector<u32> locations;
-
 std::vector<int> item_i_to_player;
 
 bool death_link;
 bool pending_death_link;
 
+bool pending_clear_items = false;
+
 extern "C" void recomp_skulltulas_enabled(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, AP_GetSlotDataInt("skullsanity") != 2);
-}
-
-extern "C" void apClearItems() {
-    
-}
-
-extern "C" void apRecvItem(int64_t id, int sending_player_id, bool notify) {
-    items.push_back(id & 0xFFFFFF);
-    item_i_to_player.push_back(sending_player_id);
-}
-
-extern "C" void apCheckLocation(int64_t id) {
-    locations.push_back(id & 0xFFFFFF);
 }
 
 extern "C" void apRecvDeathLink() {
@@ -86,8 +72,9 @@ extern "C" void recomp_send_death_link(uint8_t* rdram, recomp_context* ctx) {
 
 u32 apHasItem(int64_t itemId) {
     u32 count = 0;
-    for (u32 i = 0; i < items.size(); ++i) {
-        if (items[i] == itemId) {
+    u32 items_size = AP_GetReceivedItemsSize();
+    for (u32 i = 0; i < items_size; ++i) {
+        if (AP_GetReceivedItem(i) == itemId) {
             count += 1;
         }
     }
@@ -104,8 +91,8 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
 
     int64_t location = 0x34769420000000 | arg;
 
-    if (getLocationHasLocalItem(location)) {
-        int64_t item = getItemAtLocation(location) & 0xFFFFFF;
+    if (AP_GetLocationHasLocalItem(location)) {
+        int64_t item = AP_GetItemAtLocation(location) & 0xFFFFFF;
 
         if ((item & 0xFF0000) == 0x000000) {
             u8 gi = item & 0xFF;
@@ -133,62 +120,69 @@ extern "C" void apGetItemId(uint8_t* rdram, recomp_context* ctx) {
                 _return(ctx, (u32) GI_B2);
                 return;
             case 0x020000:
-                _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
+                switch (item & 0xFF) {
+                    case 0x00:
+                        _return(ctx, (u32) GI_MAGIC_JAR_SMALL);
+                        return;
+                    case 0x01:
+                        _return(ctx, (u32) GI_SWORD_KOKIRI);
+                        return;
+                }
                 return;
             case 0x040000:
                 switch (item & 0xFF) {
                     case ITEM_SONG_TIME:
                         _return(ctx, (u32) GI_A6);
-                        break;
+                        return;
                     case ITEM_SONG_HEALING:
                         _return(ctx, (u32) GI_AF);
-                        break;
+                        return;
                     case ITEM_SONG_EPONA:
                         _return(ctx, (u32) GI_A5);
-                        break;
+                        return;
                     case ITEM_SONG_SOARING:
                         _return(ctx, (u32) GI_A3);
-                        break;
+                        return;
                     case ITEM_SONG_STORMS:
                         _return(ctx, (u32) GI_A2);
-                        break;
+                        return;
                     case ITEM_SONG_SONATA:
                         _return(ctx, (u32) GI_AE);
-                        break;
+                        return;
                     case ITEM_SONG_LULLABY:
                         _return(ctx, (u32) GI_AD);
-                        break;
+                        return;
                     case ITEM_SONG_NOVA:
                         _return(ctx, (u32) GI_AC);
-                        break;
+                        return;
                     case ITEM_SONG_ELEGY:
                         _return(ctx, (u32) GI_A8);
-                        break;
+                        return;
                     case ITEM_SONG_OATH:
                         _return(ctx, (u32) GI_A7);
-                        break;
+                        return;
                 }
                 return;
             case 0x090000:
                 switch (item & 0xFF) {
                     case ITEM_DUNGEON_MAP:
                         _return(ctx, (u32) GI_MAP);
-                        break;
+                        return;
                     case ITEM_COMPASS:
                         _return(ctx, (u32) GI_COMPASS);
-                        break;
+                        return;
                     case ITEM_KEY_BOSS:
                         _return(ctx, (u32) GI_KEY_BOSS);
-                        break;
+                        return;
                     case ITEM_KEY_SMALL:
                         _return(ctx, (u32) GI_KEY_SMALL);
-                        break;
+                        return;
                 }
                 return;
         }
     }
 
-    switch (getLocationItemType(location)) {
+    switch (AP_GetLocationItemType(location)) {
         case ITEM_TYPE_FILLER:
             _return(ctx, (u32) GI_AP_FILLER);
             return;
@@ -206,12 +200,12 @@ extern "C" void apSay(uint8_t* rdram, recomp_context* ctx) {
 }
 
 extern "C" void recomp_get_items_size(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, ((u32) items.size()));
+    _return(ctx, ((u32) AP_GetReceivedItemsSize()));
 }
 
 extern "C" void recomp_get_item(uint8_t* rdram, recomp_context* ctx) {
     u32 items_i = _arg<0, u32>(rdram, ctx);
-    _return(ctx, ((u32) items[items_i]));
+    _return(ctx, ((u32) AP_GetReceivedItem(items_i)));
 }
 
 extern "C" void recomp_get_item_foreign(uint8_t* rdram, recomp_context* ctx) {
@@ -219,91 +213,24 @@ extern "C" void recomp_get_item_foreign(uint8_t* rdram, recomp_context* ctx) {
     _return(ctx, item_i_to_player[items_i] != AP_GetPlayerID());
 }
 
-extern "C" void recomp_get_locations_size(uint8_t* rdram, recomp_context* ctx) {
-    _return(ctx, ((u32) locations.size()));
-}
-
-extern "C" void recomp_get_location(uint8_t* rdram, recomp_context* ctx) {
-    u32 locations_i = _arg<0, u32>(rdram, ctx);
-    _return(ctx, ((u32) locations[locations_i]));
-}
-
 extern "C" void recomp_has_item(uint8_t* rdram, recomp_context* ctx) {
-    u32 id = _arg<0, u32>(rdram, ctx);
-    _return(ctx, apHasItem(id));
+    u32 arg = _arg<0, u32>(rdram, ctx);
+    int64_t location_id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
+    _return(ctx, apHasItem(location_id));
 }
 
 extern "C" void recomp_send_location(uint8_t* rdram, recomp_context* ctx) {
     u32 arg = _arg<0, u32>(rdram, ctx);
-    if (std::find(locations.begin(), locations.end(), arg) == locations.end()) {
-        int64_t id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
-        AP_SendItem(id);
+    int64_t location_id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
+    if (!AP_GetLocationIsChecked(location_id)) {
+        AP_SendItem(location_id);
     }
 }
 
 extern "C" void recomp_location_is_checked(uint8_t* rdram, recomp_context* ctx) {
-    u32 id = _arg<0, u32>(rdram, ctx);
-    _return(ctx, std::find(locations.begin(), locations.end(), id) != locations.end());
-}
-
-extern "C" void recomp_get_items_index(uint8_t* rdram, recomp_context* ctx) {
-    u8 file_no = _arg<0, u8>(rdram, ctx);
-    u32 items_index = _arg<1, u32>(rdram, ctx);
-
-    std::ifstream read_index_file("ap_save_indices.txt");
-
-    if (!read_index_file.good()) {
-        _return(ctx, 0);
-        return;
-    }
-
-    std::string line;
-
-    getline(read_index_file, line);
-    if (file_no == 0) {
-        _return(ctx, (u32) stol(line));
-        return;
-    }
-
-    getline(read_index_file, line);
-    _return(ctx, (u32) stol(line));
-}
-
-extern "C" void recomp_save_items_index(uint8_t* rdram, recomp_context* ctx) {
-    u8 file_no = _arg<0, u8>(rdram, ctx);
-    u32 items_index = _arg<1, u32>(rdram, ctx);
-
-    std::ifstream read_index_file("ap_save_indices.txt");
-
-    u32 index0 = 0;
-    u32 index1 = 0;
-
-    if (read_index_file.good()) {
-        std::string line;
-
-        getline(read_index_file, line);
-        if (file_no == 1) {
-            index0 = stol(line);
-        }
-
-        getline(read_index_file, line);
-        if (file_no == 0) {
-            index1 = stol(line);
-        }
-    }
-
-    if (file_no == 0) {
-        index0 = items_index;
-    } else {
-        index1 = items_index;
-    }
-
-    read_index_file.close();
-
-    std::ofstream write_index_file("ap_save_indices.txt", std::ofstream::trunc);
-
-    write_index_file << index0 << std::endl << index1 << std::endl;
-    write_index_file.close();
+    u32 arg = _arg<0, u32>(rdram, ctx);
+    int64_t location_id = ((int64_t) (((int64_t) 0x34769420000000) | ((int64_t) arg)));
+    _return(ctx, AP_GetLocationIsChecked(location_id));
 }
 
 extern "C" void recomp_complete_goal(uint8_t* rdram, recomp_context* ctx) {

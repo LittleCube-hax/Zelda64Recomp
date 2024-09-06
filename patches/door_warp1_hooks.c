@@ -85,6 +85,35 @@ s32 func_808B849C(DoorWarp1* this, PlayState* play) {
     }
     return ret;
 }
+
+void func_808B9CE8(DoorWarp1* this, PlayState* play);
+void func_808B9F10(DoorWarp1* this, PlayState* play);
+
+void func_808B9BE8(DoorWarp1* this, PlayState* play) {
+    Actor_PlaySfx(&this->dyna.actor, NA_SE_EV_WARP_HOLE - SFX_FLAG);
+    Math_SmoothStepToF(&this->unk_1B0, 255.0f, 0.2f, 2.0f, 0.1f);
+    Math_SmoothStepToF(&this->unk_1B4, 255.0f, 0.2f, 2.0f, 0.1f);
+    if (this->unk_1C4 < 10) {
+        this->unk_1C4 += 2;
+    }
+
+    if (this->unk_1C6 < 120) {
+        this->unk_1C6 += 4;
+    }
+
+    if (this->unk_1C8 < 230) {
+        this->unk_1C8 += 4;
+        return;
+    }
+
+    this->dyna.actor.parent = NULL;
+    if (func_808B849C(this, play)) {
+        //this->unk_202 = 1;
+        DoorWarp1_SetupAction(this, func_808B9CE8);
+    } else {
+        DoorWarp1_SetupAction(this, func_808B9F10);
+    }
+}
 /*
 void func_808B9CE8(DoorWarp1* this, PlayState* play) {
     if (this->unk_203 != 0) {

@@ -86,8 +86,11 @@ bool AP_GetDataPkgReceived();
 
 // Send LocationScouts packet
 void AP_QueueLocationScout(int64_t location);
+void AP_RemoveQueuedLocationScout(int64_t location);
+void AP_QueueLocationScoutsAll();
 void AP_SendQueuedLocationScouts(int create_as_hint);
-void AP_SendLocationScouts(std::vector<int64_t> locations, int create_as_hint);
+void AP_SendLocationScoutsAll(int create_as_hint);
+void AP_SendLocationScouts(std::set<int64_t> locations, int create_as_hint);
 // Receive Function for LocationInfo
 void AP_SetLocationInfoCallback(void (*f_locrecv)(std::vector<AP_NetworkItem>));
 
@@ -98,16 +101,14 @@ void AP_SendItem(int64_t location);
 void AP_SendItem(std::set<int64_t> const& locations);
 
 // Gives all Items/Locations in current game
-int64_t getItemAtLocation(int64_t location_id);
-bool getLocationHasLocalItem(int64_t location_id);
-AP_ItemType getLocationItemType(int64_t location_id);
-std::string getItemName(std::string game, int64_t id);
-std::string getLocationName(std::string game, int64_t id);
-int64_t getItemId(size_t item_i);
-int64_t getLocationId(size_t location_i);
-
-size_t getNumLocalItems();
-size_t getNumLocalLocations();
+bool AP_GetLocationIsChecked(int64_t location_idx);
+size_t AP_GetReceivedItemsSize();
+int64_t AP_GetReceivedItem(size_t item_idx);
+int64_t AP_GetItemAtLocation(int64_t location_id);
+bool AP_GetLocationHasLocalItem(int64_t location_id);
+AP_ItemType AP_GetLocationItemType(int64_t location_id);
+std::string AP_GetItemName(std::string game, int64_t id);
+std::string AP_GetLocationName(std::string game, int64_t id);
 
 // Called when Story completed, sends StatusUpdate
 void AP_StoryComplete();

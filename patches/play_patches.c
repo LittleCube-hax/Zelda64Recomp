@@ -1,5 +1,6 @@
 #include "play_patches.h"
 #include "z64debug_display.h"
+#include "z64.h"
 #include "input.h"
 
 #include "misc_funcs.h"
@@ -208,6 +209,7 @@ u32 old_items_size = 0;
 bool playing = false;
 bool initItems = false;
 bool waiting_death_link = false;
+bool sending_death_link = false;
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId);
 
@@ -218,6 +220,10 @@ void controls_play_update(PlayState* play) {
 void Play_KillPlayer() {
     gSaveContext.save.saveInfo.playerData.health = 0;
 }
+
+extern SavePlayerData sSaveDefaultPlayerData;
+extern ItemEquips sSaveDefaultItemEquips;
+extern Inventory sSaveDefaultInventory;
 
 // @recomp Patched to add hooks for various added functionality.
 void Play_Main(GameState* thisx) {
@@ -341,7 +347,7 @@ void Play_Main(GameState* thisx) {
         }
 
         if (recomp_get_death_link_enabled()) {
-            if (recomp_get_death_link_pending()) {
+            if (recomp_get_death_link_pending() && this->pauseCtx.state == 0) {
                 if (!waiting_death_link) {
                     Play_KillPlayer();
                     waiting_death_link = true;
@@ -349,8 +355,11 @@ void Play_Main(GameState* thisx) {
                     recomp_reset_death_link_pending();
                     waiting_death_link = false;
                 }
-            } else if (!waiting_death_link && gSaveContext.save.saveInfo.playerData.health == 0) {
+            } else if (!waiting_death_link && !sending_death_link && gSaveContext.save.saveInfo.playerData.health == 0) {
                 recomp_send_death_link();
+                sending_death_link = true;
+            } else if (sending_death_link && gSaveContext.save.saveInfo.playerData.health > 0) {
+                sending_death_link = false;
             }
         }
     }
